@@ -1,0 +1,896 @@
+/* ==========================================
+   GENERAL
+========================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f4f7fb;
+
+    color: #1f2937;
+
+    min-height: 100vh;
+}
+
+
+.game-container {
+
+    max-width: 1100px;
+
+    margin: auto;
+
+    padding: 30px;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 30px;
+}
+
+
+header h1 {
+
+    font-size: 32px;
+}
+
+
+header p {
+
+    margin-top: 6px;
+
+    color: #6b7280;
+}
+
+
+.money-display {
+
+    background: white;
+
+    padding: 14px 22px;
+
+    border-radius: 14px;
+
+    text-align: right;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.06);
+}
+
+
+.money-display span {
+
+    display: block;
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+.money-display strong {
+
+    font-size: 24px;
+}
+
+
+/* ==========================================
+   SCREEN
+========================================== */
+
+.screen {
+
+    background: white;
+
+    border-radius: 22px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,0.06);
+}
+
+
+.hidden {
+
+    display: none !important;
+}
+
+
+/* ==========================================
+   MONTH BANNER
+========================================== */
+
+.level-banner {
+
+    text-align: center;
+
+    margin-bottom: 25px;
+}
+
+
+.level-number {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    color: #2563eb;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 8px;
+}
+
+
+.level-banner h2 {
+
+    font-size: 32px;
+
+    margin-bottom: 8px;
+}
+
+
+.level-banner p {
+
+    color: #6b7280;
+
+    max-width: 600px;
+
+    margin: auto;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   PAYCHECK
+========================================== */
+
+.intro-card {
+
+    text-align: center;
+
+    margin-bottom: 30px;
+}
+
+
+.paycheck {
+
+    display: inline-flex;
+
+    flex-direction: column;
+
+    background: #eefbf3;
+
+    padding: 20px 55px;
+
+    border-radius: 16px;
+}
+
+
+.paycheck span {
+
+    font-size: 14px;
+
+    color: #5c6b63;
+}
+
+
+.paycheck strong {
+
+    font-size: 38px;
+
+    margin-top: 5px;
+}
+
+
+/* ==========================================
+   COMMITMENTS
+========================================== */
+
+.commitments-section {
+
+    background: #f8fafc;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    margin-bottom: 30px;
+}
+
+
+.commitments-section h3 {
+
+    margin-bottom: 5px;
+}
+
+
+.commitments-section > p {
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    margin-bottom: 15px;
+}
+
+
+#commitments-list {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 10px;
+}
+
+
+.commitment {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 12px;
+
+    text-align: center;
+
+    border: 1px solid #e5e7eb;
+}
+
+
+.commitment-icon {
+
+    font-size: 25px;
+
+    display: block;
+
+    margin-bottom: 5px;
+}
+
+
+.commitment-name {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+
+.commitment-amount {
+
+    display: block;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    margin-top: 4px;
+}
+
+
+/* ==========================================
+   TITLES
+========================================== */
+
+.section-title {
+
+    text-align: center;
+
+    margin-bottom: 8px;
+}
+
+
+.instruction {
+
+    text-align: center;
+
+    color: #6b7280;
+
+    margin-bottom: 25px;
+}
+
+
+/* ==========================================
+   BUCKET GRID
+========================================== */
+
+.buckets {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 18px;
+}
+
+
+/* ==========================================
+   SETUP BUCKET
+========================================== */
+
+.bucket {
+
+    border: 2px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    text-align: center;
+
+    background: white;
+
+    transition: 0.2s;
+}
+
+
+.bucket:hover {
+
+    transform: translateY(-2px);
+
+    border-color: #2563eb;
+}
+
+
+.bucket-icon {
+
+    font-size: 38px;
+
+    margin-bottom: 10px;
+}
+
+
+.bucket h3 {
+
+    margin-bottom: 12px;
+}
+
+
+.bucket p {
+
+    font-size: 13px;
+
+    color: #6b7280;
+
+    margin-top: 8px;
+}
+
+
+.bucket input {
+
+    width: 100%;
+
+    padding: 10px;
+
+    border: 2px solid #d1d5db;
+
+    border-radius: 10px;
+
+    font-size: 18px;
+
+    text-align: center;
+}
+
+
+/* ==========================================
+   SUMMARY
+========================================== */
+
+.budget-summary {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 60px;
+
+    margin: 30px 0;
+
+    text-align: center;
+}
+
+
+.budget-summary span {
+
+    display: block;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+.budget-summary strong {
+
+    font-size: 26px;
+}
+
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+button {
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 14px 26px;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+button:hover {
+
+    transform: translateY(-2px);
+}
+
+
+#start-month-btn,
+#next-month-btn {
+
+    display: block;
+
+    margin: auto;
+
+    background: #2563eb;
+
+    color: white;
+}
+
+
+#start-month-btn:disabled {
+
+    background: #cbd5e1;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* ==========================================
+   MONTH HEADER
+========================================== */
+
+.month-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+}
+
+
+.eyebrow {
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    color: #2563eb;
+
+    letter-spacing: 1px;
+}
+
+
+.progress {
+
+    width: 250px;
+}
+
+
+.progress span {
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+.progress-bar {
+
+    height: 8px;
+
+    background: #e5e7eb;
+
+    border-radius: 10px;
+
+    margin-top: 7px;
+
+    overflow: hidden;
+}
+
+
+#progress-fill {
+
+    height: 100%;
+
+    width: 0%;
+
+    background: #2563eb;
+
+    transition: width 0.3s;
+}
+
+
+/* ==========================================
+   EXPENSE
+========================================== */
+
+.expense-card {
+
+    text-align: center;
+
+    background: #f8fafc;
+
+    border-radius: 20px;
+
+    padding: 30px;
+
+    margin-bottom: 30px;
+}
+
+
+.expense-icon {
+
+    font-size: 55px;
+}
+
+
+.expense-card h2 {
+
+    margin: 10px 0;
+}
+
+
+.expense-card p {
+
+    color: #6b7280;
+}
+
+
+.expense-amount {
+
+    font-size: 32px;
+
+    font-weight: bold;
+
+    margin-top: 15px;
+}
+
+
+.choose-title {
+
+    text-align: center;
+
+    margin-bottom: 18px;
+}
+
+
+/* ==========================================
+   GAME BUCKETS
+========================================== */
+
+.game-bucket {
+
+    background: white;
+
+    border: 2px solid #e5e7eb;
+
+    padding: 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    transition: 0.2s;
+}
+
+
+.game-bucket:hover {
+
+    border-color: #2563eb;
+
+    transform:
+        translateY(-3px);
+}
+
+
+.game-bucket .bucket-name {
+
+    font-weight: bold;
+}
+
+
+.game-bucket strong {
+
+    margin-top: 8px;
+
+    font-size: 22px;
+}
+
+
+/* ==========================================
+   MESSAGES
+========================================== */
+
+.message {
+
+    text-align: center;
+
+    min-height: 25px;
+
+    margin-top: 18px;
+
+    font-weight: bold;
+}
+
+
+/* ==========================================
+   END SCREEN
+========================================== */
+
+.end-card {
+
+    text-align: center;
+}
+
+
+.celebration {
+
+    font-size: 65px;
+}
+
+
+.end-card h2 {
+
+    font-size: 34px;
+
+    margin: 10px 0;
+}
+
+
+.end-card > p {
+
+    color: #6b7280;
+
+    margin-bottom: 30px;
+}
+
+
+/* ==========================================
+   RESULTS
+========================================== */
+
+.results {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 35px;
+}
+
+
+.results div {
+
+    background: #f8fafc;
+
+    padding: 20px;
+
+    border-radius: 15px;
+}
+
+
+.results span {
+
+    display: block;
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+.results strong {
+
+    display: block;
+
+    margin-top: 8px;
+
+    font-size: 22px;
+}
+
+
+/* ==========================================
+   WELLNESS
+========================================== */
+
+.wellness {
+
+    max-width: 500px;
+
+    margin:
+        auto auto 30px;
+}
+
+
+.wellness-bar {
+
+    height: 20px;
+
+    background: #e5e7eb;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    margin: 12px 0;
+}
+
+
+#wellness-fill {
+
+    height: 100%;
+
+    width: 0%;
+
+    background: #22c55e;
+
+    transition: width 1s;
+}
+
+
+#wellness-score {
+
+    font-size: 24px;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 900px) {
+
+    .buckets {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    #commitments-list {
+
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+
+    .results {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .game-container {
+
+        padding: 15px;
+    }
+
+
+    .screen {
+
+        padding: 20px;
+    }
+
+
+    .buckets {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    #commitments-list {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+
+    .money-display {
+
+        width: 100%;
+
+        text-align: left;
+    }
+
+
+    .month-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+
+    .progress {
+
+        width: 100%;
+    }
+
+
+    .budget-summary {
+
+        gap: 25px;
+    }
+
+
+    .results {
+
+        grid-template-columns:
+            1fr;
+    }
+}

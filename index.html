@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Budget Builder</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+<div class="game-container">
+
+
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
+
+    <header>
+
+        <div>
+
+            <h1>💰 Budget Builder</h1>
+
+            <p id="game-subtitle">
+                Can you make it through the month?
+            </p>
+
+        </div>
+
+
+        <div class="money-display">
+
+            <span>Money Available</span>
+
+            <strong id="available-money">
+                $1,000
+            </strong>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ==========================================
+         SETUP SCREEN
+    =========================================== -->
+
+    <section id="setup-screen" class="screen">
+
+
+        <div class="level-banner">
+
+            <div class="level-number">
+                MONTH <span id="month-number">1</span>
+            </div>
+
+            <h2 id="month-title">
+                Your First Paycheck
+            </h2>
+
+            <p id="month-description">
+                You've got your first paycheck.
+                Now decide where every dollar should go.
+            </p>
+
+        </div>
+
+
+
+        <!-- PAYCHECK -->
+
+        <div class="intro-card">
+
+            <div class="paycheck">
+
+                <span>
+                    Monthly Paycheck
+                </span>
+
+                <strong id="paycheck-amount">
+                    $1,000
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- RECURRING EXPENSES -->
+
+        <div
+            id="commitments-section"
+            class="commitments-section hidden"
+        >
+
+            <h3>
+                🔄 Monthly Commitments
+            </h3>
+
+            <p>
+                These expenses happen every month.
+            </p>
+
+            <div id="commitments-list"></div>
+
+        </div>
+
+
+
+        <!-- BUCKET SECTION -->
+
+        <h2 class="section-title">
+            🪣 Build Your Budget
+        </h2>
+
+        <p class="instruction">
+            Decide how much money you want in each bucket.
+        </p>
+
+
+
+        <!-- BUCKETS -->
+
+        <div
+            id="setup-buckets"
+            class="buckets setup-buckets"
+        >
+
+            <!-- BUCKETS CREATED BY JAVASCRIPT -->
+
+        </div>
+
+
+
+        <!-- SUMMARY -->
+
+        <div class="budget-summary">
+
+
+            <div>
+
+                <span>
+                    Allocated
+                </span>
+
+                <strong id="allocated-money">
+                    $0
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Remaining
+                </span>
+
+                <strong id="remaining-money">
+                    $1,000
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+
+        <button
+            id="start-month-btn"
+            disabled
+        >
+            Start Month 1
+        </button>
+
+
+        <p
+            id="budget-message"
+            class="message"
+        ></p>
+
+
+    </section>
+
+
+
+    <!-- ==========================================
+         MONTH GAME SCREEN
+    =========================================== -->
+
+    <section
+        id="month-screen"
+        class="screen hidden"
+    >
+
+
+        <!-- MONTH HEADER -->
+
+        <div class="month-header">
+
+
+            <div>
+
+                <p class="eyebrow">
+                    MONTH <span id="game-month-number">1</span>
+                </p>
+
+                <h2>
+                    Live Your Month
+                </h2>
+
+            </div>
+
+
+            <div class="progress">
+
+                <span id="expense-progress">
+                    Expense 1 of 1
+                </span>
+
+
+                <div class="progress-bar">
+
+                    <div
+                        id="progress-fill"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- EXPENSE -->
+
+        <div class="expense-card">
+
+
+            <div
+                id="expense-icon"
+                class="expense-icon"
+            >
+                🍔
+            </div>
+
+
+            <h2 id="expense-title">
+                Fast Food
+            </h2>
+
+
+            <p id="expense-description">
+                You grabbed food with friends.
+            </p>
+
+
+            <div
+                id="expense-amount"
+                class="expense-amount"
+            >
+                -$15
+            </div>
+
+
+        </div>
+
+
+
+        <h3 class="choose-title">
+            Which bucket should pay for this?
+        </h3>
+
+
+
+        <!-- GAME BUCKETS -->
+
+        <div
+            id="game-buckets"
+            class="buckets gameplay-buckets"
+        >
+
+            <!-- CREATED BY JAVASCRIPT -->
+
+        </div>
+
+
+        <p
+            id="expense-message"
+            class="message"
+        ></p>
+
+
+    </section>
+
+
+
+    <!-- ==========================================
+         END OF MONTH SCREEN
+    =========================================== -->
+
+    <section
+        id="end-screen"
+        class="screen hidden"
+    >
+
+
+        <div class="end-card">
+
+
+            <div class="celebration">
+                🎉
+            </div>
+
+
+            <h2>
+                Month <span id="completed-month">1</span> Complete!
+            </h2>
+
+
+            <p id="end-message">
+                You made it through the month.
+            </p>
+
+
+
+            <!-- RESULTS -->
+
+            <div class="results">
+
+
+                <div>
+
+                    <span>
+                        Starting Income
+                    </span>
+
+                    <strong id="total-income">
+                        $1,000
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Total Spent
+                    </span>
+
+                    <strong id="total-spent">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Money Remaining
+                    </span>
+
+                    <strong id="money-remaining">
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Saved
+                    </span>
+
+                    <strong id="final-savings">
+                        $0
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- WELLNESS -->
+
+            <div class="wellness">
+
+                <h3>
+                    Financial Wellness
+                </h3>
+
+
+                <div class="wellness-bar">
+
+                    <div
+                        id="wellness-fill"
+                    ></div>
+
+                </div>
+
+
+                <strong id="wellness-score">
+                    0%
+                </strong>
+
+            </div>
+
+
+
+            <!-- NEXT MONTH BUTTON -->
+
+            <button
+                id="next-month-btn"
+            >
+                Start Month 2
+            </button>
+
+
+        </div>
+
+
+    </section>
+
+
+</div>
+
+
+
+<script src="game.js"></script>
+
+</body>
+
+</html>
