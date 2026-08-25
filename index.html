@@ -7,6 +7,10 @@
 
     <title>Budget Builder</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,9 +26,27 @@
 
     <header>
 
-        <div>
+        <div class="header-left">
 
-            <h1>💰 Budget Builder</h1>
+            <!-- Shows once images/color-logo.png exists in this
+                 folder — hidden/removed otherwise, no code change
+                 needed when Kayla drops the file in. Sits directly
+                 on the header's light blue background, no box. -->
+            <img
+                id="brand-logo"
+                class="brand-logo hidden"
+                src="images/color-logo.png"
+                alt="Securityplus Federal Credit Union"
+                onload="this.classList.remove('hidden')"
+                onerror="this.remove()"
+            >
+
+        </div>
+
+
+        <div class="header-center">
+
+            <h1>Budget Builder</h1>
 
             <p id="game-subtitle">
                 Can you make it through the month?
@@ -33,13 +55,15 @@
         </div>
 
 
-        <div class="money-display">
+        <div class="header-right">
 
-            <span>Money Available</span>
+            <div class="money-display">
 
-            <strong id="available-money">
-                $1,000
-            </strong>
+                <strong>
+                    Month <span id="header-month-number">1</span>
+                </strong>
+
+            </div>
 
         </div>
 
@@ -54,138 +78,196 @@
     <section id="setup-screen" class="screen">
 
 
-        <div class="level-banner">
-
-            <div class="level-number">
-                MONTH <span id="month-number">1</span>
-            </div>
-
-            <h2 id="month-title">
-                Your First Paycheck
-            </h2>
-
-            <p id="month-description">
-                You've got your first paycheck.
-                Now decide where every dollar should go.
-            </p>
-
-        </div>
+        <div class="setup-columns">
 
 
+            <!-- ==========================================
+                 SIDEBAR — MONTH INTRO, PAYCHECK,
+                 BILLS PREVIEW, SAVINGS CARRYOVER
+            =========================================== -->
 
-        <!-- PAYCHECK -->
+            <div class="setup-sidebar">
 
-        <div class="intro-card">
 
-            <div class="paycheck">
+                <!-- MONTH INTRO -->
 
-                <span>
-                    Monthly Paycheck
-                </span>
+                <div class="level-banner">
 
-                <strong id="paycheck-amount">
-                    $1,000
-                </strong>
+                    <h2 id="month-title">
+                        Your First Paycheck
+                    </h2>
 
-            </div>
+                    <p id="month-description">
+                        You've got your first paycheck.
+                        Now decide how you'll manage it.
+                    </p>
 
-        </div>
+                    <div class="paycheck-callout">
+                        <span>This Month's Paycheck</span>
+                        <strong id="paycheck-amount">$600</strong>
+                    </div>
+
+                </div>
 
 
 
-        <!-- RECURRING EXPENSES -->
+                <!-- FIXED MONTHLY BILLS -->
 
-        <div
-            id="commitments-section"
-            class="commitments-section hidden"
-        >
+                <div
+                    id="bills-preview-section"
+                    class="bills-preview-section hidden"
+                >
 
-            <h3>
-                🔄 Monthly Commitments
-            </h3>
+                    <h3>
+                        Fixed Monthly Bills
+                    </h3>
 
-            <p>
-                These expenses happen every month.
-            </p>
+                    <p>
+                        Paid only from the bucket shown — budget these first.
+                    </p>
 
-            <div id="commitments-list"></div>
+                    <div id="bills-preview-list"></div>
 
-        </div>
+                    <p id="bills-preview-note" class="bills-preview-note"></p>
 
-
-
-        <!-- BUCKET SECTION -->
-
-        <h2 class="section-title">
-            🪣 Build Your Budget
-        </h2>
-
-        <p class="instruction">
-            Decide how much money you want in each bucket.
-        </p>
+                </div>
 
 
 
-        <!-- BUCKETS -->
+                <!-- SAVINGS CARRYOVER -->
 
-        <div
-            id="setup-buckets"
-            class="buckets setup-buckets"
-        >
+                <div
+                    id="savings-carryover"
+                    class="savings-carryover hidden"
+                >
 
-            <!-- BUCKETS CREATED BY JAVASCRIPT -->
+                    <div class="carryover-icon">
+                        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 149.97 160"> <g id="Layer_3" data-name="Layer 3"> <path d="M149.97,160H.01s-.01-29.53-.01-29.53c1.05-26.81,12.71-51.72,32.24-69.94l19.2-17.64L29.99,0h89.86s-21.44,42.85-21.44,42.85l20.82,19.14c19.64,19.16,30.73,44.97,30.72,72.48l.02,25.53ZM88.67,39.97l14.94-29.96h-57.38s15.01,30.01,15.01,30.01l27.43-.05ZM140.01,150l-.06-15.81c-.03-23.65-9.12-45.86-25.45-62.99l-22.9-21.2h-33.27s-17.76,16.35-17.76,16.35c-18.32,16.16-29.39,38.83-30.48,63.34l-.12,20.3h130.05Z"/> <path d="M79.97,132.49h-9.96s-.02-7.5-.02-7.5h-12.49s.02-9.97.02-9.97l23.71-.06c2.05,0,3.5-2.21,3.64-3.7.17-1.85-.81-4.41-3-4.82l-14.72-2.73c-7.63-1.42-12.79-7.9-12.11-15.44.66-7.33,6.87-13.37,14.94-13.24l.04-7.53h9.95s0,7.5,0,7.5h10.01s-.01,10.01-.01,10.01h-20.25c-2.46-.01-4.45,1.55-4.73,3.84-.29,2.42,1.28,4.47,3.89,4.95l14.39,2.64c7.48,1.37,12.42,8.43,11.53,15.74s-6.89,12.92-14.79,12.8l-.02,7.52Z"/> </g> </svg>
+                    </div>
 
-        </div>
+                    <div class="carryover-text">
 
+                        <strong>
+                            Savings Carried Forward
+                        </strong>
 
+                        <p>
+                            This money is already saved.
+                            It stays with you this month.
+                        </p>
 
-        <!-- SUMMARY -->
+                    </div>
 
-        <div class="budget-summary">
+                    <strong
+                        id="carried-savings-amount"
+                        class="carryover-amount"
+                    >
+                        $0
+                    </strong>
 
+                </div>
 
-            <div>
-
-                <span>
-                    Allocated
-                </span>
-
-                <strong id="allocated-money">
-                    $0
-                </strong>
 
             </div>
 
 
-            <div>
 
-                <span>
-                    Remaining
-                </span>
+            <!-- ==========================================
+                 MAIN — ALLOCATE MONEY
+            =========================================== -->
 
-                <strong id="remaining-money">
-                    $1,000
-                </strong>
+            <div id="allocation-section" class="setup-main">
+
+                <div class="step-heading">
+
+                    <div>
+
+                        <h2>
+                            Build Your Budget
+                        </h2>
+
+                        <p>
+                            Give every dollar of your paycheck a bucket.
+                            Each bucket can only pay for its own kind of
+                            expense during the month — so how much you put
+                            here decides what you can afford later.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div
+                    id="setup-buckets"
+                    class="buckets setup-buckets"
+                >
+
+                    <!-- CREATED BY JAVASCRIPT (all buckets
+                         except Savings, which sits below on
+                         its own row so it stays separated) -->
+
+                </div>
+
+
+
+                <!-- SAVINGS (featured, on its own row) +
+                     SUMMARY / START BUTTON — one control:
+                     shows the running "left to allocate" stat
+                     while budgeting, then flips into the Start
+                     Month button once every dollar has a bucket
+                     (see updateBudgetDisplay in game.js) -->
+
+                <div class="setup-bottom-row">
+
+                    <div
+                        id="savings-bucket-slot"
+                        class="savings-bucket-slot"
+                    >
+
+                        <!-- CREATED BY JAVASCRIPT -->
+
+                    </div>
+
+
+                    <div class="budget-summary">
+
+                        <button
+                            id="start-month-btn"
+                            class="allocate-stat"
+                            type="button"
+                            disabled
+                        >
+
+                            <span id="allocate-stat-label">
+                                Left to Allocate
+                            </span>
+
+                            <strong id="remaining-money">
+                                $600
+                            </strong>
+
+                            <span id="start-month-label" class="hidden">
+                                Start Month 1
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <p
+                    id="budget-message"
+                    class="message"
+                ></p>
 
             </div>
 
 
         </div>
-
-
-
-        <button
-            id="start-month-btn"
-            disabled
-        >
-            Start Month 1
-        </button>
-
-
-        <p
-            id="budget-message"
-            class="message"
-        ></p>
 
 
     </section>
@@ -229,9 +311,7 @@
 
                 <div class="progress-bar">
 
-                    <div
-                        id="progress-fill"
-                    ></div>
+                    <div id="progress-fill"></div>
 
                 </div>
 
@@ -242,63 +322,90 @@
 
 
 
-        <!-- EXPENSE -->
-
-        <div class="expense-card">
+        <div class="month-columns">
 
 
-            <div
-                id="expense-icon"
-                class="expense-icon"
-            >
-                🍔
+            <!-- EXPENSE -->
+
+            <div class="expense-card">
+
+
+                <div
+                    id="expense-icon"
+                    class="expense-icon"
+                >
+                    🍔
+                </div>
+
+
+                <h2 id="expense-title">
+                    Fast Food
+                </h2>
+
+
+                <p id="expense-description">
+                    You grabbed food with friends.
+                </p>
+
+
+                <div
+                    id="expense-amount"
+                    class="expense-amount"
+                >
+                    -$15
+                </div>
+
+
             </div>
 
 
-            <h2 id="expense-title">
-                Fast Food
-            </h2>
+
+            <!-- PAYMENT -->
+
+            <div class="month-main">
 
 
-            <p id="expense-description">
-                You grabbed food with friends.
-            </p>
+                <!-- PAYMENT PANEL — ALL BUCKETS SHOWN;
+                     TAP ONE TO PAY, OR SKIP/MISS -->
+
+                <div
+                    id="payment-panel"
+                    class="payment-panel"
+                >
+
+                    <h3 id="payment-title" class="choose-title">
+                        Pick a bucket to pay this bill.
+                    </h3>
+
+                    <div
+                        id="payment-buckets"
+                        class="payment-buckets"
+                    >
+
+                        <!-- CREATED BY JAVASCRIPT -->
+
+                    </div>
+
+                    <button
+                        id="secondary-action-btn"
+                        type="button"
+                        class="hidden"
+                    >
+                        Miss This Bill
+                    </button>
+
+                </div>
 
 
-            <div
-                id="expense-amount"
-                class="expense-amount"
-            >
-                -$15
+                <p
+                    id="expense-message"
+                    class="message"
+                ></p>
+
             </div>
 
 
         </div>
-
-
-
-        <h3 class="choose-title">
-            Which bucket should pay for this?
-        </h3>
-
-
-
-        <!-- GAME BUCKETS -->
-
-        <div
-            id="game-buckets"
-            class="buckets gameplay-buckets"
-        >
-
-            <!-- CREATED BY JAVASCRIPT -->
-
-        </div>
-
-
-        <p
-            id="expense-message"
-            class="message"
-        ></p>
 
 
     </section>
@@ -334,106 +441,213 @@
 
 
 
-            <!-- RESULTS -->
-
-            <div class="results">
+            <div class="end-columns">
 
 
-                <div>
+                <!-- RESULTS -->
 
-                    <span>
-                        Starting Income
-                    </span>
+                <div class="end-results-col">
 
-                    <strong id="total-income">
-                        $1,000
-                    </strong>
+                    <div class="results">
+
+
+                        <div>
+
+                            <span>
+                                Starting Income
+                            </span>
+
+                            <strong id="total-income">
+                                $600
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Total Spent
+                            </span>
+
+                            <strong id="total-spent">
+                                $0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Money Remaining
+                            </span>
+
+                            <strong id="money-remaining">
+                                $0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Saved
+                            </span>
+
+                            <strong id="final-savings">
+                                $0
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <p class="carryover-reminder">
+                        Only your Savings bucket carries into next month —
+                        every other bucket resets to $0.
+                    </p>
 
                 </div>
 
 
-                <div>
 
-                    <span>
-                        Total Spent
-                    </span>
+                <!-- WELLNESS + NEXT MONTH -->
 
-                    <strong id="total-spent">
-                        $0
-                    </strong>
+                <div class="end-wellness-col">
 
-                </div>
+                    <div class="wellness">
 
-
-                <div>
-
-                    <span>
-                        Money Remaining
-                    </span>
-
-                    <strong id="money-remaining">
-                        $0
-                    </strong>
-
-                </div>
+                        <h3>
+                            Financial Wellness
+                        </h3>
 
 
-                <div>
+                        <div class="wellness-bar">
 
-                    <span>
-                        Saved
-                    </span>
+                            <div id="wellness-fill"></div>
 
-                    <strong id="final-savings">
-                        $0
-                    </strong>
+                        </div>
+
+
+                        <strong id="wellness-score">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- NEXT MONTH BUTTON -->
+
+                    <button id="next-month-btn">
+                        Start Month 2
+                    </button>
 
                 </div>
 
 
             </div>
-
-
-
-            <!-- WELLNESS -->
-
-            <div class="wellness">
-
-                <h3>
-                    Financial Wellness
-                </h3>
-
-
-                <div class="wellness-bar">
-
-                    <div
-                        id="wellness-fill"
-                    ></div>
-
-                </div>
-
-
-                <strong id="wellness-score">
-                    0%
-                </strong>
-
-            </div>
-
-
-
-            <!-- NEXT MONTH BUTTON -->
-
-            <button
-                id="next-month-btn"
-            >
-                Start Month 2
-            </button>
 
 
         </div>
 
 
     </section>
+
+
+    <!-- ==========================================
+         KEYPAD MODAL (ENTER BUCKET AMOUNT)
+    =========================================== -->
+
+    <div id="keypad-modal" class="keypad-modal hidden">
+
+        <div class="keypad-box">
+
+            <button
+                id="keypad-close-btn"
+                class="keypad-close"
+                aria-label="Cancel"
+            >
+                ✕
+            </button>
+
+
+            <div class="keypad-header">
+
+                <div
+                    id="keypad-bucket-icon"
+                    class="keypad-bucket-icon"
+                >
+                    💰
+                </div>
+
+                <div
+                    id="keypad-bucket-name"
+                    class="keypad-bucket-name"
+                >
+                    Savings
+                </div>
+
+            </div>
+
+
+            <div
+                id="keypad-display"
+                class="keypad-display"
+            >
+                $0
+            </div>
+
+            <p id="keypad-hint" class="keypad-hint"></p>
+
+            <p id="keypad-error" class="keypad-error"></p>
+
+
+            <div class="keypad-grid">
+
+                <button class="keypad-key" data-digit="1">1</button>
+                <button class="keypad-key" data-digit="2">2</button>
+                <button class="keypad-key" data-digit="3">3</button>
+
+                <button class="keypad-key" data-digit="4">4</button>
+                <button class="keypad-key" data-digit="5">5</button>
+                <button class="keypad-key" data-digit="6">6</button>
+
+                <button class="keypad-key" data-digit="7">7</button>
+                <button class="keypad-key" data-digit="8">8</button>
+                <button class="keypad-key" data-digit="9">9</button>
+
+                <button
+                    id="keypad-clear-btn"
+                    class="keypad-key keypad-clear"
+                >
+                    Clear
+                </button>
+
+                <button class="keypad-key" data-digit="0">0</button>
+
+                <button
+                    id="keypad-backspace-btn"
+                    class="keypad-key keypad-backspace"
+                    aria-label="Backspace"
+                >
+                    ⌫
+                </button>
+
+            </div>
+
+
+            <button id="keypad-confirm-btn" class="keypad-confirm">
+                Set Amount
+            </button>
+
+        </div>
+
+    </div>
 
 
 </div>

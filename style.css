@@ -1,4 +1,23 @@
 /* ==========================================
+   BRAND TOKENS
+========================================== */
+
+:root {
+
+    --blue-black: #0A1724;
+    --persian-blue: #1943DC;
+    --blue-bird: #258BFF;
+    --malibu: #59D2FE;
+    --sky-blue: #8BD1FF;
+    --onahau: #CFF1F9;
+    --hawkes-blue: #D7E7FF;
+    --magnolia: #FBF5FE;
+    --mystic: #E6ECEB;
+
+}
+
+
+/* ==========================================
    GENERAL
 ========================================== */
 
@@ -12,13 +31,23 @@
 body {
 
     font-family:
+        'Inter',
         Arial,
         Helvetica,
         sans-serif;
 
-    background: #f4f7fb;
+    font-weight: 400;
 
-    color: #1f2937;
+    background:
+        linear-gradient(
+            160deg,
+            var(--hawkes-blue) 0%,
+            var(--onahau) 100%
+        );
+
+    background-attachment: fixed;
+
+    color: var(--blue-black);
 
     min-height: 100vh;
 }
@@ -26,11 +55,30 @@ body {
 
 .game-container {
 
-    max-width: 1100px;
+    max-width: 1500px;
 
-    margin: auto;
+    margin: 6px auto;
 
-    padding: 30px;
+    background: white;
+
+    border-radius: 28px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 10px 34px rgba(10,23,36,0.14);
+}
+
+
+svg {
+
+    fill: var(--persian-blue);
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
 }
 
 
@@ -40,19 +88,60 @@ body {
 
 header {
 
-    display: flex;
+    display: grid;
 
-    justify-content: space-between;
+    grid-template-columns:
+        1fr auto 1fr;
 
     align-items: center;
 
-    margin-bottom: 30px;
+    padding: 10px 28px;
+
+    background: var(--sky-blue);
+}
+
+
+.header-left {
+
+    justify-self: start;
+}
+
+
+.header-center {
+
+    justify-self: center;
+
+    text-align: center;
+}
+
+
+.header-right {
+
+    justify-self: end;
+}
+
+
+.brand-logo {
+
+    height: 26px;
+
+    width: auto;
+
+    display: block;
+
+    margin: 0;
 }
 
 
 header h1 {
 
-    font-size: 32px;
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-weight: 800;
+
+    font-size: 30px;
+
+    color: var(--blue-black);
 }
 
 
@@ -60,7 +149,9 @@ header p {
 
     margin-top: 6px;
 
-    color: #6b7280;
+    color: rgba(10,23,36,0.65);
+
+    font-weight: 400;
 }
 
 
@@ -68,30 +159,24 @@ header p {
 
     background: white;
 
-    padding: 14px 22px;
+    padding: 12px 24px;
 
-    border-radius: 14px;
+    border-radius: 16px;
 
-    text-align: right;
+    text-align: center;
 
     box-shadow:
-        0 4px 15px rgba(0,0,0,0.06);
-}
-
-
-.money-display span {
-
-    display: block;
-
-    font-size: 13px;
-
-    color: #6b7280;
+        0 4px 15px rgba(10,23,36,0.14);
 }
 
 
 .money-display strong {
 
     font-size: 24px;
+
+    font-weight: 800;
+
+    color: var(--persian-blue);
 }
 
 
@@ -101,14 +186,7 @@ header p {
 
 .screen {
 
-    background: white;
-
-    border-radius: 22px;
-
-    padding: 35px;
-
-    box-shadow:
-        0 8px 30px rgba(0,0,0,0.06);
+    padding: 10px 28px 18px;
 }
 
 
@@ -119,48 +197,119 @@ header p {
 
 
 /* ==========================================
+   WIDE-SCREEN COLUMN LAYOUTS
+   (landscape kiosk: use width, not height)
+========================================== */
+
+.setup-columns {
+
+    display: grid;
+
+    grid-template-columns:
+        320px 1fr;
+
+    gap: 26px;
+
+    align-items: start;
+}
+
+
+.setup-sidebar {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    background: var(--sky-blue);
+
+    border-radius: 20px;
+
+    padding: 12px;
+}
+
+
+.month-columns {
+
+    display: grid;
+
+    grid-template-columns:
+        320px 1fr;
+
+    gap: 26px;
+
+    align-items: start;
+}
+
+
+.end-columns {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 30px;
+
+    align-items: center;
+}
+
+
+.end-results-col,
+.end-wellness-col {
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+
+.end-results-col {
+
+    background: rgba(255,255,255,0.08);
+
+    border: 1px solid rgba(255,255,255,0.16);
+
+    border-radius: 20px;
+
+    padding: 20px;
+}
+
+
+/* ==========================================
    MONTH BANNER
 ========================================== */
 
 .level-banner {
 
-    text-align: center;
-
-    margin-bottom: 25px;
-}
-
-
-.level-number {
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    color: #2563eb;
-
-    letter-spacing: 2px;
-
-    margin-bottom: 8px;
+    text-align: left;
 }
 
 
 .level-banner h2 {
 
-    font-size: 32px;
+    font-family: 'Inter', Arial, sans-serif;
 
-    margin-bottom: 8px;
+    font-weight: 800;
+
+    font-size: 19px;
+
+    margin-bottom: 4px;
+
+    color: var(--blue-black);
 }
 
 
 .level-banner p {
 
-    color: #6b7280;
+    color: #475569;
 
-    max-width: 600px;
+    line-height: 1.4;
 
-    margin: auto;
-
-    line-height: 1.5;
+    font-size: 14px;
 }
 
 
@@ -168,157 +317,306 @@ header p {
    PAYCHECK
 ========================================== */
 
-.intro-card {
-
-    text-align: center;
-
-    margin-bottom: 30px;
-}
-
-
-.paycheck {
-
-    display: inline-flex;
-
-    flex-direction: column;
-
-    background: #eefbf3;
-
-    padding: 20px 55px;
-
-    border-radius: 16px;
-}
-
-
-.paycheck span {
-
-    font-size: 14px;
-
-    color: #5c6b63;
-}
-
-
-.paycheck strong {
-
-    font-size: 38px;
-
-    margin-top: 5px;
-}
-
-
-/* ==========================================
-   COMMITMENTS
-========================================== */
-
-.commitments-section {
-
-    background: #f8fafc;
-
-    border-radius: 16px;
-
-    padding: 20px;
-
-    margin-bottom: 30px;
-}
-
-
-.commitments-section h3 {
-
-    margin-bottom: 5px;
-}
-
-
-.commitments-section > p {
-
-    color: #6b7280;
-
-    font-size: 14px;
-
-    margin-bottom: 15px;
-}
-
-
-#commitments-list {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(5, 1fr);
-
-    gap: 10px;
-}
-
-
-.commitment {
+.paycheck-callout {
 
     background: white;
 
-    border-radius: 12px;
+    border-radius: 14px;
 
-    padding: 12px;
+    padding: 10px 14px;
+
+    margin-top: 10px;
 
     text-align: center;
 
-    border: 1px solid #e5e7eb;
+    box-shadow:
+        0 4px 15px rgba(10,23,36,0.18);
 }
 
 
-.commitment-icon {
-
-    font-size: 25px;
+.paycheck-callout span {
 
     display: block;
 
-    margin-bottom: 5px;
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: var(--persian-blue);
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+
+    margin-bottom: 2px;
 }
 
 
-.commitment-name {
+.paycheck-callout strong {
 
-    display: block;
+    font-size: 26px;
 
-    font-size: 12px;
+    font-weight: 800;
 
-    color: #6b7280;
-}
-
-
-.commitment-amount {
-
-    display: block;
-
-    font-size: 17px;
-
-    font-weight: bold;
-
-    margin-top: 4px;
+    color: var(--persian-blue);
 }
 
 
 /* ==========================================
-   TITLES
+   THIS MONTH'S BILLS
 ========================================== */
 
-.section-title {
+.bills-preview-section {
 
-    text-align: center;
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 12px 14px;
+
+    box-shadow:
+        0 2px 8px rgba(10,23,36,0.05);
+}
+
+
+.bills-preview-section h3 {
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-weight: 800;
+
+    font-size: 19px;
+
+    margin-bottom: 4px;
+
+    color: var(--blue-black);
+}
+
+
+.bills-preview-section > p {
+
+    color: #64748b;
+
+    font-size: 12px;
 
     margin-bottom: 8px;
 }
 
 
-.instruction {
+#bills-preview-list {
 
-    text-align: center;
+    display: flex;
 
-    color: #6b7280;
+    flex-direction: column;
 
-    margin-bottom: 25px;
+    gap: 4px;
+}
+
+
+.bill-preview-item {
+
+    background: var(--mystic);
+
+    border-radius: 8px;
+
+    padding: 5px 8px;
+
+    text-align: left;
+
+    border: 1px solid transparent;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.bill-preview-icon {
+
+    width: 18px;
+
+    height: 18px;
+
+    flex-shrink: 0;
+}
+
+
+.bill-preview-name {
+
+    flex: 1;
+
+    font-size: 12px;
+
+    font-weight: 500;
+
+    color: #334155;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.bill-preview-bucket {
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    color: var(--persian-blue);
+
+    background: var(--hawkes-blue);
+
+    border-radius: 6px;
+
+    padding: 2px 6px;
+
+    white-space: nowrap;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+}
+
+
+.bill-preview-amount {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    color: var(--blue-black);
+}
+
+
+.bills-preview-note {
+
+    text-align: left;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    margin-top: 12px;
 }
 
 
 /* ==========================================
-   BUCKET GRID
+   SAVINGS CARRYOVER
+========================================== */
+
+.savings-carryover {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    background: white;
+
+    border: 2px solid var(--sky-blue);
+
+    border-radius: 16px;
+
+    padding: 14px 16px;
+}
+
+
+.carryover-icon {
+
+    width: 30px;
+
+    height: 30px;
+
+    flex-shrink: 0;
+}
+
+
+.carryover-text {
+
+    flex: 1;
+}
+
+
+.savings-carryover strong {
+
+    display: block;
+
+    font-weight: 700;
+
+    color: var(--blue-black);
+}
+
+
+.savings-carryover p {
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    margin-top: 4px;
+}
+
+
+.carryover-amount {
+
+    font-size: 19px;
+
+    font-weight: 800;
+
+    color: var(--persian-blue);
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================
+   STEP HEADINGS
+========================================== */
+
+.step-heading {
+
+    margin-bottom: 10px;
+
+    margin-top: 0;
+}
+
+
+.step-heading h2 {
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-weight: 800;
+
+    font-size: 22px;
+
+    margin-bottom: 4px;
+
+    color: var(--blue-black);
+}
+
+
+.step-heading p {
+
+    color: #475569;
+
+    line-height: 1.4;
+}
+
+
+/* ==========================================
+   ALLOCATION BUCKETS
 ========================================== */
 
 .buckets {
@@ -326,77 +624,178 @@ header p {
     display: grid;
 
     grid-template-columns:
-        repeat(4, 1fr);
+        repeat(3, 1fr);
 
-    gap: 18px;
+    gap: 12px;
 }
 
 
 /* ==========================================
-   SETUP BUCKET
+   SAVINGS ROW + START BUTTON
+   (Savings sits apart from the regular bucket
+   grid, on its own row next to the start
+   button, so it stays visually separated)
 ========================================== */
+
+.setup-bottom-row {
+
+    display: flex;
+
+    gap: 14px;
+
+    align-items: stretch;
+
+    margin-top: 12px;
+}
+
+
+.savings-bucket-slot {
+
+    flex: 2;
+}
+
+
+.savings-bucket-slot .bucket {
+
+    height: 100%;
+}
+
+
+.bucket-savings {
+
+    background: var(--hawkes-blue);
+
+    border-color: var(--sky-blue);
+
+    padding: 14px;
+}
+
+
+.bucket-savings .bucket-icon {
+
+    width: 36px;
+
+    height: 36px;
+}
+
+
+.bucket-savings h3 {
+
+    font-size: 15px;
+}
+
+
+.bucket-savings .bucket-amount {
+
+    font-size: 21px;
+}
+
 
 .bucket {
 
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--mystic);
 
-    border-radius: 18px;
+    border-radius: 16px;
 
-    padding: 22px;
+    padding: 10px;
 
     text-align: center;
 
     background: white;
-
-    transition: 0.2s;
-}
-
-
-.bucket:hover {
-
-    transform: translateY(-2px);
-
-    border-color: #2563eb;
 }
 
 
 .bucket-icon {
 
-    font-size: 38px;
+    width: 30px;
 
-    margin-bottom: 10px;
+    height: 30px;
+
+    margin: 0 auto 5px;
 }
 
 
 .bucket h3 {
 
-    margin-bottom: 12px;
+    margin-bottom: 3px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: var(--blue-black);
 }
 
 
 .bucket p {
 
-    font-size: 13px;
+    font-size: 12px;
 
-    color: #6b7280;
+    color: #64748b;
 
-    margin-top: 8px;
+    margin-top: 6px;
 }
 
 
-.bucket input {
-
-    width: 100%;
-
-    padding: 10px;
-
-    border: 2px solid #d1d5db;
-
-    border-radius: 10px;
+.bucket-amount {
 
     font-size: 18px;
 
-    text-align: center;
+    font-weight: 800;
+
+    margin: 2px 0 6px;
+
+    color: var(--persian-blue);
+}
+
+
+/* ==========================================
+   TOUCH ALLOCATION CONTROLS
+========================================== */
+
+.amount-entry-button {
+
+    display: block;
+
+    width: 100%;
+
+    min-height: 46px;
+
+    padding: 8px;
+
+    border-radius: 12px;
+
+    background: var(--hawkes-blue);
+
+    color: var(--persian-blue);
+
+    border: 2px solid var(--sky-blue);
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+
+.amount-entry-button:hover {
+
+    transform: none;
+
+    border-color: var(--blue-bird);
+}
+
+
+.savings-note {
+
+    font-size: 12px;
+
+    color: #64748b;
+
+    margin-top: 7px;
 }
 
 
@@ -406,31 +805,96 @@ header p {
 
 .budget-summary {
 
+    flex: 1;
+
     display: flex;
 
     justify-content: center;
 
-    gap: 60px;
-
-    margin: 30px 0;
+    align-items: center;
 
     text-align: center;
 }
 
 
-.budget-summary span {
+.allocate-stat {
 
-    display: block;
+    background: var(--hawkes-blue);
 
-    color: #6b7280;
+    border: 2px solid var(--sky-blue);
 
-    font-size: 14px;
+    border-radius: 16px;
+
+    padding: 10px 34px;
 }
 
 
-.budget-summary strong {
+#allocate-stat-label {
 
-    font-size: 26px;
+    display: block;
+
+    color: var(--persian-blue);
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+}
+
+
+.allocate-stat strong {
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+    color: var(--persian-blue);
+}
+
+
+.allocate-stat:disabled {
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+#start-month-label {
+
+    display: block;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 700;
+}
+
+
+/* Ready state: the same box flips into the primary
+   CTA look once every dollar has a bucket. */
+
+#start-month-btn.ready {
+
+    background: var(--persian-blue);
+
+    border-color: var(--persian-blue);
+
+    min-height: 58px;
+
+    box-shadow:
+        0 4px 0 var(--blue-bird);
+}
+
+
+#start-month-btn.ready:active {
+
+    box-shadow:
+        0 2px 0 var(--blue-bird);
 }
 
 
@@ -440,19 +904,23 @@ header p {
 
 button {
 
+    font-family: 'Inter', Arial, sans-serif;
+
     border: none;
 
-    border-radius: 12px;
+    border-radius: 16px;
 
     padding: 14px 26px;
 
     font-size: 16px;
 
-    font-weight: bold;
+    font-weight: 700;
 
     cursor: pointer;
 
-    transition: 0.2s;
+    transition: 0.15s;
+
+    touch-action: manipulation;
 }
 
 
@@ -462,26 +930,37 @@ button:hover {
 }
 
 
-#start-month-btn,
+button:active {
+
+    transform: translateY(1px);
+}
+
+
 #next-month-btn {
 
     display: block;
 
     margin: auto;
 
-    background: #2563eb;
+    background: var(--persian-blue);
 
     color: white;
+
+    min-height: 58px;
+
+    padding-left: 35px;
+
+    padding-right: 35px;
+
+    box-shadow:
+        0 4px 0 var(--blue-bird);
 }
 
 
-#start-month-btn:disabled {
+#next-month-btn:active {
 
-    background: #cbd5e1;
-
-    cursor: not-allowed;
-
-    transform: none;
+    box-shadow:
+        0 2px 0 var(--blue-bird);
 }
 
 
@@ -497,7 +976,7 @@ button:hover {
 
     align-items: center;
 
-    margin-bottom: 25px;
+    margin-bottom: 16px;
 }
 
 
@@ -505,11 +984,13 @@ button:hover {
 
     font-size: 13px;
 
-    font-weight: bold;
+    font-weight: 700;
 
-    color: #2563eb;
+    color: var(--persian-blue);
 
     letter-spacing: 1px;
+
+    text-transform: uppercase;
 }
 
 
@@ -523,7 +1004,7 @@ button:hover {
 
     font-size: 13px;
 
-    color: #6b7280;
+    color: #64748b;
 }
 
 
@@ -531,7 +1012,7 @@ button:hover {
 
     height: 8px;
 
-    background: #e5e7eb;
+    background: var(--mystic);
 
     border-radius: 10px;
 
@@ -547,7 +1028,7 @@ button:hover {
 
     width: 0%;
 
-    background: #2563eb;
+    background: var(--persian-blue);
 
     transition: width 0.3s;
 }
@@ -561,31 +1042,39 @@ button:hover {
 
     text-align: center;
 
-    background: #f8fafc;
+    background: var(--onahau);
 
     border-radius: 20px;
 
-    padding: 30px;
-
-    margin-bottom: 30px;
+    padding: 26px 22px;
 }
 
 
 .expense-icon {
 
-    font-size: 55px;
+    width: 56px;
+
+    height: 56px;
+
+    margin: 0 auto;
 }
 
 
 .expense-card h2 {
 
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-weight: 800;
+
     margin: 10px 0;
+
+    color: var(--blue-black);
 }
 
 
 .expense-card p {
 
-    color: #6b7280;
+    color: #475569;
 }
 
 
@@ -593,9 +1082,11 @@ button:hover {
 
     font-size: 32px;
 
-    font-weight: bold;
+    font-weight: 800;
 
     margin-top: 15px;
+
+    color: var(--blue-black);
 }
 
 
@@ -603,21 +1094,42 @@ button:hover {
 
     text-align: center;
 
-    margin-bottom: 18px;
+    margin-bottom: 14px;
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-weight: 800;
+
+    color: var(--blue-black);
 }
 
 
 /* ==========================================
-   GAME BUCKETS
+   PAYMENT PANEL — ALL BUCKETS SHOWN
 ========================================== */
 
-.game-bucket {
+.payment-panel {
 
-    background: white;
+    max-width: 680px;
 
-    border: 2px solid #e5e7eb;
+    margin: 0 auto;
+}
 
-    padding: 20px;
+
+.payment-buckets {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(120px, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 16px;
+}
+
+
+.payment-bucket-tile {
 
     display: flex;
 
@@ -625,30 +1137,177 @@ button:hover {
 
     align-items: center;
 
+    justify-content: center;
+
+    min-height: 108px;
+
+    background: white;
+
+    border: 2px solid var(--mystic);
+
+    border-radius: 16px;
+
+    padding: 10px 6px;
+
+    text-align: center;
+
+    cursor: pointer;
+
     transition: 0.2s;
+
+    touch-action: manipulation;
 }
 
 
-.game-bucket:hover {
+.payment-bucket-tile:hover {
 
-    border-color: #2563eb;
+    transform: translateY(-2px);
 
-    transform:
-        translateY(-3px);
+    border-color: var(--blue-bird);
 }
 
 
-.game-bucket .bucket-name {
+.payment-bucket-tile .bucket-icon {
 
-    font-weight: bold;
+    width: 26px;
+
+    height: 26px;
+
+    margin: 0 auto;
 }
 
 
-.game-bucket strong {
+.payment-bucket-tile .bucket-name {
 
-    margin-top: 8px;
+    font-weight: 700;
 
-    font-size: 22px;
+    font-size: 12px;
+
+    margin-top: 4px;
+
+    color: var(--blue-black);
+}
+
+
+.payment-bucket-tile .bucket-balance {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    margin-top: 3px;
+
+    color: var(--persian-blue);
+}
+
+
+.payment-bucket-tile.correct-bucket {
+
+    border-color: var(--persian-blue);
+
+    background: var(--hawkes-blue);
+}
+
+
+.usual-tag {
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    color: var(--persian-blue);
+
+    background: white;
+
+    border-radius: 6px;
+
+    padding: 1px 6px;
+
+    margin-top: 5px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+}
+
+
+.lock-tag {
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    color: #92400e;
+
+    background: #fff8ec;
+
+    border: 1px solid #f3d98b;
+
+    border-radius: 6px;
+
+    padding: 1px 6px;
+
+    margin-top: 5px;
+}
+
+
+.payment-bucket-tile.disabled {
+
+    background: #f8fafc;
+
+    border-color: var(--mystic);
+
+    color: #9ca3af;
+
+    cursor: not-allowed;
+
+    opacity: 0.7;
+}
+
+
+.payment-bucket-tile.disabled:hover {
+
+    transform: none;
+
+    border-color: var(--mystic);
+}
+
+
+.payment-bucket-tile.disabled .bucket-balance {
+
+    color: #9ca3af;
+}
+
+
+.payment-bucket-tile.disabled svg {
+
+    fill: #9ca3af;
+}
+
+
+#secondary-action-btn {
+
+    display: block;
+
+    margin: 0 auto;
+
+    background: var(--mystic);
+
+    color: var(--blue-black);
+
+    border: 2px solid #d5dbda;
+
+    min-height: 50px;
+}
+
+
+#secondary-action-btn.miss-style {
+
+    background: #dc2626;
+
+    color: white;
+
+    border: none;
 }
 
 
@@ -664,15 +1323,56 @@ button:hover {
 
     margin-top: 18px;
 
-    font-weight: bold;
+    font-weight: 700;
 }
 
 
 /* ==========================================
-   END SCREEN
+   END SCREEN — DARK "STATEMENT" SURFACE
+   (the one big celebratory moment, matching
+   Coin Catch / Driver Decides / Lemonade Stand)
 ========================================== */
 
+#end-screen.screen {
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            160deg,
+            var(--blue-black) 0%,
+            var(--persian-blue) 100%
+        );
+}
+
+
+#end-screen.screen::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background-image: url("images/brand-arrow-tile.png");
+
+    background-repeat: repeat;
+
+    background-size: 120px 120px;
+
+    opacity: 0.06;
+
+    pointer-events: none;
+}
+
+
 .end-card {
+
+    position: relative;
+
+    z-index: 1;
 
     text-align: center;
 }
@@ -680,23 +1380,47 @@ button:hover {
 
 .celebration {
 
-    font-size: 65px;
+    font-size: 46px;
 }
 
 
 .end-card h2 {
 
-    font-size: 34px;
+    font-family: 'Inter', Arial, sans-serif;
 
-    margin: 10px 0;
+    font-weight: 800;
+
+    font-size: 26px;
+
+    margin: 6px 0;
+
+    color: white;
 }
 
 
 .end-card > p {
 
-    color: #6b7280;
+    color: var(--hawkes-blue);
 
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+
+    max-width: 700px;
+
+    margin-left: auto;
+
+    margin-right: auto;
+}
+
+
+.carryover-reminder {
+
+    text-align: center;
+
+    color: var(--hawkes-blue);
+
+    font-size: 13px;
+
+    margin-top: 14px;
 }
 
 
@@ -709,21 +1433,22 @@ button:hover {
     display: grid;
 
     grid-template-columns:
-        repeat(4, 1fr);
+        repeat(2, 1fr);
 
     gap: 15px;
-
-    margin-bottom: 35px;
 }
 
 
 .results div {
 
-    background: #f8fafc;
+    background: white;
 
     padding: 20px;
 
     border-radius: 15px;
+
+    box-shadow:
+        0 2px 8px rgba(10,23,36,0.15);
 }
 
 
@@ -733,7 +1458,9 @@ button:hover {
 
     font-size: 13px;
 
-    color: #6b7280;
+    color: #64748b;
+
+    font-weight: 600;
 }
 
 
@@ -744,6 +1471,10 @@ button:hover {
     margin-top: 8px;
 
     font-size: 22px;
+
+    font-weight: 800;
+
+    color: var(--blue-black);
 }
 
 
@@ -753,10 +1484,19 @@ button:hover {
 
 .wellness {
 
-    max-width: 500px;
+    max-width: 400px;
 
-    margin:
-        auto auto 30px;
+    margin: 0 auto 24px;
+}
+
+
+.wellness h3 {
+
+    color: white;
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-weight: 700;
 }
 
 
@@ -764,7 +1504,7 @@ button:hover {
 
     height: 20px;
 
-    background: #e5e7eb;
+    background: rgba(255,255,255,0.2);
 
     border-radius: 20px;
 
@@ -780,7 +1520,7 @@ button:hover {
 
     width: 0%;
 
-    background: #22c55e;
+    background: var(--malibu);
 
     transition: width 1s;
 }
@@ -789,6 +1529,259 @@ button:hover {
 #wellness-score {
 
     font-size: 24px;
+
+    font-weight: 800;
+
+    color: white;
+}
+
+
+#next-month-btn {
+
+    background: white;
+
+    color: var(--persian-blue);
+
+    box-shadow:
+        0 4px 0 var(--hawkes-blue);
+}
+
+
+#next-month-btn:active {
+
+    box-shadow:
+        0 2px 0 var(--hawkes-blue);
+}
+
+
+/* ==========================================
+   KEYPAD MODAL
+========================================== */
+
+.keypad-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(10, 23, 36, 0.55);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 100;
+}
+
+
+.keypad-box {
+
+    background: white;
+
+    border-radius: 24px;
+
+    padding: 30px;
+
+    width: 100%;
+
+    max-width: 380px;
+
+    text-align: center;
+
+    position: relative;
+
+    box-shadow:
+        0 20px 60px rgba(10,23,36,0.3);
+}
+
+
+.keypad-close {
+
+    position: absolute;
+
+    top: 16px;
+
+    right: 16px;
+
+    width: 42px;
+
+    height: 42px;
+
+    min-height: 42px;
+
+    border-radius: 50%;
+
+    background: var(--mystic);
+
+    color: var(--blue-black);
+
+    border: 2px solid #d5dbda;
+
+    font-size: 16px;
+
+    padding: 0;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+
+.keypad-close:hover {
+
+    transform: none;
+
+    border-color: var(--blue-bird);
+}
+
+
+.keypad-header {
+
+    margin-bottom: 6px;
+}
+
+
+.keypad-bucket-icon {
+
+    width: 40px;
+
+    height: 40px;
+
+    margin: 0 auto;
+}
+
+
+.keypad-bucket-name {
+
+    font-weight: 700;
+
+    font-size: 18px;
+
+    margin-top: 4px;
+
+    color: var(--blue-black);
+}
+
+
+.keypad-display {
+
+    font-size: 46px;
+
+    font-weight: 800;
+
+    margin: 12px 0 2px;
+
+    min-height: 56px;
+
+    color: var(--blue-black);
+}
+
+
+.keypad-hint {
+
+    color: #64748b;
+
+    font-size: 14px;
+
+    min-height: 18px;
+}
+
+
+.keypad-error {
+
+    color: #dc2626;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    min-height: 18px;
+
+    margin-top: 4px;
+}
+
+
+.keypad-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+
+    margin: 15px 0 20px;
+}
+
+
+.keypad-key {
+
+    min-height: 62px;
+
+    padding: 10px;
+
+    border-radius: 14px;
+
+    background: var(--mystic);
+
+    color: var(--blue-black);
+
+    border: 2px solid #d5dbda;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+
+.keypad-key:hover {
+
+    transform: none;
+
+    border-color: var(--blue-bird);
+}
+
+
+.keypad-clear,
+.keypad-backspace {
+
+    background: #fff1f1;
+
+    border-color: #f0c5c5;
+
+    font-size: 16px;
+}
+
+
+.keypad-confirm {
+
+    display: block;
+
+    width: 100%;
+
+    background: var(--persian-blue);
+
+    color: white;
+
+    min-height: 58px;
+
+    box-shadow:
+        0 4px 0 var(--blue-bird);
+}
+
+
+.keypad-confirm:active {
+
+    box-shadow:
+        0 2px 0 var(--blue-bird);
 }
 
 
@@ -796,19 +1789,32 @@ button:hover {
    RESPONSIVE
 ========================================== */
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
 
-    .buckets {
+    .setup-columns,
+    .month-columns {
 
         grid-template-columns:
-            repeat(2, 1fr);
+            1fr;
     }
 
 
-    #commitments-list {
+    .end-columns {
 
         grid-template-columns:
-            repeat(3, 1fr);
+            1fr;
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .buckets,
+    .bucket-options {
+
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
 
@@ -817,6 +1823,7 @@ button:hover {
         grid-template-columns:
             repeat(2, 1fr);
     }
+
 }
 
 
@@ -824,45 +1831,47 @@ button:hover {
 
     .game-container {
 
-        padding: 15px;
+        margin: 8px auto;
     }
 
 
     .screen {
 
-        padding: 20px;
+        padding: 16px 20px 20px;
     }
 
 
-    .buckets {
+    .buckets,
+    .bucket-options {
 
         grid-template-columns:
             1fr;
     }
 
 
-    #commitments-list {
+    header {
 
-        grid-template-columns:
-            repeat(2, 1fr);
+        grid-template-columns: 1fr;
+
+        justify-items: center;
+
+        text-align: center;
+
+        row-gap: 10px;
     }
 
 
-    header {
+    .header-left,
+    .header-center,
+    .header-right {
 
-        flex-direction: column;
-
-        align-items: flex-start;
-
-        gap: 15px;
+        justify-self: center;
     }
 
 
     .money-display {
 
         width: 100%;
-
-        text-align: left;
     }
 
 
@@ -893,4 +1902,17 @@ button:hover {
         grid-template-columns:
             1fr;
     }
+
+
+    .savings-carryover {
+
+        align-items: flex-start;
+    }
+
+
+    .carryover-amount {
+
+        font-size: 21px;
+    }
+
 }
