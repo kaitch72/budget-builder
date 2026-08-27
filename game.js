@@ -482,9 +482,6 @@ const endScreen =
     document.getElementById("end-screen");
 
 
-const headerMonthNumber =
-    document.getElementById("header-month-number");
-
 const remainingMoney =
     document.getElementById("remaining-money");
 
@@ -502,6 +499,43 @@ const nextMonthButton =
     document.getElementById(
         "next-month-btn"
     );
+
+
+const restartButton =
+    document.getElementById(
+        "restart-button"
+    );
+
+
+// Welcome popup shown on load, before the
+// player builds their first budget. Distinct
+// from `startButton` above (the in-screen
+// "Start Month" control) -- this one just
+// dismisses the popup itself.
+const welcomeStartScreen =
+    document.getElementById(
+        "start-screen"
+    );
+
+const welcomeStartButton =
+    document.getElementById(
+        "start-button"
+    );
+
+if (welcomeStartButton) {
+
+    welcomeStartButton.addEventListener(
+        "click",
+        () => {
+
+            if (welcomeStartScreen) {
+                welcomeStartScreen.style.display = "none";
+            }
+
+        }
+    );
+
+}
 
 
 
@@ -590,8 +624,10 @@ function loadMonth(monthNumber) {
         `$${month.income.toLocaleString()}`;
 
 
-    headerMonthNumber.textContent =
-        currentMonth;
+    document.getElementById(
+        "paycheck-label"
+    ).textContent =
+        `Month ${currentMonth} Paycheck`;
 
 
     startMonthLabel.textContent =
@@ -706,18 +742,16 @@ function createSetupBuckets() {
                     ${bucket.name}
                 </h3>
 
-                <div
-                    class="bucket-amount"
-                    id="amount-${bucket.id}"
-                >
-                    $${startingSavings}
-                </div>
-
                 <button
                     class="amount-entry-button"
                     type="button"
                 >
-                    Enter Amount
+                    <span
+                        class="bucket-amount"
+                        id="amount-${bucket.id}"
+                    >
+                        $${startingSavings}
+                    </span>
                 </button>
 
                 ${
@@ -1435,51 +1469,6 @@ function showBudgetMessage(
 
 
 // ============================================
-// SAVINGS CARRYOVER
-// ============================================
-
-function updateSavingsCarryover() {
-
-    const section =
-        document.getElementById(
-            "savings-carryover"
-        );
-
-
-    const amount =
-        document.getElementById(
-            "carried-savings-amount"
-        );
-
-
-    if (
-        currentMonth > 1 &&
-        carriedSavings > 0
-    ) {
-
-        section.classList.remove(
-            "hidden"
-        );
-
-
-        amount.textContent =
-            `$${carriedSavings}`;
-
-    }
-
-    else {
-
-        section.classList.add(
-            "hidden"
-        );
-
-    }
-
-}
-
-
-
-// ============================================
 // CREATE BILLS PREVIEW
 // ============================================
 //
@@ -1549,13 +1538,6 @@ function createBillsPreview() {
     visibleExpenses.forEach(
         expense => {
 
-            const bucket =
-                month.buckets.find(
-                    item =>
-                        item.id === expense.bucket
-                );
-
-
             const item =
                 document.createElement(
                     "div"
@@ -1574,9 +1556,6 @@ function createBillsPreview() {
 
                 <span class="bill-preview-name">
                     ${expense.title}
-                    <span class="bill-preview-bucket">
-                        ${bucket ? bucket.name : ""}
-                    </span>
                 </span>
 
                 <span class="bill-preview-amount">
@@ -1599,6 +1578,54 @@ function createBillsPreview() {
 
 }
 
+
+
+// ============================================
+// SAVINGS CARRYOVER
+// ============================================
+
+function updateSavingsCarryover() {
+
+    const section =
+        document.getElementById(
+            "savings-carryover"
+        );
+
+
+    const amount =
+        document.getElementById(
+            "carried-savings-amount"
+        );
+
+
+    if (
+        currentMonth > 1 &&
+        carriedSavings > 0
+    ) {
+
+        section.classList.remove(
+            "hidden"
+        );
+
+
+        amount.textContent =
+            `$${carriedSavings}`;
+
+    }
+
+    else {
+
+        section.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+
+// ============================================
 
 
 // ============================================
@@ -2367,6 +2394,29 @@ nextMonthButton.addEventListener(
 
     }
 );
+
+
+
+// ============================================
+// RESTART BUTTON
+// Same "start over" job as the other finlit
+// games' header restart control -- simplest
+// safe reset for a kiosk with this much state
+// is just reloading the page fresh.
+// ============================================
+
+if (restartButton) {
+
+    restartButton.addEventListener(
+        "click",
+        () => {
+
+            location.reload();
+
+        }
+    );
+
+}
 
 
 

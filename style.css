@@ -14,6 +14,14 @@
     --magnolia: #FBF5FE;
     --mystic: #E6ECEB;
 
+    /* Every finlit game renders on a fixed 1920x1080 stage that's
+       uniformly scaled to fit the window (see .game-container below) --
+       same convention as Coin Catch, so the whole game shrinks/grows
+       together as the browser resizes instead of reflowing or clipping. */
+    --stage-width: 1920px;
+    --stage-height: 1080px;
+    --stage-radius: 28px;
+
 }
 
 
@@ -28,6 +36,26 @@
 }
 
 
+html,
+body {
+
+    width: 100%;
+    height: 100%;
+
+    /* Never actually scrollable by design -- the fixed 1920x1080 stage
+       below is always scaled to fit the window, so it never needs to
+       overflow. "auto" here was wrong: because .game-container keeps
+       its full untransformed 1920x1080 layout box (transforms don't
+       shrink layout), body's own overflow:auto scrollbox saw that full
+       box as overflowing whenever the scale was below 1 and rendered a
+       real (if mostly invisible) scrollbar/gutter on every resized
+       window -- eating into the visible game area and making the whole
+       card look smaller than it should. "hidden" removes that phantom
+       scrollbar entirely. */
+    overflow: hidden;
+}
+
+
 body {
 
     font-family:
@@ -38,30 +66,45 @@ body {
 
     font-weight: 400;
 
-    background:
-        linear-gradient(
-            160deg,
-            var(--hawkes-blue) 0%,
-            var(--onahau) 100%
-        );
-
-    background-attachment: fixed;
-
     color: var(--blue-black);
 
-    min-height: 100vh;
+    /* Kiosk frame: a neutral grey page behind the game's fixed stage. */
+    background: #E4E6E8;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
 }
 
 
 .game-container {
 
-    max-width: 1500px;
+    position: relative;
 
-    margin: 6px auto;
+    flex-shrink: 0;
+
+    width: var(--stage-width);
+    height: var(--stage-height);
+
+    /* Scale the fixed 1920x1080 stage to fit whatever window/screen
+       it's shown in, without ever blowing it up past 100% -- the whole
+       game (text, icons, spacing, all of it) shrinks and grows together
+       as one image, so nothing reflows or gets cut off as the window
+       resizes, same as Coin Catch. */
+    transform:
+        scale(
+            min(
+                1,
+                calc(100vw / var(--stage-width)),
+                calc(100vh / var(--stage-height))
+            )
+        );
 
     background: white;
 
-    border-radius: 28px;
+    border-radius: var(--stage-radius);
 
     overflow: hidden;
 
@@ -97,7 +140,10 @@ header {
 
     padding: 10px 28px;
 
-    background: var(--sky-blue);
+    /* Light hawkes-blue -- the same pale header
+       tone Coin Catch and Lemonade Stand use,
+       instead of the more saturated sky-blue. */
+    background: var(--hawkes-blue);
 }
 
 
@@ -118,6 +164,74 @@ header {
 .header-right {
 
     justify-self: end;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+/* ==========================================
+   RESTART BUTTON
+   Shared across every finlit game -- same
+   circular icon treatment as Coin Catch and
+   Lemonade Stand's header restart control.
+========================================== */
+
+#restart-button {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 40px;
+
+    height: 40px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 4px 15px rgba(10,23,36,0.14);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease;
+}
+
+
+.restart-icon {
+
+    width: 17px;
+
+    height: 17px;
+
+    fill: var(--persian-blue);
+}
+
+
+#restart-button:hover {
+
+    background: var(--onahau);
+
+    transform: translateY(-1px);
+}
+
+
+#restart-button:active {
+
+    transform: translateY(1px) scale(0.94);
 }
 
 
@@ -155,28 +269,331 @@ header p {
 }
 
 
-.money-display {
+/* ==========================================
+   START SCREEN
 
-    background: white;
+   The welcome popup, shown on load before the
+   player builds their first budget. A slight
+   scrim over the game screen (header + setup
+   screen still visible underneath, just dimmed)
+   rather than a solid takeover -- the popup
+   card is the point, not a second background.
+========================================== */
 
-    padding: 12px 24px;
+#start-screen {
 
-    border-radius: 16px;
+    position: absolute;
 
-    text-align: center;
+    inset: 0;
 
-    box-shadow:
-        0 4px 15px rgba(10,23,36,0.14);
+    background: rgba(10, 23, 36, 0.35);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    z-index: 110;
 }
 
 
-.money-display strong {
+#start-box {
 
-    font-size: 24px;
+    position: relative;
+
+    overflow: hidden;
+
+    width: 560px;
+
+    max-width: 80vw;
+
+    padding: 56px 55px 50px;
+
+    background: #ffffff;
+
+    border-radius: 40px;
+
+    box-shadow:
+        0 24px 60px rgba(10,23,36,0.22);
+
+    text-align: center;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+}
+
+
+#start-box::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -70px;
+    right: -70px;
+
+    width: 220px;
+    height: 220px;
+
+    border-radius: 50%;
+
+    background: var(--mystic);
+
+    z-index: 0;
+}
+
+
+#start-box::after {
+
+    content: "";
+
+    position: absolute;
+
+    bottom: -90px;
+    left: -60px;
+
+    width: 170px;
+    height: 170px;
+
+    border-radius: 50%;
+
+    background: var(--mystic);
+
+    opacity: 0.6;
+
+    z-index: 0;
+}
+
+
+/* START BADGE (animated icon sticker) */
+
+.start-badge-wrap {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 120px;
+    height: 120px;
+
+    margin-bottom: 30px;
+
+    animation: startBadgeFloat 3.2s ease-in-out infinite;
+}
+
+
+.start-badge {
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--persian-blue) 0%,
+            var(--blue-bird) 100%
+        );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    box-shadow:
+        0 14px 26px rgba(25,67,220,0.35);
+}
+
+
+.start-badge-icon {
+
+    width: 56px;
+    height: 56px;
+
+    fill: #ffffff;
+}
+
+
+@keyframes startBadgeFloat {
+
+    0%, 100% {
+        transform: translateY(0) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateY(-8px) rotate(-5deg);
+    }
+}
+
+
+/* START SPARKLES */
+
+.start-sparkle {
+
+    position: absolute;
+
+    z-index: 2;
+
+    pointer-events: none;
+
+    animation: startTwinkle 1.8s ease-in-out infinite;
+}
+
+
+.start-sparkle svg {
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+}
+
+
+.start-sparkle--a {
+
+    top: -8px;
+    left: -12px;
+
+    width: 24px;
+    height: 24px;
+}
+
+.start-sparkle--a svg {
+
+    fill: var(--blue-bird);
+}
+
+
+.start-sparkle--b {
+
+    bottom: 2px;
+    right: -10px;
+
+    width: 17px;
+    height: 17px;
+
+    animation-delay: 0.5s;
+}
+
+.start-sparkle--b svg {
+
+    fill: var(--malibu);
+}
+
+
+@keyframes startTwinkle {
+
+    0%, 100% {
+        opacity: 0.95;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.35;
+        transform: scale(0.7);
+    }
+}
+
+
+/* START HEADING + MESSAGE */
+
+#start-box h1 {
+
+    position: relative;
+
+    z-index: 1;
+
+    margin: 0 0 16px;
+
+    font-size: 40px;
 
     font-weight: 800;
 
-    color: var(--persian-blue);
+    color: var(--blue-black);
+
+    letter-spacing: -0.01em;
+}
+
+
+.start-message {
+
+    position: relative;
+
+    z-index: 1;
+
+    margin: 0 0 34px;
+
+    max-width: 380px;
+
+    font-size: 19px;
+
+    font-weight: 500;
+
+    line-height: 1.55;
+
+    color: rgba(10,23,36,0.68);
+}
+
+
+/* START BUTTON */
+
+#start-button {
+
+    position: relative;
+
+    z-index: 1;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px 64px;
+
+    border: none;
+
+    border-radius: 20px;
+
+    background: var(--persian-blue);
+
+    color: #ffffff;
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-size: 26px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 0 var(--sky-blue);
+
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+}
+
+
+#start-button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 0 var(--sky-blue);
+}
+
+
+#start-button:active {
+
+    transform: translateY(3px);
+
+    box-shadow: 0 3px 0 var(--sky-blue);
 }
 
 
@@ -206,7 +623,7 @@ header p {
     display: grid;
 
     grid-template-columns:
-        320px 1fr;
+        420px 1fr;
 
     gap: 26px;
 
@@ -220,13 +637,7 @@ header p {
 
     flex-direction: column;
 
-    gap: 10px;
-
-    background: var(--sky-blue);
-
-    border-radius: 20px;
-
-    padding: 12px;
+    gap: 36px;
 }
 
 
@@ -235,9 +646,9 @@ header p {
     display: grid;
 
     grid-template-columns:
-        320px 1fr;
+        420px 1fr;
 
-    gap: 26px;
+    gap: 36px;
 
     align-items: start;
 }
@@ -286,6 +697,12 @@ header p {
 .level-banner {
 
     text-align: left;
+
+    background: var(--hawkes-blue);
+
+    border-radius: 24px;
+
+    padding: 38px 34px;
 }
 
 
@@ -295,9 +712,9 @@ header p {
 
     font-weight: 800;
 
-    font-size: 19px;
+    font-size: 33px;
 
-    margin-bottom: 4px;
+    margin-bottom: 12px;
 
     color: var(--blue-black);
 }
@@ -307,9 +724,9 @@ header p {
 
     color: #475569;
 
-    line-height: 1.4;
+    line-height: 1.5;
 
-    font-size: 14px;
+    font-size: 18px;
 }
 
 
@@ -321,11 +738,11 @@ header p {
 
     background: white;
 
-    border-radius: 14px;
+    border-radius: 18px;
 
-    padding: 10px 14px;
+    padding: 28px 26px;
 
-    margin-top: 10px;
+    margin-top: 26px;
 
     text-align: center;
 
@@ -338,7 +755,7 @@ header p {
 
     display: block;
 
-    font-size: 11px;
+    font-size: 16px;
 
     font-weight: 700;
 
@@ -348,17 +765,17 @@ header p {
 
     letter-spacing: 0.5px;
 
-    margin-bottom: 2px;
+    margin-bottom: 6px;
 }
 
 
 .paycheck-callout strong {
 
-    font-size: 26px;
+    font-size: 46px;
 
     font-weight: 800;
 
-    color: var(--persian-blue);
+    color: var(--blue-black);
 }
 
 
@@ -368,14 +785,11 @@ header p {
 
 .bills-preview-section {
 
-    background: white;
+    background: var(--hawkes-blue);
 
-    border-radius: 16px;
+    border-radius: 24px;
 
-    padding: 12px 14px;
-
-    box-shadow:
-        0 2px 8px rgba(10,23,36,0.05);
+    padding: 38px 34px;
 }
 
 
@@ -385,9 +799,9 @@ header p {
 
     font-weight: 800;
 
-    font-size: 19px;
+    font-size: 33px;
 
-    margin-bottom: 4px;
+    margin-bottom: 12px;
 
     color: var(--blue-black);
 }
@@ -397,9 +811,9 @@ header p {
 
     color: #64748b;
 
-    font-size: 12px;
+    font-size: 17px;
 
-    margin-bottom: 8px;
+    margin-bottom: 22px;
 }
 
 
@@ -409,17 +823,17 @@ header p {
 
     flex-direction: column;
 
-    gap: 4px;
+    gap: 16px;
 }
 
 
 .bill-preview-item {
 
-    background: var(--mystic);
+    background: white;
 
-    border-radius: 8px;
+    border-radius: 16px;
 
-    padding: 5px 8px;
+    padding: 20px 22px;
 
     text-align: left;
 
@@ -429,15 +843,15 @@ header p {
 
     align-items: center;
 
-    gap: 8px;
+    gap: 18px;
 }
 
 
 .bill-preview-icon {
 
-    width: 18px;
+    width: 36px;
 
-    height: 18px;
+    height: 36px;
 
     flex-shrink: 0;
 }
@@ -447,7 +861,7 @@ header p {
 
     flex: 1;
 
-    font-size: 12px;
+    font-size: 19px;
 
     font-weight: 500;
 
@@ -459,35 +873,13 @@ header p {
 
     align-items: center;
 
-    gap: 6px;
-}
-
-
-.bill-preview-bucket {
-
-    font-size: 10px;
-
-    font-weight: 700;
-
-    color: var(--persian-blue);
-
-    background: var(--hawkes-blue);
-
-    border-radius: 6px;
-
-    padding: 2px 6px;
-
-    white-space: nowrap;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.5px;
+    gap: 10px;
 }
 
 
 .bill-preview-amount {
 
-    font-size: 13px;
+    font-size: 21px;
 
     font-weight: 700;
 
@@ -503,11 +895,11 @@ header p {
 
     color: #64748b;
 
-    font-size: 12px;
+    font-size: 16px;
 
     font-weight: 400;
 
-    margin-top: 12px;
+    margin-top: 18px;
 }
 
 
@@ -521,23 +913,23 @@ header p {
 
     align-items: center;
 
-    gap: 12px;
+    gap: 16px;
 
     background: white;
 
     border: 2px solid var(--sky-blue);
 
-    border-radius: 16px;
+    border-radius: 18px;
 
-    padding: 14px 16px;
+    padding: 20px 22px;
 }
 
 
 .carryover-icon {
 
-    width: 30px;
+    width: 38px;
 
-    height: 30px;
+    height: 38px;
 
     flex-shrink: 0;
 }
@@ -555,6 +947,8 @@ header p {
 
     font-weight: 700;
 
+    font-size: 17px;
+
     color: var(--blue-black);
 }
 
@@ -563,15 +957,15 @@ header p {
 
     color: #64748b;
 
-    font-size: 13px;
+    font-size: 15px;
 
-    margin-top: 4px;
+    margin-top: 5px;
 }
 
 
 .carryover-amount {
 
-    font-size: 19px;
+    font-size: 24px;
 
     font-weight: 800;
 
@@ -626,7 +1020,7 @@ header p {
     grid-template-columns:
         repeat(3, 1fr);
 
-    gap: 12px;
+    gap: 16px 16px;
 }
 
 
@@ -644,9 +1038,9 @@ header p {
     grid-template-columns:
         repeat(6, 1fr);
 
-    gap: 12px;
+    gap: 16px;
 
-    margin-top: 12px;
+    margin-top: 16px;
 }
 
 
@@ -669,41 +1063,54 @@ header p {
 
 .bucket-savings {
 
+    max-width: none;
+
     background: var(--hawkes-blue);
 
     border-color: var(--sky-blue);
 
-    padding: 14px;
+    padding: 40px 24px;
 }
 
 
 .bucket-savings .bucket-icon {
 
-    width: 36px;
+    width: 62px;
 
-    height: 36px;
+    height: 62px;
 }
 
 
 .bucket-savings h3 {
 
-    font-size: 15px;
+    font-size: 18px;
 }
 
 
 .bucket-savings .bucket-amount {
 
-    font-size: 21px;
+    font-size: 34px;
 }
 
 
 .bucket {
 
+    /* Narrower than the full grid track and centered within it --
+       otherwise a 3-column grid on the 1920px stage stretches each
+       card into a wide, shallow bar with a lot of dead horizontal
+       padding. Taller padding/icon/type below fills the reclaimed
+       vertical room instead of leaving it blank under the grid. */
+    max-width: 440px;
+
+    margin: 0 auto;
+
+    width: 100%;
+
     border: 2px solid var(--mystic);
 
-    border-radius: 16px;
+    border-radius: 24px;
 
-    padding: 10px;
+    padding: 40px 24px;
 
     text-align: center;
 
@@ -713,45 +1120,47 @@ header p {
 
 .bucket-icon {
 
-    width: 30px;
+    width: 58px;
 
-    height: 30px;
+    height: 58px;
 
-    margin: 0 auto 5px;
+    margin: 0 auto 16px;
 }
 
 
 .bucket h3 {
 
-    margin-bottom: 3px;
+    margin-bottom: 14px;
 
-    font-size: 14px;
+    font-size: 17px;
 
     font-weight: 700;
 
-    color: var(--blue-black);
+    color: var(--persian-blue);
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
 }
 
 
 .bucket p {
 
-    font-size: 12px;
+    font-size: 13px;
 
     color: #64748b;
 
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 
 .bucket-amount {
 
-    font-size: 18px;
+    font-size: 32px;
 
     font-weight: 800;
 
-    margin: 2px 0 6px;
-
-    color: var(--persian-blue);
+    color: var(--blue-black);
 }
 
 
@@ -761,25 +1170,23 @@ header p {
 
 .amount-entry-button {
 
-    display: block;
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
 
     width: 100%;
 
-    min-height: 46px;
+    min-height: 62px;
 
     padding: 8px;
 
-    border-radius: 12px;
+    border-radius: 16px;
 
     background: var(--hawkes-blue);
 
-    color: var(--persian-blue);
-
-    border: 2px solid var(--sky-blue);
-
-    font-size: 15px;
-
-    font-weight: 700;
+    border: none;
 
     cursor: pointer;
 
@@ -791,7 +1198,7 @@ header p {
 
     transform: none;
 
-    border-color: var(--blue-bird);
+    background: var(--sky-blue);
 }
 
 
@@ -829,9 +1236,9 @@ header p {
 
     border: 2px solid var(--sky-blue);
 
-    border-radius: 16px;
+    border-radius: 20px;
 
-    padding: 10px 34px;
+    padding: 26px 44px;
 }
 
 
@@ -841,7 +1248,7 @@ header p {
 
     color: var(--persian-blue);
 
-    font-size: 13px;
+    font-size: 15px;
 
     font-weight: 700;
 
@@ -853,11 +1260,11 @@ header p {
 
 .allocate-stat strong {
 
-    font-size: 28px;
+    font-size: 36px;
 
     font-weight: 800;
 
-    color: var(--persian-blue);
+    color: var(--blue-black);
 }
 
 
@@ -982,13 +1389,25 @@ button:active {
 
     align-items: center;
 
-    margin-bottom: 16px;
+    margin-bottom: 26px;
+}
+
+
+.month-header h2 {
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-weight: 800;
+
+    font-size: 27px;
+
+    color: var(--blue-black);
 }
 
 
 .eyebrow {
 
-    font-size: 13px;
+    font-size: 16px;
 
     font-weight: 700;
 
@@ -997,18 +1416,20 @@ button:active {
     letter-spacing: 1px;
 
     text-transform: uppercase;
+
+    margin-bottom: 4px;
 }
 
 
 .progress {
 
-    width: 250px;
+    width: 320px;
 }
 
 
 .progress span {
 
-    font-size: 13px;
+    font-size: 16px;
 
     color: #64748b;
 }
@@ -1016,13 +1437,13 @@ button:active {
 
 .progress-bar {
 
-    height: 8px;
+    height: 12px;
 
     background: var(--mystic);
 
     border-radius: 10px;
 
-    margin-top: 7px;
+    margin-top: 9px;
 
     overflow: hidden;
 }
@@ -1046,21 +1467,25 @@ button:active {
 
 .expense-card {
 
+    /* Reuses the exact same "box" treatment as the setup screen's
+       paycheck card (.level-banner) -- same background, radius, and
+       padding -- so the two screens' top-left card read as the same
+       component with different content, not two different designs. */
     text-align: center;
 
-    background: var(--onahau);
+    background: var(--hawkes-blue);
 
-    border-radius: 20px;
+    border-radius: 24px;
 
-    padding: 26px 22px;
+    padding: 38px 34px;
 }
 
 
 .expense-icon {
 
-    width: 56px;
+    width: 84px;
 
-    height: 56px;
+    height: 84px;
 
     margin: 0 auto;
 }
@@ -1072,7 +1497,9 @@ button:active {
 
     font-weight: 800;
 
-    margin: 10px 0;
+    font-size: 33px;
+
+    margin: 18px 0 8px;
 
     color: var(--blue-black);
 }
@@ -1081,18 +1508,10 @@ button:active {
 .expense-card p {
 
     color: #475569;
-}
 
+    line-height: 1.5;
 
-.expense-amount {
-
-    font-size: 32px;
-
-    font-weight: 800;
-
-    margin-top: 15px;
-
-    color: var(--blue-black);
+    font-size: 18px;
 }
 
 
@@ -1100,11 +1519,13 @@ button:active {
 
     text-align: center;
 
-    margin-bottom: 14px;
+    margin-bottom: 22px;
 
     font-family: 'Inter', Arial, sans-serif;
 
     font-weight: 800;
+
+    font-size: 24px;
 
     color: var(--blue-black);
 }
@@ -1116,7 +1537,7 @@ button:active {
 
 .payment-panel {
 
-    max-width: 680px;
+    max-width: 1300px;
 
     margin: 0 auto;
 }
@@ -1127,11 +1548,11 @@ button:active {
     display: grid;
 
     grid-template-columns:
-        repeat(auto-fill, minmax(120px, 1fr));
+        repeat(auto-fill, minmax(230px, 1fr));
 
-    gap: 10px;
+    gap: 28px;
 
-    margin-bottom: 16px;
+    margin-bottom: 32px;
 }
 
 
@@ -1145,15 +1566,15 @@ button:active {
 
     justify-content: center;
 
-    min-height: 108px;
+    min-height: 250px;
 
     background: white;
 
     border: 2px solid var(--mystic);
 
-    border-radius: 16px;
+    border-radius: 22px;
 
-    padding: 10px 6px;
+    padding: 26px 16px;
 
     text-align: center;
 
@@ -1175,9 +1596,9 @@ button:active {
 
 .payment-bucket-tile .bucket-icon {
 
-    width: 26px;
+    width: 56px;
 
-    height: 26px;
+    height: 56px;
 
     margin: 0 auto;
 }
@@ -1187,9 +1608,9 @@ button:active {
 
     font-weight: 700;
 
-    font-size: 12px;
+    font-size: 19px;
 
-    margin-top: 4px;
+    margin-top: 12px;
 
     color: var(--blue-black);
 }
@@ -1197,11 +1618,11 @@ button:active {
 
 .payment-bucket-tile .bucket-balance {
 
-    font-size: 16px;
+    font-size: 28px;
 
     font-weight: 800;
 
-    margin-top: 3px;
+    margin-top: 6px;
 
     color: var(--persian-blue);
 }
@@ -1217,7 +1638,7 @@ button:active {
 
 .usual-tag {
 
-    font-size: 9px;
+    font-size: 12px;
 
     font-weight: 700;
 
@@ -1225,11 +1646,11 @@ button:active {
 
     background: white;
 
-    border-radius: 6px;
+    border-radius: 7px;
 
-    padding: 1px 6px;
+    padding: 3px 9px;
 
-    margin-top: 5px;
+    margin-top: 8px;
 
     text-transform: uppercase;
 
@@ -1239,7 +1660,7 @@ button:active {
 
 .lock-tag {
 
-    font-size: 9px;
+    font-size: 12px;
 
     font-weight: 700;
 
@@ -1249,11 +1670,11 @@ button:active {
 
     border: 1px solid #f3d98b;
 
-    border-radius: 6px;
+    border-radius: 7px;
 
-    padding: 1px 6px;
+    padding: 3px 9px;
 
-    margin-top: 5px;
+    margin-top: 8px;
 }
 
 
@@ -1303,7 +1724,9 @@ button:active {
 
     border: 2px solid #d5dbda;
 
-    min-height: 50px;
+    min-height: 62px;
+
+    font-size: 17px;
 }
 
 
@@ -1327,9 +1750,28 @@ button:active {
 
     min-height: 25px;
 
-    margin-top: 18px;
+    margin: 18px auto 0;
+
+    padding: 10px 24px;
+
+    width: fit-content;
+
+    max-width: min(640px, calc(100% - 36px));
+
+    border-radius: 20px;
+
+    background: var(--white);
+
+    border: 1.5px solid var(--hawkes-blue);
 
     font-weight: 700;
+}
+
+.message:empty {
+
+    padding: 0;
+
+    border-color: transparent;
 }
 
 
@@ -1791,134 +2233,7 @@ button:active {
 }
 
 
-/* ==========================================
-   RESPONSIVE
-========================================== */
-
-@media (max-width: 1000px) {
-
-    .setup-columns,
-    .month-columns {
-
-        grid-template-columns:
-            1fr;
-    }
-
-
-    .end-columns {
-
-        grid-template-columns:
-            1fr;
-    }
-
-}
-
-
-@media (max-width: 900px) {
-
-    .buckets,
-    .bucket-options {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-
-    .results {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-}
-
-
-@media (max-width: 600px) {
-
-    .game-container {
-
-        margin: 8px auto;
-    }
-
-
-    .screen {
-
-        padding: 16px 20px 20px;
-    }
-
-
-    .buckets,
-    .bucket-options {
-
-        grid-template-columns:
-            1fr;
-    }
-
-
-    header {
-
-        grid-template-columns: 1fr;
-
-        justify-items: center;
-
-        text-align: center;
-
-        row-gap: 10px;
-    }
-
-
-    .header-left,
-    .header-center,
-    .header-right {
-
-        justify-self: center;
-    }
-
-
-    .money-display {
-
-        width: 100%;
-    }
-
-
-    .month-header {
-
-        flex-direction: column;
-
-        align-items: flex-start;
-
-        gap: 15px;
-    }
-
-
-    .progress {
-
-        width: 100%;
-    }
-
-
-    .budget-summary {
-
-        gap: 25px;
-    }
-
-
-    .results {
-
-        grid-template-columns:
-            1fr;
-    }
-
-
-    .savings-carryover {
-
-        align-items: flex-start;
-    }
-
-
-    .carryover-amount {
-
-        font-size: 21px;
-    }
-
-}
+/* No @media breakpoints -- the fixed 1920x1080 stage above (see
+   .game-container) is uniformly scaled to fit any window, so a
+   separate stacked/mobile layout is never needed; adding one back
+   would conflict with the fixed-height stage and clip content. */
