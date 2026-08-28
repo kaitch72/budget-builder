@@ -86,7 +86,7 @@ const months = {
         title: "Your First Paycheck",
 
         description:
-            "You've got your first paycheck. Decide what expenses matter and build a budget.",
+            "You've got your first paycheck. Decide what expenses matter, set aside some to savings and build a budget.",
 
         buckets: [
 
@@ -263,7 +263,7 @@ const months = {
                 id: "bills",
                 name: "Bills",
                 icon: "wallet",
-                description: "Rent, utilities & phone"
+                description: "Rent & phone"
             },
 
             {
@@ -349,16 +349,6 @@ const months = {
                     "Your streaming subscription renewed.",
                 amount: 15,
                 bucket: "subscriptions",
-                fixed: true
-            },
-
-            {
-                icon: "wallet",
-                title: "Internet",
-                description:
-                    "Your monthly internet bill is due.",
-                amount: 50,
-                bucket: "bills",
                 fixed: true
             },
 
@@ -601,12 +591,6 @@ function loadMonth(monthNumber) {
     // ------------------------------------------
 
     document.getElementById(
-        "game-month-number"
-    ).textContent =
-        currentMonth;
-
-
-    document.getElementById(
         "month-title"
     ).textContent =
         month.title;
@@ -643,6 +627,21 @@ function loadMonth(monthNumber) {
     updateSavingsCarryover();
 
     createSetupBuckets();
+
+
+    // Month 1's sidebar (paycheck card + a short 2-bill preview,
+    // no carryover card yet) was deliberately sized generously in
+    // an earlier pass to visually match the bucket grid's height --
+    // leave that alone. From month 2 on there's more in the same
+    // column (more fixed bills, plus the savings-carryover card),
+    // so it switches to a tighter layout to actually fit the fixed
+    // stage instead of running past the bottom edge.
+    document.querySelector(
+        ".setup-sidebar"
+    ).classList.toggle(
+        "compact",
+        currentMonth > 1
+    );
 
 
     // ------------------------------------------
@@ -1365,8 +1364,11 @@ function updateBudgetDisplay() {
         );
 
 
+        // No message here on purpose -- the "Left to Allocate"
+        // stat on the start button already shows this amount,
+        // so a second line repeating it would just be noise.
         showBudgetMessage(
-            `$${remaining.toLocaleString()} still needs a bucket before you can start.`,
+            "",
             "neutral"
         );
 
@@ -1756,12 +1758,25 @@ function renderPaymentPanel(expense) {
             "payment-buckets"
         );
 
+    const savingsSlot =
+        document.getElementById(
+            "payment-savings-slot"
+        );
+
 
     grid.innerHTML = "";
+
+    savingsSlot.innerHTML = "";
 
 
     let anyAffordable = false;
 
+
+    // Same split as createSetupBuckets(): Savings renders into its
+    // own featured slot below the grid instead of sitting inside it,
+    // so this screen's bucket layout matches the setup screen's
+    // exactly (regular buckets in a 3-col grid, Savings on its own
+    // row next to the row's other control).
 
     selectedBuckets.forEach(
         bucketId => {
@@ -1785,9 +1800,6 @@ function renderPaymentPanel(expense) {
 
             const isSavings =
                 bucketId === "savings";
-
-            const isCorrect =
-                bucketId === expense.bucket;
 
             const affordable =
                 !isSavings &&
@@ -1827,31 +1839,36 @@ function renderPaymentPanel(expense) {
             tile.type =
                 "button";
 
+            // Reuses the exact same "bucket" card component as the
+            // setup screen (icon, uppercase name, pale pill amount)
+            // instead of a separately-styled tile, so the two screens'
+            // buckets read as one shared shape. Savings gets the
+            // featured bucket-savings look instead of the grey
+            // "disabled" treatment -- it's permanently protected, not
+            // short on funds, so it shouldn't look like the others.
+
+            // No "correct bucket" hint here on purpose -- the player
+            // figures out which bucket pays a bill on their own.
             tile.className =
-                "payment-bucket-tile" +
-                (affordable ? "" : " disabled") +
-                (isCorrect ? " correct-bucket" : "");
+                "bucket" +
+                (isSavings ? " bucket-savings" : (affordable ? "" : " disabled"));
 
 
             tile.innerHTML = `
 
-                <span class="bucket-icon">
+                <div class="bucket-icon">
                     ${iconMarkup(bucket.icon)}
-                </span>
+                </div>
 
-                <span class="bucket-name">
+                <h3>
                     ${bucket.name}
-                </span>
+                </h3>
 
-                <strong class="bucket-balance">
-                    $${balance}
-                </strong>
-
-                ${
-                    isCorrect
-                        ? `<span class="usual-tag">Usual bucket</span>`
-                        : ""
-                }
+                <div class="amount-entry-button">
+                    <strong class="bucket-amount">
+                        $${balance}
+                    </strong>
+                </div>
 
                 ${noteHTML}
 
@@ -1880,7 +1897,7 @@ function renderPaymentPanel(expense) {
             }
 
 
-            grid.appendChild(
+            (isSavings ? savingsSlot : grid).appendChild(
                 tile
             );
 
@@ -2180,11 +2197,10 @@ function showMessage(
 
 function finishMonth() {
 
-    monthScreen.classList.add(
-        "hidden"
-    );
-
-
+    // The month screen stays visible (dimmed behind the popup's
+    // scrim) rather than being hidden -- #end-screen is now an
+    // overlay on top of it, same convention as the #start-screen
+    // welcome popup over the setup screen.
     endScreen.classList.remove(
         "hidden"
     );
@@ -2379,6 +2395,11 @@ nextMonthButton.addEventListener(
     () => {
 
         endScreen.classList.add(
+            "hidden"
+        );
+
+
+        monthScreen.classList.add(
             "hidden"
         );
 

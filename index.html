@@ -58,8 +58,9 @@
             <h1>Budget Builder</h1>
 
             <p class="start-message">
-                Build a monthly budget, then make it through real bills and
-                expenses without running out of money!
+                Build a monthly budget, set aside savings, then make it
+                through real bills and expenses without running out of
+                money!
             </p>
 
             <button id="start-button" type="button">Start</button>
@@ -77,18 +78,10 @@
 
         <div class="header-left">
 
-            <!-- Shows once images/color-logo.png exists in this
-                 folder — hidden/removed otherwise, no code change
-                 needed when Kayla drops the file in. Sits directly
-                 on the header's light blue background, no box. -->
-            <img
-                id="brand-logo"
-                class="brand-logo hidden"
-                src="images/color-logo.png"
-                alt="Securityplus Federal Credit Union"
-                onload="this.classList.remove('hidden')"
-                onerror="this.remove()"
-            >
+            <!-- Logo intentionally removed -- Kayla is adding it back
+                 herself as a button during Intuiface integration.
+                 Left empty (not deleted) so the 1fr/auto/1fr grid
+                 below still keeps the title truly centered. -->
 
         </div>
 
@@ -166,7 +159,8 @@
                     </h3>
 
                     <p>
-                        Paid only from the bucket shown — budget these first.
+                        These are your recurring monthly expenses, don't
+                        forget to account for these in your budgeting.
                     </p>
 
                     <div id="bills-preview-list"></div>
@@ -327,74 +321,51 @@
     >
 
 
-        <!-- MONTH HEADER -->
-
-        <div class="month-header">
-
-
-            <div>
-
-                <p class="eyebrow">
-                    MONTH <span id="game-month-number">1</span>
-                </p>
-
-                <h2>
-                    Live Your Month
-                </h2>
-
-            </div>
-
-
-            <div class="progress">
-
-                <span id="expense-progress">
-                    Expense 1 of 1
-                </span>
-
-
-                <div class="progress-bar">
-
-                    <div id="progress-fill"></div>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
         <div class="month-columns">
 
 
             <!-- EXPENSE -->
 
-            <div class="expense-card">
+            <div class="expense-sidebar">
 
 
-                <div
-                    id="expense-icon"
-                    class="expense-icon"
-                >
-                    🍔
+                <div class="expense-card">
+
+
+                    <div
+                        id="expense-icon"
+                        class="expense-icon"
+                    >
+                        🍔
+                    </div>
+
+
+                    <h2 id="expense-title">
+                        Fast Food
+                    </h2>
+
+
+                    <p id="expense-description">
+                        You grabbed food with friends.
+                    </p>
+
+
+                    <div class="paycheck-callout">
+                        <span>Amount Due</span>
+                        <strong id="expense-amount">-$15</strong>
+                    </div>
+
+
                 </div>
 
 
-                <h2 id="expense-title">
-                    Fast Food
-                </h2>
+                <!-- Feedback after each pick/skip/miss -- lives
+                     under the blue expense card in the sidebar
+                     column now, instead of at the bottom of the
+                     buckets column where it could run past the
+                     stage edge. -->
 
-
-                <p id="expense-description">
-                    You grabbed food with friends.
-                </p>
-
-
-                <div class="paycheck-callout">
-                    <span>Amount Due</span>
-                    <strong id="expense-amount">-$15</strong>
-                </div>
+                <p id="expense-message" class="message"></p>
 
 
             </div>
@@ -407,41 +378,88 @@
 
 
                 <!-- PAYMENT PANEL — ALL BUCKETS SHOWN;
-                     TAP ONE TO PAY, OR SKIP/MISS -->
+                     TAP ONE TO PAY, OR SKIP/MISS.
+                     Mirrors the setup screen's structure
+                     (step-heading + .buckets grid +
+                     .setup-bottom-row with a featured
+                     Savings card) so the two screens read
+                     as the same layout with different
+                     content, same as the expense-card /
+                     paycheck-card pairing above. -->
 
                 <div
                     id="payment-panel"
                     class="payment-panel"
                 >
 
-                    <h3 id="payment-title" class="choose-title">
-                        Pick a bucket to pay this bill.
-                    </h3>
+                    <div class="step-heading">
 
-                    <div
-                        id="payment-buckets"
-                        class="payment-buckets"
-                    >
+                        <div>
 
-                        <!-- CREATED BY JAVASCRIPT -->
+                            <h2 id="payment-title">
+                                Pick a bucket to pay this bill.
+                            </h2>
+
+                        </div>
+
+
+                        <div class="progress">
+
+                            <span id="expense-progress">
+                                Expense 1 of 1
+                            </span>
+
+
+                            <div class="progress-bar">
+
+                                <div id="progress-fill"></div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
-                    <button
-                        id="secondary-action-btn"
-                        type="button"
-                        class="hidden"
+
+                    <div
+                        id="payment-buckets"
+                        class="buckets"
                     >
-                        Miss This Bill
-                    </button>
+
+                        <!-- CREATED BY JAVASCRIPT (all buckets
+                             except Savings, which sits below on
+                             its own row, same as the setup screen) -->
+
+                    </div>
+
+
+                    <div class="setup-bottom-row">
+
+                        <div
+                            id="payment-savings-slot"
+                            class="savings-bucket-slot"
+                        >
+
+                            <!-- CREATED BY JAVASCRIPT -->
+
+                        </div>
+
+
+                        <div class="budget-summary">
+
+                            <button
+                                id="secondary-action-btn"
+                                type="button"
+                                class="hidden"
+                            >
+                                Miss This Bill
+                            </button>
+
+                        </div>
+
+                    </div>
 
                 </div>
-
-
-                <p
-                    id="expense-message"
-                    class="message"
-                ></p>
 
             </div>
 
@@ -457,9 +475,9 @@
          END OF MONTH SCREEN
     =========================================== -->
 
-    <section
+    <div
         id="end-screen"
-        class="screen hidden"
+        class="hidden"
     >
 
 
@@ -597,7 +615,7 @@
         </div>
 
 
-    </section>
+    </div>
 
 
     <!-- ==========================================

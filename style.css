@@ -138,7 +138,12 @@ header {
 
     align-items: center;
 
-    padding: 10px 28px;
+    /* Locks the top bar to 1/12 of the fixed 1080px stage height
+       (90px) so every finlit game's header lines up the same way --
+       shared layout convention, not just a Budget Builder tweak. */
+    height: calc(var(--stage-height) / 12);
+
+    padding: 0 28px;
 
     /* Light hawkes-blue -- the same pale header
        tone Coin Catch and Lemonade Stand use,
@@ -232,18 +237,6 @@ header {
 #restart-button:active {
 
     transform: translateY(1px) scale(0.94);
-}
-
-
-.brand-logo {
-
-    height: 26px;
-
-    width: auto;
-
-    display: block;
-
-    margin: 0;
 }
 
 
@@ -603,7 +596,10 @@ header p {
 
 .screen {
 
-    padding: 10px 28px 18px;
+    /* Even top/bottom padding -- was 10px/18px, which read as
+       "squished" against the header since the top gap was less
+       than half the bottom one. */
+    padding: 34px 28px;
 }
 
 
@@ -648,7 +644,9 @@ header p {
     grid-template-columns:
         420px 1fr;
 
-    gap: 36px;
+    /* Matches .setup-columns' gap exactly (was 36px) so the two
+       screens' sidebar/main proportions line up identically. */
+    gap: 26px;
 
     align-items: start;
 }
@@ -789,7 +787,7 @@ header p {
 
     border-radius: 24px;
 
-    padding: 38px 34px;
+    padding: 22px 24px;
 }
 
 
@@ -799,9 +797,9 @@ header p {
 
     font-weight: 800;
 
-    font-size: 33px;
+    font-size: 22px;
 
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 
     color: var(--blue-black);
 }
@@ -811,9 +809,9 @@ header p {
 
     color: #64748b;
 
-    font-size: 17px;
+    font-size: 14px;
 
-    margin-bottom: 22px;
+    margin-bottom: 12px;
 }
 
 
@@ -823,7 +821,7 @@ header p {
 
     flex-direction: column;
 
-    gap: 16px;
+    gap: 8px;
 }
 
 
@@ -833,7 +831,7 @@ header p {
 
     border-radius: 16px;
 
-    padding: 20px 22px;
+    padding: 10px 16px;
 
     text-align: left;
 
@@ -843,15 +841,15 @@ header p {
 
     align-items: center;
 
-    gap: 18px;
+    gap: 14px;
 }
 
 
 .bill-preview-icon {
 
-    width: 36px;
+    width: 24px;
 
-    height: 36px;
+    height: 24px;
 
     flex-shrink: 0;
 }
@@ -861,7 +859,7 @@ header p {
 
     flex: 1;
 
-    font-size: 19px;
+    font-size: 16px;
 
     font-weight: 500;
 
@@ -879,7 +877,7 @@ header p {
 
 .bill-preview-amount {
 
-    font-size: 21px;
+    font-size: 17px;
 
     font-weight: 700;
 
@@ -895,11 +893,11 @@ header p {
 
     color: #64748b;
 
-    font-size: 16px;
+    font-size: 13px;
 
     font-weight: 400;
 
-    margin-top: 18px;
+    margin-top: 8px;
 }
 
 
@@ -972,6 +970,66 @@ header p {
     color: var(--persian-blue);
 
     white-space: nowrap;
+}
+
+
+/* ==========================================
+   COMPACT SIDEBAR (month 2+)
+
+   The bills-preview section (list, row size, icon
+   size, etc.) is the same thin sizing in every
+   month now, so bills stay visually consistent
+   round to round. What still varies is the
+   savings-carryover card, which only appears from
+   month 2 on -- `.setup-sidebar.compact` (toggled
+   by `loadMonth()` whenever `currentMonth > 1`)
+   just tightens the sidebar's outer gap and that
+   card's sizing so it lands inside the stage
+   alongside the (now-thin) bills list. Month 1
+   never gets this class, but its bills section
+   looks identical to month 2's since the shared
+   rules above already match.
+========================================== */
+
+.setup-sidebar.compact {
+
+    gap: 20px;
+}
+
+
+.compact .savings-carryover {
+
+    padding: 12px 18px;
+
+    gap: 12px;
+}
+
+
+.compact .carryover-icon {
+
+    width: 26px;
+
+    height: 26px;
+}
+
+
+.compact .savings-carryover strong {
+
+    font-size: 15px;
+}
+
+
+.compact .savings-carryover p {
+
+    font-size: 12px;
+
+    margin-top: 3px;
+}
+
+
+.compact .carryover-amount {
+
+    font-size: 19px;
 }
 
 
@@ -1378,48 +1436,12 @@ button:active {
 
 
 /* ==========================================
-   MONTH HEADER
+   EXPENSE PROGRESS
+   (Now lives inline inside #payment-panel's
+   .step-heading, next to "Pick a bucket to pay
+   this bill." -- see the scoped flex rule in
+   the PAYMENT PANEL section below.)
 ========================================== */
-
-.month-header {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 26px;
-}
-
-
-.month-header h2 {
-
-    font-family: 'Inter', Arial, sans-serif;
-
-    font-weight: 800;
-
-    font-size: 27px;
-
-    color: var(--blue-black);
-}
-
-
-.eyebrow {
-
-    font-size: 16px;
-
-    font-weight: 700;
-
-    color: var(--persian-blue);
-
-    letter-spacing: 1px;
-
-    text-transform: uppercase;
-
-    margin-bottom: 4px;
-}
-
 
 .progress {
 
@@ -1464,6 +1486,18 @@ button:active {
 /* ==========================================
    EXPENSE
 ========================================== */
+
+/* Holds the blue expense card plus the pick/skip/miss feedback
+   message underneath it, stacked in the sidebar column -- moved
+   here (was at the bottom of the buckets column) since that
+   spot could run past the bottom of the fixed stage. */
+.expense-sidebar {
+
+    display: flex;
+
+    flex-direction: column;
+}
+
 
 .expense-card {
 
@@ -1515,146 +1549,43 @@ button:active {
 }
 
 
-.choose-title {
-
-    text-align: center;
-
-    margin-bottom: 22px;
-
-    font-family: 'Inter', Arial, sans-serif;
-
-    font-weight: 800;
-
-    font-size: 24px;
-
-    color: var(--blue-black);
-}
-
-
 /* ==========================================
    PAYMENT PANEL — ALL BUCKETS SHOWN
+
+   Reuses the setup screen's .buckets/.bucket
+   card component as-is (see ALLOCATION BUCKETS
+   above) instead of a separately-styled tile,
+   so the two screens' bucket cards are the same
+   shape/size. Only the payment-specific
+   "disabled" (not enough funded) state is
+   layered on top, scoped to this screen's
+   containers so it never touches the setup
+   screen's own .bucket cards. No "correct
+   bucket" hint is shown here on purpose.
 ========================================== */
 
-.payment-panel {
+/* #payment-panel's .step-heading now carries the "Expense N of M"
+   progress bar as a second child alongside the heading text, laid
+   out on the same row (mirrors the old .month-header's flex
+   layout). Scoped to this screen only so the setup screen's own
+   single-child .step-heading is untouched. Every other spacing
+   value here (margins, gaps) is the shared default -- unscoped,
+   identical to the setup screen -- so the buckets grid matches
+   pixel-for-pixel. */
 
-    max-width: 1300px;
-
-    margin: 0 auto;
-}
-
-
-.payment-buckets {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(auto-fill, minmax(230px, 1fr));
-
-    gap: 28px;
-
-    margin-bottom: 32px;
-}
-
-
-.payment-bucket-tile {
+#payment-panel .step-heading {
 
     display: flex;
 
-    flex-direction: column;
+    justify-content: space-between;
 
     align-items: center;
-
-    justify-content: center;
-
-    min-height: 250px;
-
-    background: white;
-
-    border: 2px solid var(--mystic);
-
-    border-radius: 22px;
-
-    padding: 26px 16px;
-
-    text-align: center;
-
-    cursor: pointer;
-
-    transition: 0.2s;
-
-    touch-action: manipulation;
 }
 
 
-.payment-bucket-tile:hover {
-
-    transform: translateY(-2px);
+#payment-buckets .bucket:not(.disabled):hover {
 
     border-color: var(--blue-bird);
-}
-
-
-.payment-bucket-tile .bucket-icon {
-
-    width: 56px;
-
-    height: 56px;
-
-    margin: 0 auto;
-}
-
-
-.payment-bucket-tile .bucket-name {
-
-    font-weight: 700;
-
-    font-size: 19px;
-
-    margin-top: 12px;
-
-    color: var(--blue-black);
-}
-
-
-.payment-bucket-tile .bucket-balance {
-
-    font-size: 28px;
-
-    font-weight: 800;
-
-    margin-top: 6px;
-
-    color: var(--persian-blue);
-}
-
-
-.payment-bucket-tile.correct-bucket {
-
-    border-color: var(--persian-blue);
-
-    background: var(--hawkes-blue);
-}
-
-
-.usual-tag {
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    color: var(--persian-blue);
-
-    background: white;
-
-    border-radius: 7px;
-
-    padding: 3px 9px;
-
-    margin-top: 8px;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.5px;
 }
 
 
@@ -1678,13 +1609,11 @@ button:active {
 }
 
 
-.payment-bucket-tile.disabled {
+#payment-buckets .bucket.disabled {
 
     background: #f8fafc;
 
     border-color: var(--mystic);
-
-    color: #9ca3af;
 
     cursor: not-allowed;
 
@@ -1692,7 +1621,7 @@ button:active {
 }
 
 
-.payment-bucket-tile.disabled:hover {
+#payment-buckets .bucket.disabled:hover {
 
     transform: none;
 
@@ -1700,15 +1629,33 @@ button:active {
 }
 
 
-.payment-bucket-tile.disabled .bucket-balance {
+#payment-buckets .bucket.disabled h3,
+#payment-buckets .bucket.disabled .bucket-amount {
 
     color: #9ca3af;
 }
 
 
-.payment-bucket-tile.disabled svg {
+#payment-buckets .bucket.disabled svg {
 
     fill: #9ca3af;
+}
+
+
+/* Savings is always non-payable here (same "protected" rule as
+   the setup screen), so it keeps the featured bucket-savings look
+   rather than the grey "disabled" treatment above -- it's locked,
+   not short on funds. */
+
+#payment-savings-slot .bucket-savings {
+
+    cursor: not-allowed;
+}
+
+
+#payment-savings-slot .bucket-savings:hover {
+
+    transform: none;
 }
 
 
@@ -1776,16 +1723,54 @@ button:active {
 
 
 /* ==========================================
-   END SCREEN — DARK "STATEMENT" SURFACE
-   (the one big celebratory moment, matching
-   Coin Catch / Driver Decides / Lemonade Stand)
+   END OF MONTH POPUP
+   Same overlay convention as #start-screen /
+   #start-box (scrim over the game screen still
+   visible underneath -- here that's the month
+   screen, dimmed but not swapped out), with the
+   card itself keeping the dark "statement"
+   surface treatment (matching Coin Catch /
+   Driver Decides / Lemonade Stand) instead of
+   spanning the full stage the way it used to.
 ========================================== */
 
-#end-screen.screen {
+#end-screen {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(10, 23, 36, 0.35);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    z-index: 110;
+}
+
+
+.end-card {
 
     position: relative;
 
+    z-index: 1;
+
     overflow: hidden;
+
+    width: 940px;
+
+    max-width: 86vw;
+
+    max-height: 88vh;
+
+    overflow-y: auto;
+
+    padding: 44px 50px 40px;
+
+    text-align: center;
 
     background:
         linear-gradient(
@@ -1793,10 +1778,15 @@ button:active {
             var(--blue-black) 0%,
             var(--persian-blue) 100%
         );
+
+    border-radius: 32px;
+
+    box-shadow:
+        0 24px 60px rgba(10,23,36,0.35);
 }
 
 
-#end-screen.screen::before {
+.end-card::before {
 
     content: "";
 
@@ -1810,19 +1800,21 @@ button:active {
 
     background-size: 120px 120px;
 
-    opacity: 0.06;
+    /* Bumped up from the 0.06 used on the old full-page version --
+       at that low an opacity it barely read against the dark
+       gradient on the now-smaller popup card. Still light, just
+       actually visible. */
+    opacity: 0.1;
 
     pointer-events: none;
 }
 
 
-.end-card {
+.end-card > * {
 
     position: relative;
 
     z-index: 1;
-
-    text-align: center;
 }
 
 
