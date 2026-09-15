@@ -57,9 +57,10 @@
             <h1>Budget Builder</h1>
 
             <p class="start-message">
-                Build a monthly budget, set aside savings, then make it
-                through real bills and expenses without running out of
-                money!
+                Build a budget through three life stages — Teenager,
+                College, and Career. Cover your Bills and Needs, enjoy
+                some Wants, and save what you can along the way — miss
+                a bill, though, and it follows you into the next stage.
             </p>
 
             <button id="start-button" type="button">Start</button>
@@ -138,7 +139,7 @@
                     </p>
 
                     <div class="paycheck-callout">
-                        <span id="paycheck-label">Month 1 Paycheck</span>
+                        <span id="paycheck-label">Teenager Paycheck</span>
                         <strong id="paycheck-amount">$600</strong>
                     </div>
 
@@ -154,17 +155,10 @@
                 >
 
                     <h3>
-                        Fixed Monthly Bills
+                        Your Expenses
                     </h3>
 
-                    <p>
-                        These are your recurring monthly expenses, don't
-                        forget to account for these in your budgeting.
-                    </p>
-
                     <div id="bills-preview-list"></div>
-
-                    <p id="bills-preview-note" class="bills-preview-note"></p>
 
                 </div>
 
@@ -189,7 +183,7 @@
 
                         <p>
                             This money is already saved.
-                            It stays with you this month.
+                            It stays with you this stage.
                         </p>
 
                     </div>
@@ -223,10 +217,11 @@
                         </h2>
 
                         <p>
-                            Give every dollar of your paycheck a bucket.
-                            Each bucket can only pay for its own kind of
-                            expense during the month — so how much you put
-                            here decides what you can afford later.
+                            Give every dollar of your paycheck a bucket —
+                            how much you put where decides what you can
+                            cover later. Come up short somewhere and you
+                            can always dip into another bucket, but
+                            that's less for whatever it was set aside for.
                         </p>
 
                     </div>
@@ -235,26 +230,37 @@
 
 
 
+                <!-- NEEDS ROW -- one jar per Need category this
+                     stage has (groceries, gas, personal care...).
+                     Column count + visibility are set in JS
+                     (setRowColumns), since this varies by stage. -->
                 <div
-                    id="setup-buckets"
-                    class="buckets setup-buckets"
+                    id="setup-needs-row"
+                    class="buckets jar-row"
                 >
 
-                    <!-- CREATED BY JAVASCRIPT (all buckets
-                         except Savings, which sits below on
-                         its own row so it stays separated) -->
+                    <!-- CREATED BY JAVASCRIPT -->
+
+                </div>
+
+
+                <!-- WANTS ROW -- one jar per Want category
+                     (takeout, shopping, entertainment...). -->
+                <div
+                    id="setup-wants-row"
+                    class="buckets jar-row"
+                >
+
+                    <!-- CREATED BY JAVASCRIPT -->
 
                 </div>
 
 
 
-                <!-- SAVINGS (featured, on its own row) +
-                     SUMMARY / START BUTTON — one control:
-                     shows the running "left to allocate" stat
-                     while budgeting, then flips into the Start
-                     Month button once every dollar has a bucket
-                     (see updateBudgetDisplay in game.js) -->
-
+                <!-- BOTTOM ROW -- Bills moved up into the Needs
+                     row (it's a Need too, just pooled), so Savings is
+                     the only jar left down here, featured/locked, with
+                     the Start control right next to it. -->
                 <div class="setup-bottom-row">
 
                     <div
@@ -285,7 +291,7 @@
                             </strong>
 
                             <span id="start-month-label" class="hidden">
-                                Start Month 1
+                                Start Teenager
                             </span>
 
                         </button>
@@ -421,13 +427,21 @@
 
 
                     <div
-                        id="payment-buckets"
-                        class="buckets"
+                        id="payment-needs-row"
+                        class="buckets jar-row"
                     >
 
-                        <!-- CREATED BY JAVASCRIPT (all buckets
-                             except Savings, which sits below on
-                             its own row, same as the setup screen) -->
+                        <!-- CREATED BY JAVASCRIPT -->
+
+                    </div>
+
+
+                    <div
+                        id="payment-wants-row"
+                        class="buckets jar-row"
+                    >
+
+                        <!-- CREATED BY JAVASCRIPT -->
 
                     </div>
 
@@ -488,14 +502,20 @@
             </div>
 
 
-            <h2>
-                Month <span id="completed-month">1</span> Complete!
+            <h2 id="end-title">
+                Teenager Complete!
             </h2>
 
 
             <p id="end-message">
-                You made it through the month.
+                You made it through the stage.
             </p>
+
+
+            <div id="readiness-outcome" class="readiness-outcome hidden"></div>
+
+
+            <div id="overfunding-callout" class="overfunding-callout hidden"></div>
 
 
 
@@ -565,8 +585,9 @@
 
 
                     <p class="carryover-reminder">
-                        Only your Savings bucket carries into next month —
-                        every other bucket resets to $0.
+                        Only Savings carries into next stage — Needs,
+                        Wants, and Bills all reset to $0. Leftover money
+                        in any of them is gone, not saved.
                     </p>
 
                 </div>
@@ -581,6 +602,7 @@
 
                         <h3>
                             Financial Wellness
+                            <span id="wellness-scope-label">(This Stage)</span>
                         </h3>
 
 
@@ -595,14 +617,19 @@
                             0%
                         </strong>
 
+
+                        <p id="cumulative-wellness-line" class="cumulative-wellness-line hidden">
+                            Overall so far: <strong id="cumulative-wellness-score">0%</strong>
+                        </p>
+
                     </div>
 
 
 
-                    <!-- NEXT MONTH BUTTON -->
+                    <!-- NEXT STAGE BUTTON -->
 
                     <button id="next-month-btn">
-                        Start Month 2
+                        Start Next Stage
                     </button>
 
                 </div>
@@ -651,6 +678,12 @@
                 </div>
 
             </div>
+
+
+            <p
+                id="keypad-lock-note"
+                class="keypad-lock-note hidden"
+            ></p>
 
 
             <div

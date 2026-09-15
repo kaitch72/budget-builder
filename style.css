@@ -596,10 +596,15 @@ header p {
 
 .screen {
 
-    /* Even top/bottom padding -- was 10px/18px, which read as
-       "squished" against the header since the top gap was less
-       than half the bottom one. */
-    padding: 34px 28px;
+    /* Top padding is bigger than bottom on purpose -- ".screen"
+       sits at a fixed height (auto, from its own content) directly
+       under the header rather than stretching to fill the stage, so
+       any slack left over below a shorter screen's content shows up
+       as EXTRA bottom whitespace no padding value alone accounts for.
+       Bumping padding-top absorbs half of that leftover gap, which
+       nets out to the same visual gap top and bottom instead of the
+       bottom reading twice as tall. */
+    padding: 47px 28px 34px;
 }
 
 
@@ -787,7 +792,7 @@ header p {
 
     border-radius: 24px;
 
-    padding: 22px 24px;
+    padding: 38px 34px;
 }
 
 
@@ -797,21 +802,11 @@ header p {
 
     font-weight: 800;
 
-    font-size: 22px;
-
-    margin-bottom: 6px;
-
-    color: var(--blue-black);
-}
-
-
-.bills-preview-section > p {
-
-    color: #64748b;
-
-    font-size: 14px;
+    font-size: 33px;
 
     margin-bottom: 12px;
+
+    color: var(--blue-black);
 }
 
 
@@ -822,6 +817,22 @@ header p {
     flex-direction: column;
 
     gap: 8px;
+}
+
+
+/* A stage's Needs list is no longer a fixed count -- a missed bill
+   or a loan can carry an extra row or two into the NEXT stage's
+   preview, on top of that stage's own bills. A typical stage (3-4
+   rows) sits comfortably under this cap with no visible scrollbar;
+   only a heavy-miss playthrough (5-6+ carried rows) actually
+   scrolls, rather than the list quietly pushing the sidebar past
+   the fixed stage's bottom edge. */
+
+.compact #bills-preview-list {
+
+    max-height: 230px;
+
+    overflow-y: auto;
 }
 
 
@@ -993,7 +1004,11 @@ header p {
 
 .setup-sidebar.compact {
 
-    gap: 20px;
+    /* Tighter than the original 20px -- Stage 2+ sidebars now stack
+       FOUR cards (paycheck, Needs preview, readiness target, savings
+       carryover) instead of the original three, so the gap had to
+       shrink further to keep the column inside the fixed stage. */
+    gap: 8px;
 }
 
 
@@ -1069,128 +1084,307 @@ header p {
 
 /* ==========================================
    ALLOCATION BUCKETS
+
+   .jar-row (the Needs/Wants rows) gets its exact column count set
+   inline by JS (setRowColumns in game.js), since a stage can have
+   anywhere from one to several jars in a row -- the value below is
+   just the initial/fallback sizing before JS runs.
 ========================================== */
 
 .buckets {
 
     display: grid;
 
+    /* Sized-content columns (not 1fr/1fr) so jars sit near each
+       other with real space between them, instead of each one being
+       centered alone in its own track -- a jar graphic reads as an
+       object on the page, not a card that should stretch to fill
+       its track. justify-content: start (per Kayla's mockup) keeps
+       every row's jars flush against the same left edge instead of
+       centering each row as its own group -- a row with fewer jars
+       (e.g. Stage 1's single Food jar) sits at the same start
+       position as a fuller row below it, rather than drifting to
+       the middle of the column on its own. */
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(2, minmax(0, 250px));
 
-    gap: 16px 16px;
+    justify-content: start;
+
+    gap: 16px 30px;
+}
+
+
+.jar-row {
+
+    margin-bottom: 20px;
 }
 
 
 /* ==========================================
-   SAVINGS ROW + START BUTTON
-   (Savings sits apart from the regular bucket
-   grid, on its own row next to the start
-   button, so it stays visually separated)
+   BOTTOM ROW — BILLS + SAVINGS
+   (Always exactly two jars: Bills on the left,
+   Savings on the right, featured/locked)
 ========================================== */
 
 .setup-bottom-row {
 
     display: grid;
 
+    /* Bills moved up into the Needs row (see createSetupBuckets() /
+       renderPaymentPanel() in game.js), so this row is down to just
+       Savings plus the Start/Miss-bill control next to it -- Savings'
+       own track matches the 250px used above (same size jar, same
+       size column) so it lines up under the Needs/Wants jars instead
+       of drifting, with an "auto" 2nd track for the button. */
     grid-template-columns:
-        repeat(6, 1fr);
+        minmax(0, 250px) auto;
 
-    gap: 16px;
+    align-items: center;
 
-    margin-top: 16px;
+    justify-content: start;
+
+    gap: 30px;
+
+    margin-top: 19px;
 }
 
-
-/* Doubling the bucket grid's column count (same
-   gap) and spanning 2 tracks lands Savings at
-   exactly one bucket-card width, centered on the
-   gap between cards 1 and 2 above it. */
 
 .savings-bucket-slot {
 
-    grid-column: 2 / 4;
+    grid-column: 1 / 2;
 }
 
 
-.savings-bucket-slot .bucket {
+/* Savings used to run slightly bigger than the other jars (and,
+   before that, sat on a soft Hawkes Blue halo card) to read as
+   "featured" -- both now dropped so every jar in the grid, Savings
+   included, is exactly the same size and lines up column-for-column
+   with the row above it instead of throwing off the grid. */
 
-    height: 100%;
+
+/* ==========================================
+   NEEDS / WANTS / SAVINGS — TYPE TAGS
+
+   Each bucket type gets its own small uppercase
+   pill (Iconography's label convention) so the three
+   different rules (Needs is non-negotiable, Wants is
+   flexible, Savings is locked) read at a glance
+   instead of needing to be re-explained every stage.
+   The colored top-edge border this used to carry is
+   gone now that buckets are jar graphics rather than
+   white card boxes (see BUCKET — JAR GRAPHIC below)
+   -- the tag color, plus Savings' own halo, is signal
+   enough on its own.
+========================================== */
+
+.bucket-type-tag {
+
+    display: inline-block;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.6px;
+
+    text-transform: uppercase;
+
+    padding: 5px 14px;
+
+    border-radius: 999px;
+
+    margin-bottom: 10px;
 }
 
 
-.bucket-savings {
-
-    max-width: none;
+.bucket-need .bucket-type-tag {
 
     background: var(--hawkes-blue);
 
-    border-color: var(--sky-blue);
-
-    padding: 40px 24px;
+    color: var(--persian-blue);
 }
 
 
-.bucket-savings .bucket-icon {
+.bucket-want .bucket-type-tag {
 
-    width: 62px;
+    background: var(--onahau);
 
-    height: 62px;
+    color: var(--blue-black);
 }
 
 
-.bucket-savings h3 {
+.bucket-bill .bucket-type-tag {
 
-    font-size: 18px;
+    background: var(--sky-blue);
+
+    color: var(--blue-black);
 }
 
 
-.bucket-savings .bucket-amount {
+.bucket-savings .bucket-type-tag {
 
-    font-size: 34px;
+    background: white;
+
+    color: var(--persian-blue);
 }
 
+
+/* ==========================================
+   BUCKET — JAR GRAPHIC
+
+   Each bucket (Needs/Wants/Savings) is now Kayla's
+   own jar artwork (images/jar.svg, recolored to
+   Onahau/Hawkes Blue directly in the SVG file per the
+   "custom hand-drawn game-chrome artwork" convention)
+   instead of a white card. The icon, name, and dollar
+   amount are layered on top as percentage-based
+   absolute overlays keyed to the jar's own viewBox
+   proportions (266.276 x 268.291 -- the shorter, wider
+   jar Kayla swapped in) so they land in the right spot
+   on the jar regardless of the column's rendered width.
+========================================== */
 
 .bucket {
 
-    /* Narrower than the full grid track and centered within it --
-       otherwise a 3-column grid on the 1920px stage stretches each
-       card into a wide, shallow bar with a lot of dead horizontal
-       padding. Taller padding/icon/type below fills the reclaimed
-       vertical room instead of leaving it blank under the grid. */
-    max-width: 440px;
+    /* Narrower than the full grid track and centered within it,
+       same reasoning as the old card version -- a jar stretched to
+       the full width of a 1920px-stage grid column would look
+       oversized and thin rather than like an actual jar. */
+    /* Payment-panel tiles are real <button> elements (setup-screen
+       ones are plain <div>s) so this also has to cancel the global
+       `button { padding/border-radius/... }` reset -- otherwise the
+       browser's own button chrome shows through as a grey box behind
+       the jar on the payment screen only, where the setup screen
+       (never a real button here) looked fine.
+
+       Sized down from the original 230px now that a stage can stack
+       up to three jar rows (Needs/Wants/Bills+Savings) in the same
+       fixed-height stage that used to only ever hold one row of
+       jars -- keeps all three rows (plus the Start button below
+       them) inside the 1080px stage instead of clipping. */
+    max-width: 250px;
 
     margin: 0 auto;
 
     width: 100%;
 
-    border: 2px solid var(--mystic);
+    padding: 0;
 
-    border-radius: 24px;
+    border: none;
 
-    padding: 40px 24px;
+    border-radius: 0;
+
+    background: none;
 
     text-align: center;
-
-    background: white;
 }
 
 
-.bucket-icon {
+.jar-visual {
 
-    width: 58px;
+    position: relative;
 
-    height: 58px;
+    width: 100%;
 
-    margin: 0 auto 16px;
+    margin: 0 auto;
 }
 
 
-.bucket h3 {
+/* Gives .jar-visual its height without the `aspect-ratio` CSS property
+   -- some kiosk/embedded browser engines (e.g. an older WebView inside
+   Intuiface) don't support it, which silently collapses the box to
+   zero height and, with it, every percentage-positioned child inside
+   (the jar image disappears and the amount pill's percentage sizing
+   resolves against a distant ancestor instead, blowing up to full-
+   page width). Padding-top as a percentage is always relative to the
+   containing block's WIDTH -- a classic, universally-supported way to
+   build a fixed-aspect-ratio box that works in effectively any engine,
+   not just current ones. 100.76% = 268.291 / 266.276 * 100, the jar
+   artwork's own height:width ratio. */
 
-    margin-bottom: 14px;
+.jar-visual::before {
 
-    font-size: 17px;
+    content: "";
+
+    display: block;
+
+    padding-top: 100.76%;
+}
+
+
+.jar-img {
+
+    position: absolute;
+
+    /* Longhand instead of the `inset: 0` shorthand -- same
+       compatibility reasoning as .jar-visual's padding-hack above. */
+    top: 0;
+
+    right: 0;
+
+    bottom: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+    pointer-events: none;
+
+    /* jar.svg's own aspect ratio matches this box exactly (that's
+       what the 100.76% padding-hack above is tuned to), so this was
+       a no-op for it -- coin-jar.svg shares the same viewBox now too,
+       but object-fit: contain is kept as a safety net in case either
+       jar graphic is swapped again for one with different proportions. */
+    object-fit: contain;
+}
+
+
+.jar-icon {
+
+    /* Sits just under the lid, in the jar's "shoulder" -- percentages
+       are fractions of the jar artwork's own proportions, not fixed
+       px, so this stays correctly placed at any rendered size. */
+    position: absolute;
+
+    top: 30%;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    /* Square, expressed as plain width/height percentages instead of
+       `aspect-ratio: 1` for the same engine-compatibility reason as
+       .jar-visual above -- 16.87% height is 17% width converted through
+       the jar's own 1.0076 height:width ratio (the new shorter/wider
+       jar is nearly square, so this is now barely a correction at all),
+       so it comes out square once .jar-visual's real height is known. */
+    width: 17%;
+
+    height: 16.87%;
+}
+
+
+.jar-label {
+
+    position: absolute;
+
+    /* Nudged down from the jar's lid so the icon/label/amount
+       cluster has breathing room at the top instead of crowding
+       the shoulder -- see .jar-icon and .amount-entry-button, shifted
+       down by the same amount so their relative spacing holds. */
+    top: 47%;
+
+    left: 0;
+
+    right: 0;
+
+    padding: 0 8%;
+
+    font-size: 15px;
 
     font-weight: 700;
 
@@ -1199,22 +1393,14 @@ header p {
     text-transform: uppercase;
 
     letter-spacing: 0.5px;
-}
 
-
-.bucket p {
-
-    font-size: 13px;
-
-    color: #64748b;
-
-    margin-top: 8px;
+    line-height: 1.15;
 }
 
 
 .bucket-amount {
 
-    font-size: 32px;
+    font-size: 22px;
 
     font-weight: 800;
 
@@ -1224,9 +1410,22 @@ header p {
 
 /* ==========================================
    TOUCH ALLOCATION CONTROLS
+
+   The dollar-amount pill, positioned lower on the jar
+   body (per Kayla's mockup) as a percentage-based
+   absolute overlay, same convention as .jar-icon/
+   .jar-label above.
 ========================================== */
 
 .amount-entry-button {
+
+    position: absolute;
+
+    top: 67%;
+
+    left: 50%;
+
+    transform: translateX(-50%);
 
     display: flex;
 
@@ -1234,17 +1433,29 @@ header p {
 
     justify-content: center;
 
-    width: 100%;
+    width: 66%;
 
-    min-height: 62px;
+    /* Belt-and-suspenders cap: if .jar-visual's own containing-block
+       sizing were ever wrong again (see the note above it), this stops
+       the pill from ballooning to a huge fraction of the whole stage
+       instead of just the jar it belongs to. */
+    max-width: 200px;
 
-    padding: 8px;
+    min-height: unset;
 
+    padding: 9px 6px;
+
+    /* Slightly rounded, not a full pill -- matches
+       .bill-preview-item's corner radius so the jar's
+       amount pill and the sidebar's expense rows read
+       as the same shape language. */
     border-radius: 16px;
 
-    background: var(--hawkes-blue);
+    background: white;
 
     border: none;
+
+    box-shadow: 0 3px 10px rgba(10,23,36,0.18);
 
     cursor: pointer;
 
@@ -1254,19 +1465,11 @@ header p {
 
 .amount-entry-button:hover {
 
-    transform: none;
+    transform: translateX(-50%);
 
-    background: var(--sky-blue);
-}
-
-
-.savings-note {
-
-    font-size: 12px;
-
-    color: #64748b;
-
-    margin-top: 7px;
+    /* Light neutral grey instead of the brand teal
+       (--onahau) -- a plain hover cue, not a color pop. */
+    background: #e9e9ea;
 }
 
 
@@ -1276,9 +1479,9 @@ header p {
 
 .budget-summary {
 
-    grid-column: 4 / 6;
-
     display: flex;
+
+    flex-direction: column;
 
     justify-content: center;
 
@@ -1583,13 +1786,29 @@ button:active {
 }
 
 
-#payment-buckets .bucket:not(.disabled):hover {
+#payment-needs-row .bucket:not(.disabled):hover .jar-img , #payment-wants-row .bucket:not(.disabled):hover .jar-img{
 
-    border-color: var(--blue-bird);
+    filter: drop-shadow(0 8px 16px rgba(25,67,220,0.35));
 }
 
 
+/* Positioned lower on the jar than the amount pill, in the belly's
+   remaining open space -- percentage-based absolute overlay, same
+   convention as .jar-icon/.jar-label/.amount-entry-button above.
+   Shifted down to 85% to keep pace with the amount pill's own move
+   from 58% to 67% (same 18-point gap between the two preserved). */
+
 .lock-tag {
+
+    position: absolute;
+
+    top: 85%;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    white-space: nowrap;
 
     font-size: 12px;
 
@@ -1604,39 +1823,47 @@ button:active {
     border-radius: 7px;
 
     padding: 3px 9px;
-
-    margin-top: 8px;
 }
 
 
-#payment-buckets .bucket.disabled {
+/* A disabled tile has no card background/border to grey out any more
+   (see BUCKET — JAR GRAPHIC) -- instead the jar graphic itself fades
+   and desaturates, same "can't use this right now" read. */
 
-    background: #f8fafc;
-
-    border-color: var(--mystic);
+#payment-needs-row .bucket.disabled , #payment-wants-row .bucket.disabled{
 
     cursor: not-allowed;
-
-    opacity: 0.7;
 }
 
 
-#payment-buckets .bucket.disabled:hover {
+#payment-needs-row .bucket.disabled .jar-img , #payment-wants-row .bucket.disabled .jar-img{
+
+    opacity: 0.5;
+
+    filter: grayscale(60%);
+}
+
+
+#payment-needs-row .bucket.disabled:hover , #payment-wants-row .bucket.disabled:hover{
 
     transform: none;
-
-    border-color: var(--mystic);
 }
 
 
-#payment-buckets .bucket.disabled h3,
-#payment-buckets .bucket.disabled .bucket-amount {
+#payment-needs-row .bucket.disabled:hover .jar-img , #payment-wants-row .bucket.disabled:hover .jar-img{
+
+    filter: grayscale(60%);
+}
+
+
+#payment-needs-row .bucket.disabled .jar-label, #payment-wants-row .bucket.disabled .jar-label,
+#payment-needs-row .bucket.disabled .bucket-amount , #payment-wants-row .bucket.disabled .bucket-amount{
 
     color: #9ca3af;
 }
 
 
-#payment-buckets .bucket.disabled svg {
+#payment-needs-row .bucket.disabled svg , #payment-wants-row .bucket.disabled svg{
 
     fill: #9ca3af;
 }
@@ -1995,6 +2222,135 @@ button:active {
 
 
 /* ==========================================
+   SAVINGS RECAP
+   (Stage 1/2: purely informational savings
+   recap, no target-vs-actual penalty anymore.
+   Stage 3: reused for the final savings recap.)
+   White card on the dark statement surface,
+   matching .results div. .met gets a green
+   accent when savings called out something
+   good; the plain, unclassed state (neutral
+   mystic accent) covers everything else -- there's
+   no "missed" state anymore, nothing to warn about.
+========================================== */
+
+.readiness-outcome {
+
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 20px 24px;
+
+    margin: 0 auto 20px;
+
+    max-width: 700px;
+
+    text-align: left;
+
+    box-shadow:
+        0 2px 8px rgba(10,23,36,0.15);
+
+    border-left: 6px solid var(--mystic);
+}
+
+
+.readiness-outcome.met {
+
+    border-left-color: #16a34a;
+}
+
+
+.readiness-outcome strong {
+
+    display: block;
+
+    font-size: 17px;
+
+    color: var(--blue-black);
+
+    margin-bottom: 6px;
+}
+
+
+.readiness-outcome p {
+
+    color: #475569;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   OVERFUNDING CALLOUT
+   Leftover Needs/Wants money that didn't carry
+   over, named explicitly rather than silently
+   vanishing -- sits directly on the dark card,
+   same treatment as .carryover-reminder.
+========================================== */
+
+.overfunding-callout {
+
+    color: var(--hawkes-blue);
+
+    font-size: 13px;
+
+    max-width: 700px;
+
+    margin: 0 auto 20px;
+
+    line-height: 1.6;
+}
+
+
+.overfunding-callout strong {
+
+    color: white;
+}
+
+
+/* ==========================================
+   CUMULATIVE WELLNESS
+   Shown as a secondary line under the per-stage
+   score on Stage 1/2's recap; on Stage 3 the main
+   score IS the cumulative one instead (see
+   finishStage() in game.js), so this line stays
+   hidden there.
+========================================== */
+
+#wellness-scope-label {
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    color: var(--hawkes-blue);
+
+    text-transform: none;
+
+    letter-spacing: 0;
+}
+
+
+.cumulative-wellness-line {
+
+    margin-top: 10px;
+
+    font-size: 14px;
+
+    color: var(--hawkes-blue);
+}
+
+
+.cumulative-wellness-line strong {
+
+    color: var(--malibu);
+}
+
+
+/* ==========================================
    KEYPAD MODAL
 ========================================== */
 
@@ -2107,6 +2463,30 @@ button:active {
 }
 
 
+.keypad-lock-note {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    background: #eef2ff;
+
+    color: var(--persian-blue);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    padding: 5px 12px;
+
+    border-radius: 999px;
+
+    margin: 6px auto 0;
+}
+
+
 .keypad-display {
 
     font-size: 46px;
@@ -2118,6 +2498,17 @@ button:active {
     min-height: 56px;
 
     color: var(--blue-black);
+
+    transition: color 0.15s ease;
+}
+
+/* Live feedback the instant a typed amount dips below a
+   locked-in minimum (see .keypad-lock-note) -- distinct from
+   .keypad-error, which is text, so the big number itself also
+   reads as "not valid yet" while they're still typing. */
+.keypad-display.keypad-display-danger {
+
+    color: #dc2626;
 }
 
 

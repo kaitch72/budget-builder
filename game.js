@@ -1,6 +1,6 @@
 // ============================================
-// BUDGET BUILDER
-// MONTH 1 + MONTH 2
+// BUDGET BUILDER — LIFE-STAGE REDESIGN
+// TEENAGER -> COLLEGE -> CAREER
 // ============================================
 
 
@@ -10,16 +10,14 @@
 // Securityplus brand SVGs (Font Awesome Sharp
 // Light style, single-color paths with no fill
 // set — color comes from the page's `svg { fill:
-// ... }` rule, per the brand guide). Bucket and
-// expense data below reference these by key, not
-// by raw markup, since a couple of small spots
-// (the bill-preview bucket tag) show the bucket
-// NAME only and never render an icon at all.
+// ... }` rule, per the brand guide). Expense and
+// bucket data below reference these by key, not
+// by raw markup.
 //
-// "dollar" is a neutral placeholder for New
-// Clothes / Concert Ticket — Kayla doesn't have a
-// dedicated shopping/ticket icon yet. Swap those
-// two out once she exports one.
+// "dollar" is a neutral placeholder for anything
+// without its own dedicated icon yet (shopping,
+// utilities, trips, hobby gear) — swap these out
+// once Kayla exports dedicated icons for them.
 // ============================================
 
 const ICON_SVGS = {
@@ -54,89 +52,162 @@ function iconMarkup(key) {
 }
 
 
+// Shared label for a bucket's type-tag pill, used by both the
+// setup screen and the payment screen so the four bucket types
+// (need/want/bill/savings) always read the same way.
+function bucketTypeLabel(type) {
+
+    if (type === "need") {
+        return "Needs";
+    }
+
+    if (type === "want") {
+        return "Wants";
+    }
+
+    if (type === "bill") {
+        return "Bills";
+    }
+
+    return "Savings";
+
+}
+
+
+// Sizes a jar row's grid to however many buckets actually belong
+// in it this stage (a stage may not have every category -- e.g.
+// no Gas jar until Career), and hides the row entirely when this
+// stage has none for it, instead of leaving an empty gap.
+function setRowColumns(rowEl, count) {
+
+    rowEl.style.gridTemplateColumns =
+        `repeat(${Math.max(count, 1)}, minmax(0, 250px))`;
+
+    rowEl.classList.toggle(
+        "hidden",
+        count === 0
+    );
+
+}
+
+
+// An empty jar (Kayla's jar.svg) switches to the funded/coin
+// artwork (coin-jar.svg) the moment it's holding any money --
+// used on both the setup screen (as a bucket is funded via the
+// keypad) and the payment screen (jars already show their current
+// balance, so a funded one should already look funded).
+function jarImageSrc(amount) {
+
+    return amount > 0
+        ? "images/coin-jar.svg"
+        : "images/jar.svg";
+
+}
+
+
 
 // ============================================
-// GAME DATA
+// GAME DATA — THREE LIFE STAGES
 //
-// Every expense has a "bucket" — the ONLY
-// bucket that can pay for it normally. If that
-// bucket is short, money can be borrowed from
-// another bucket, but that costs the player
-// something later (see handleExpense).
+// Buckets are typed, and each stage can have
+// several of them: any number of Needs jars (top
+// row -- groceries, gas, personal care, whatever
+// applies this stage), any number of Wants jars
+// (middle row -- takeout, shopping, entertainment),
+// and always exactly one Bills jar plus one Savings
+// jar (bottom row). Every expense's "bucket" field
+// points at the specific jar id that funds it --
+// never "savings", which can never pay anything.
 //
-// "optional: true" marks a discretionary
-// expense — the player is asked "want to do
-// this?" before it costs anything. Declining
-// has no penalty. Everything else is an
-// obligation: it happens whether the player
-// likes it or not, and the only choice is how
-// to cover it.
+// Needs are known amounts, always shown upfront
+// in the sidebar preview before the player
+// allocates. Wants are NOT previewed — realistic,
+// since you don't know exactly what you'll want
+// to spend on fun this stage.
+//
+// "optional: true" marks a Want — the player is
+// offered "want to do this?" before it costs
+// anything, and can always skip for free. Needs
+// (optional left unset) are obligations: the only
+// choice is how to cover them, and "Miss This
+// Bill" only appears once nothing on screen can.
+//
+// There's no savings goal of any kind, hidden or
+// otherwise -- the player puts whatever they can
+// into Savings, and the end-of-stage recap simply
+// reports what that amount was. More saved is
+// called out positively (and always feeds Financial
+// Wellness in proportion to income); saving little
+// or nothing carries no penalty at all.
+//
+// Draft dollar amounts confirmed by Kayla 2026-09-14.
 // ============================================
 
-const months = {
+const stages = {
 
     // ==========================================
-    // MONTH 1
+    // STAGE 1 — TEENAGER
     // ==========================================
 
     1: {
 
-        income: 600,
+        name: "Teenager",
+
+        income: 400,
 
         title: "Your First Paycheck",
 
         description:
-            "You've got your first paycheck. Decide what expenses matter, set aside some to savings and build a budget.",
+            "Sort your pay into various spending buckets. Set aside enough for your expenses, save some money and delegate to fun spending.",
 
         buckets: [
 
             {
-                id: "bills",
-                name: "Bills",
-                icon: "wallet",
-                description: "Bills & payments"
-            },
-
-            {
-                id: "transportation",
-                name: "Transportation",
-                icon: "car",
-                description: "Gas & car costs"
-            },
-
-            {
                 id: "food",
+                type: "need",
                 name: "Food",
                 icon: "food",
-                description: "Food & drinks"
+                description: "Snacks & lunch money"
             },
 
             {
-                id: "fun",
-                name: "Fun",
+                id: "takeout",
+                type: "want",
+                name: "Takeout",
+                icon: "food",
+                description: "Fast food & treats"
+            },
+
+            {
+                id: "shopping",
+                type: "want",
+                name: "Shopping",
+                icon: "dollar",
+                description: "Clothes & extras"
+            },
+
+            {
+                id: "entertainment",
+                type: "want",
+                name: "Entertainment",
                 icon: "movie",
-                description: "Entertainment"
+                description: "Movies & hanging out"
             },
 
             {
-                id: "subscriptions",
-                name: "Subscriptions",
-                icon: "tv",
-                description: "Streaming & memberships"
+                id: "bills",
+                type: "bill",
+                name: "Bills",
+                icon: "wallet",
+                description: "Bills you can't skip"
             },
 
             {
                 id: "savings",
+                type: "savings",
                 name: "Savings",
                 icon: "savings",
-                description: "Money for your future"
-            },
-
-            {
-                id: "emergency",
-                name: "Emergency",
-                icon: "emergency",
-                description: "Unexpected expenses"
+                description: "Locked in — can't pay bills"
             }
 
         ],
@@ -148,37 +219,21 @@ const months = {
                 title: "Phone Bill",
                 description:
                     "Your monthly phone bill is due.",
-                amount: 40,
+                amount: 30,
                 bucket: "bills",
-                fixed: true
-            },
-
-            {
-                icon: "tv",
-                title: "Streaming Subscription",
-                description:
-                    "Your streaming subscription renews automatically.",
-                amount: 10,
-                bucket: "subscriptions",
-                fixed: true
-            },
-
-            {
-                icon: "car",
-                title: "Gas",
-                description:
-                    "You need gas to get around.",
-                amount: 40,
-                bucket: "transportation"
+                fixed: true,
+                missNarrative: "Your phone got shut off — you'll owe this again next stage."
             },
 
             {
                 icon: "food",
-                title: "Groceries",
+                title: "Snacks & Lunch Money",
                 description:
-                    "You need to restock the fridge.",
-                amount: 30,
-                bucket: "food"
+                    "You need to eat during the day — snacks and lunch add up.",
+                amount: 20,
+                bucket: "food",
+                fixed: true,
+                missNarrative: "You went without lunch money — that gap is still there."
             },
 
             {
@@ -186,8 +241,8 @@ const months = {
                 title: "Fast Food",
                 description:
                     "Your friends want to grab fast food together.",
-                amount: 15,
-                bucket: "food",
+                amount: 12,
+                bucket: "takeout",
                 optional: true
             },
 
@@ -196,47 +251,29 @@ const months = {
                 title: "Movie Night",
                 description:
                     "There's a new movie out — friends want to go.",
-                amount: 20,
-                bucket: "fun",
+                amount: 15,
+                bucket: "entertainment",
                 optional: true
             },
 
             {
-                icon: "car",
-                title: "More Gas",
+                icon: "dollar",
+                title: "New Shoes",
                 description:
-                    "Your tank's running low again.",
+                    "You found a pair of shoes you really want.",
                 amount: 35,
-                bucket: "transportation"
-            },
-
-            {
-                icon: "food",
-                title: "Dinner Out",
-                description:
-                    "A friend invites you to dinner out.",
-                amount: 25,
-                bucket: "food",
+                bucket: "shopping",
                 optional: true
             },
 
             {
-                icon: "tools",
-                title: "Car Maintenance",
+                icon: "movie",
+                title: "Hanging Out",
                 description:
-                    "Your car needs routine maintenance.",
-                amount: 75,
-                bucket: "transportation"
-            },
-
-            {
-                icon: "emergency",
-                title: "Unexpected Expense",
-                description:
-                    "Something unexpected came up.",
-                amount: 50,
-                bucket: "emergency",
-                surprise: true
+                    "Your friends invite you to the arcade.",
+                amount: 10,
+                bucket: "entertainment",
+                optional: true
             }
 
         ]
@@ -245,67 +282,260 @@ const months = {
 
 
     // ==========================================
-    // MONTH 2
+    // STAGE 2 — COLLEGE
     // ==========================================
 
     2: {
 
-        income: 2000,
+        name: "College",
+
+        income: 700,
 
         title: "More Responsibility",
 
         description:
-            "You're earning more money now, but you've also got more responsibilities.",
+            "Your paycheck grew, but so did your bills. Cover your Bills and Needs, save toward your first apartment, and decide what's worth spending on.",
 
         buckets: [
 
             {
-                id: "bills",
-                name: "Bills",
-                icon: "wallet",
-                description: "Rent & phone"
-            },
-
-            {
-                id: "transportation",
-                name: "Transportation",
-                icon: "car",
-                description: "Gas, insurance & car costs"
-            },
-
-            {
                 id: "food",
+                type: "need",
                 name: "Food",
                 icon: "food",
-                description: "Groceries & eating out"
+                description: "Groceries & meal plan gaps"
             },
 
             {
-                id: "subscriptions",
-                name: "Subscriptions",
-                icon: "tv",
-                description: "Streaming & memberships"
+                id: "personalCare",
+                type: "need",
+                name: "Basics",
+                icon: "dollar",
+                description: "Toiletries & basics"
             },
 
             {
-                id: "fun",
-                name: "Fun",
+                id: "takeout",
+                type: "want",
+                name: "Takeout",
+                icon: "food",
+                description: "Coffee & eating out"
+            },
+
+            {
+                id: "shopping",
+                type: "want",
+                name: "Shopping",
+                icon: "dollar",
+                description: "Clothes & extras"
+            },
+
+            {
+                id: "entertainment",
+                type: "want",
+                name: "Entertainment",
                 icon: "movie",
-                description: "Entertainment & shopping"
+                description: "Going out & trips"
+            },
+
+            {
+                id: "bills",
+                type: "bill",
+                name: "Bills",
+                icon: "wallet",
+                description: "Bills you can't skip"
             },
 
             {
                 id: "savings",
+                type: "savings",
                 name: "Savings",
                 icon: "savings",
-                description: "Money for your future"
+                description: "Locked in — can't pay bills"
+            }
+
+        ],
+
+        expenses: [
+
+            {
+                icon: "wallet",
+                title: "Rent",
+                description:
+                    "Your share of the rent is due.",
+                amount: 250,
+                bucket: "bills",
+                fixed: true,
+                missNarrative: "You're behind on rent — this follows you into next stage."
             },
 
             {
-                id: "emergency",
-                name: "Emergency",
-                icon: "emergency",
-                description: "Unexpected expenses"
+                icon: "phone",
+                title: "Phone Bill",
+                description:
+                    "Your phone bill is due.",
+                amount: 30,
+                bucket: "bills",
+                fixed: true,
+                missNarrative: "Your phone got shut off — you'll owe this again next stage."
+            },
+
+            {
+                icon: "food",
+                title: "Meal Plan",
+                description:
+                    "Your meal plan doesn't cover everything — there's a gap to fill.",
+                amount: 60,
+                bucket: "food",
+                fixed: true,
+                missNarrative: "You went without groceries this stage — that gap is still there."
+            },
+
+            {
+                icon: "dollar",
+                title: "Toiletries & Essentials",
+                description:
+                    "You're out of the everyday basics again.",
+                amount: 15,
+                bucket: "personalCare",
+                fixed: true,
+                missNarrative: "You went without some basics this stage — that gap is still there."
+            },
+
+            {
+                icon: "movie",
+                title: "Going Out",
+                description:
+                    "Friends want to go out this weekend.",
+                amount: 25,
+                bucket: "entertainment",
+                optional: true
+            },
+
+            {
+                icon: "tv",
+                title: "Streaming Subscription",
+                description:
+                    "Your streaming subscription renewed.",
+                amount: 12,
+                bucket: "entertainment",
+                optional: true
+            },
+
+            {
+                icon: "food",
+                title: "Coffee Runs",
+                description:
+                    "You've been grabbing coffee between classes.",
+                amount: 18,
+                bucket: "takeout",
+                optional: true
+            },
+
+            {
+                icon: "dollar",
+                title: "Weekend Trip",
+                description:
+                    "Your roommates are planning a weekend trip.",
+                amount: 40,
+                bucket: "entertainment",
+                optional: true
+            },
+
+            {
+                icon: "dollar",
+                title: "New Clothes",
+                description:
+                    "You found an outfit you really like.",
+                amount: 30,
+                bucket: "shopping",
+                optional: true
+            }
+
+        ]
+
+    },
+
+
+    // ==========================================
+    // STAGE 3 — CAREER (capstone — no target)
+    // ==========================================
+
+    3: {
+
+        name: "Career",
+
+        income: 2000,
+
+        title: "Your First Real Job",
+
+        description:
+            "This is it — a real paycheck. See how much of it is already claimed by your responsibilities before you spend a dollar on anything else.",
+
+        buckets: [
+
+            {
+                id: "food",
+                type: "need",
+                name: "Food",
+                icon: "food",
+                description: "Groceries & eating in"
+            },
+
+            {
+                id: "gas",
+                type: "need",
+                name: "Gas",
+                icon: "car",
+                description: "Fuel for your car"
+            },
+
+            {
+                id: "personalCare",
+                type: "need",
+                name: "Basics",
+                icon: "dollar",
+                description: "Toiletries & basics"
+            },
+
+            {
+                id: "takeout",
+                type: "want",
+                name: "Takeout",
+                icon: "food",
+                description: "Eating out"
+            },
+
+            {
+                id: "shopping",
+                type: "want",
+                name: "Shopping",
+                icon: "dollar",
+                description: "Hobbies & extras"
+            },
+
+            {
+                id: "entertainment",
+                type: "want",
+                name: "Entertainment",
+                icon: "movie",
+                description: "Trips & fun"
+            },
+
+            {
+                id: "bills",
+                type: "bill",
+                name: "Bills",
+                icon: "wallet",
+                description: "Bills you can't skip"
+            },
+
+            {
+                id: "savings",
+                type: "savings",
+                name: "Savings",
+                icon: "savings",
+                description: "Locked in — can't pay bills"
             }
 
         ],
@@ -317,19 +547,32 @@ const months = {
                 title: "Rent",
                 description:
                     "Your monthly rent payment is due.",
-                amount: 400,
+                amount: 700,
                 bucket: "bills",
-                fixed: true
+                fixed: true,
+                missNarrative: "You're behind on rent."
             },
 
             {
                 icon: "car",
-                title: "Car Insurance",
+                title: "Car Payment & Insurance",
                 description:
-                    "Your monthly car insurance payment is due.",
-                amount: 120,
-                bucket: "transportation",
-                fixed: true
+                    "Your car payment and insurance are due.",
+                amount: 250,
+                bucket: "bills",
+                fixed: true,
+                missNarrative: "Your car insurance lapsed — this still needs to be paid."
+            },
+
+            {
+                icon: "dollar",
+                title: "Utilities",
+                description:
+                    "Your monthly utilities bill is due.",
+                amount: 100,
+                bucket: "bills",
+                fixed: true,
+                missNarrative: "Your utilities got shut off."
             },
 
             {
@@ -337,95 +580,73 @@ const months = {
                 title: "Phone Bill",
                 description:
                     "Your phone bill is due.",
-                amount: 60,
+                amount: 40,
                 bucket: "bills",
-                fixed: true
-            },
-
-            {
-                icon: "tv",
-                title: "Streaming Subscription",
-                description:
-                    "Your streaming subscription renewed.",
-                amount: 15,
-                bucket: "subscriptions",
-                fixed: true
-            },
-
-            {
-                icon: "car",
-                title: "Gas",
-                description:
-                    "You need gas to get around.",
-                amount: 50,
-                bucket: "transportation"
+                fixed: true,
+                missNarrative: "Your phone got shut off."
             },
 
             {
                 icon: "food",
                 title: "Groceries",
                 description:
-                    "You need to restock the fridge.",
-                amount: 100,
-                bucket: "food"
-            },
-
-            {
-                icon: "food",
-                title: "Fast Food",
-                description:
-                    "Friends want to grab dinner together.",
-                amount: 20,
+                    "Time to restock the fridge and pantry.",
+                amount: 150,
                 bucket: "food",
-                optional: true
-            },
-
-            {
-                icon: "dollar",
-                title: "Concert Ticket",
-                description:
-                    "Your friend invited you to a concert!",
-                amount: 75,
-                bucket: "fun",
-                optional: true
-            },
-
-            {
-                icon: "dollar",
-                title: "New Clothes",
-                description:
-                    "You found an outfit you really like.",
-                amount: 80,
-                bucket: "fun",
-                optional: true
+                fixed: true,
+                missNarrative: "You went without groceries this stage — that gap is still there."
             },
 
             {
                 icon: "car",
-                title: "More Gas",
+                title: "Gas",
                 description:
-                    "Your tank's running low again.",
-                amount: 45,
-                bucket: "transportation"
+                    "Your tank's on empty and you need to get to work.",
+                amount: 80,
+                bucket: "gas",
+                fixed: true,
+                missNarrative: "You couldn't fill up — that gap is still there."
             },
 
             {
-                icon: "emergency",
-                title: "Unexpected Expense",
+                icon: "dollar",
+                title: "Toiletries & Essentials",
                 description:
-                    "You had an unexpected $100 expense.",
-                amount: 100,
-                bucket: "emergency",
-                surprise: true
+                    "You're out of the everyday basics again.",
+                amount: 40,
+                bucket: "personalCare",
+                fixed: true,
+                missNarrative: "You went without some basics this stage — that gap is still there."
             },
 
             {
-                icon: "tools",
-                title: "Car Repair",
+                icon: "dollar",
+                title: "Weekend Trip",
                 description:
-                    "Uh oh! Your car needs a repair.",
-                amount: 150,
-                bucket: "transportation"
+                    "A friend invites you on a weekend trip.",
+                amount: 180,
+                bucket: "entertainment",
+                optional: true
+            },
+
+            {
+                icon: "dollar",
+                title: "New Hobby Gear",
+                description:
+                    "You've been wanting to get into a new hobby.",
+                amount: 120,
+                bucket: "shopping",
+                optional: true
+            },
+
+            {
+                icon: "food",
+                title: "Nice Dinner Out",
+                description:
+                    "You want to treat yourself to a nice dinner.",
+                amount: 70,
+                bucket: "takeout",
+                optional: true
             }
 
         ]
@@ -440,21 +661,52 @@ const months = {
 // GAME STATE
 // ============================================
 
-let currentMonth = 1;
+let currentStage = 1;
 
 let currentExpense = 0;
 
 let totalSpent = 0;
 
-let missedBills = 0;
+let missedNeeds = 0;
 
-let borrowedPayments = 0;
+// Borrowing between buckets of the SAME category (e.g. Shopping
+// covering Takeout -- both Wants) is a minor, milder ding.
+// Borrowing across DIFFERENT categories (e.g. Bills covering
+// Takeout) is the real violation and costs more. See
+// handleExpense and the wellness weights in finishMonth.
+let borrowedSameCategory = 0;
+
+let borrowedCrossCategory = 0;
 
 let buckets = {};
 
 let selectedBuckets = [];
 
 let carriedSavings = 0;
+
+// Savings this stage started with (carried in) --
+// used to work out how much of the ending balance
+// is genuinely NEW savings from this stage alone.
+let savingsAtStageStart = 0;
+
+// Expenses actually in play this stage: the stage's
+// own list, plus anything carried forward (a missed
+// Need bill, or a Loan Payment) from finishStage().
+let currentStageExpenses = [];
+
+// Built by finishStage(), consumed once by the next
+// loadStage() call.
+let pendingExtraNeeds = [];
+
+// Whether the stage currently in play started with a
+// carried loan bill -- costs a flat wellness penalty
+// for that stage, on top of missing/borrowing on it.
+let stageHadLoanCarriedIn = false;
+
+// Per-stage wellness scores, in order -- the
+// cumulative score is their average, and it's what
+// the Stage 3 recap leads with.
+let stageScores = [];
 
 
 
@@ -500,7 +752,7 @@ const restartButton =
 // Welcome popup shown on load, before the
 // player builds their first budget. Distinct
 // from `startButton` above (the in-screen
-// "Start Month" control) -- this one just
+// "Start Stage" control) -- this one just
 // dismisses the popup itself.
 const welcomeStartScreen =
     document.getElementById(
@@ -530,24 +782,26 @@ if (welcomeStartButton) {
 
 
 // ============================================
-// LOAD MONTH
+// LOAD STAGE
 // ============================================
 
-function loadMonth(monthNumber) {
+function loadStage(stageNumber) {
 
-    currentMonth = monthNumber;
+    currentStage = stageNumber;
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
 
     currentExpense = 0;
 
     totalSpent = 0;
 
-    missedBills = 0;
+    missedNeeds = 0;
 
-    borrowedPayments = 0;
+    borrowedSameCategory = 0;
+
+    borrowedCrossCategory = 0;
 
 
     // ------------------------------------------
@@ -556,7 +810,7 @@ function loadMonth(monthNumber) {
     // ------------------------------------------
 
     selectedBuckets =
-        month.buckets.map(
+        stage.buckets.map(
             bucket => bucket.id
         );
 
@@ -567,7 +821,7 @@ function loadMonth(monthNumber) {
     // CREATE EMPTY BUCKET STATE
     // ------------------------------------------
 
-    month.buckets.forEach(bucket => {
+    stage.buckets.forEach(bucket => {
 
         buckets[bucket.id] = 0;
 
@@ -578,12 +832,41 @@ function loadMonth(monthNumber) {
     // CARRY SAVINGS FORWARD
     // ------------------------------------------
 
-    if (currentMonth > 1) {
+    savingsAtStageStart = 0;
+
+    if (currentStage > 1) {
 
         buckets.savings =
             carriedSavings;
 
+        savingsAtStageStart =
+            carriedSavings;
+
     }
+
+
+    // ------------------------------------------
+    // BUILD THIS STAGE'S EXPENSE LIST —
+    // the stage's own expenses, plus anything
+    // carried forward from finishStage() (a
+    // missed Need bill, or a Loan Payment).
+    // Cloned so repeat playthroughs never mutate
+    // the shared `stages` data.
+    // ------------------------------------------
+
+    currentStageExpenses = [
+        ...pendingExtraNeeds,
+        ...stage.expenses.map(
+            expense => ({ ...expense })
+        )
+    ];
+
+    stageHadLoanCarriedIn =
+        pendingExtraNeeds.some(
+            expense => expense.loan
+        );
+
+    pendingExtraNeeds = [];
 
 
     // ------------------------------------------
@@ -593,54 +876,55 @@ function loadMonth(monthNumber) {
     document.getElementById(
         "month-title"
     ).textContent =
-        month.title;
+        stage.title;
 
 
     document.getElementById(
         "month-description"
     ).textContent =
-        month.description;
+        stage.description;
 
 
     document.getElementById(
         "paycheck-amount"
     ).textContent =
-        `$${month.income.toLocaleString()}`;
+        `$${stage.income.toLocaleString()}`;
 
 
     document.getElementById(
         "paycheck-label"
     ).textContent =
-        `Month ${currentMonth} Paycheck`;
+        `${stage.name} Paycheck`;
 
 
     startMonthLabel.textContent =
-        `Start Month ${currentMonth}`;
+        `Start ${stage.name}`;
 
 
     // ------------------------------------------
     // BUILD UI
     // ------------------------------------------
 
-    createBillsPreview();
+    createNeedsPreview();
 
     updateSavingsCarryover();
 
     createSetupBuckets();
 
 
-    // Month 1's sidebar (paycheck card + a short 2-bill preview,
-    // no carryover card yet) was deliberately sized generously in
-    // an earlier pass to visually match the bucket grid's height --
-    // leave that alone. From month 2 on there's more in the same
-    // column (more fixed bills, plus the savings-carryover card),
-    // so it switches to a tighter layout to actually fit the fixed
-    // stage instead of running past the bottom edge.
+    // Stage 1's sidebar (paycheck card + a short 1-bill preview,
+    // no carryover/target cards yet) was deliberately sized
+    // generously to visually match the bucket grid's height --
+    // leave that alone. From Stage 2 on there's more in the same
+    // column (more fixed Needs, the readiness target, plus the
+    // savings-carryover card), so it switches to a tighter layout
+    // to actually fit the fixed stage instead of running past the
+    // bottom edge.
     document.querySelector(
         ".setup-sidebar"
     ).classList.toggle(
         "compact",
-        currentMonth > 1
+        currentStage > 1
     );
 
 
@@ -666,9 +950,14 @@ function loadMonth(monthNumber) {
 
 function createSetupBuckets() {
 
-    const container =
+    const needsRow =
         document.getElementById(
-            "setup-buckets"
+            "setup-needs-row"
+        );
+
+    const wantsRow =
+        document.getElementById(
+            "setup-wants-row"
         );
 
     const savingsSlot =
@@ -677,21 +966,43 @@ function createSetupBuckets() {
         );
 
 
-    container.innerHTML = "";
+    needsRow.innerHTML = "";
+
+    wantsRow.innerHTML = "";
 
     savingsSlot.innerHTML = "";
 
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
+
+
+    // ------------------------------------------
+    // SORT THIS STAGE'S BUCKETS INTO THEIR ROW --
+    // top row is Bills (pooled, always first) plus
+    // every Need jar this stage has (groceries, gas,
+    // personal care -- however many apply), middle
+    // row is every Want jar, and the bottom row is
+    // just Savings (locked) -- Bills used to share
+    // that bottom row, but now sits up with the Needs
+    // instead, leaving Savings on its own next to the
+    // Start button.
+    // ------------------------------------------
+
+    const needBuckets = [];
+
+    const wantBuckets = [];
+
+    let billBucket = null;
+
+    let savingsBucket = null;
 
 
     selectedBuckets.forEach(
         bucketId => {
 
-
             const bucket =
-                month.buckets.find(
+                stage.buckets.find(
                     item =>
                         item.id === bucketId
                 );
@@ -704,94 +1015,171 @@ function createSetupBuckets() {
             }
 
 
-            const isSavings =
-                bucket.id === "savings";
+            if (bucket.type === "need") {
+
+                needBuckets.push(bucket);
+
+            }
+
+            else if (bucket.type === "want") {
+
+                wantBuckets.push(bucket);
+
+            }
+
+            else if (bucket.type === "bill") {
+
+                billBucket = bucket;
+
+            }
+
+            else {
+
+                savingsBucket = bucket;
+
+            }
+
+        }
+    );
 
 
-            const div =
-                document.createElement(
-                    "div"
-                );
+    if (billBucket) {
+
+        needBuckets.unshift(billBucket);
+
+    }
 
 
-            // Savings sits apart from the rest of the
-            // buckets (see index.html) and gets its own
-            // "featured" look so it stands out rather
-            // than blending into the regular grid.
+    setRowColumns(needsRow, needBuckets.length);
 
-            div.className =
-                isSavings
-                    ? "bucket bucket-savings"
-                    : "bucket";
+    setRowColumns(wantsRow, wantBuckets.length);
 
 
-            const startingSavings =
-                isSavings
-                    ? carriedSavings
-                    : 0;
+    needBuckets.forEach(
+        bucket => {
 
-
-            div.innerHTML = `
-
-                <div class="bucket-icon">
-                    ${iconMarkup(bucket.icon)}
-                </div>
-
-                <h3>
-                    ${bucket.name}
-                </h3>
-
-                <button
-                    class="amount-entry-button"
-                    type="button"
-                >
-                    <span
-                        class="bucket-amount"
-                        id="amount-${bucket.id}"
-                    >
-                        $${startingSavings}
-                    </span>
-                </button>
-
-                ${
-                    isSavings
-                        ? `
-                            <div class="savings-note">
-                                Savings from last month stays here.
-                            </div>
-                        `
-                        : ""
-                }
-
-            `;
-
-
-            (
-                isSavings
-                    ? savingsSlot
-                    : container
-            ).appendChild(div);
-
-
-            const enterButton =
-                div.querySelector(
-                    ".amount-entry-button"
-                );
-
-
-            enterButton.addEventListener(
-                "click",
-                () => {
-
-                    openKeypad(
-                        bucket.id
-                    );
-
-                }
+            needsRow.appendChild(
+                buildSetupBucketTile(bucket)
             );
 
         }
     );
+
+
+    wantBuckets.forEach(
+        bucket => {
+
+            wantsRow.appendChild(
+                buildSetupBucketTile(bucket)
+            );
+
+        }
+    );
+
+
+    if (savingsBucket) {
+
+        savingsSlot.appendChild(
+            buildSetupBucketTile(savingsBucket)
+        );
+
+    }
+
+}
+
+
+// Builds one jar tile for the setup screen -- tapping it opens
+// the keypad to fund that specific bucket. Same shared shape
+// (icon, jar art, type tag, amount pill) that renderPaymentPanel's
+// buildPaymentBucketTile() below uses, just with a clickable
+// amount instead of a plain one.
+function buildSetupBucketTile(bucket) {
+
+    const isSavings =
+        bucket.id === "savings";
+
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    // Savings sits apart from the rest of the buckets and gets
+    // its own "featured" look so it stands out rather than
+    // blending into the regular grid. Every other bucket type
+    // (need/want/bill) gets a type tag + its own tag color (see
+    // style.css) so which row/rule it belongs to reads at a
+    // glance.
+
+    div.className =
+        isSavings
+            ? "bucket bucket-savings"
+            : `bucket bucket-${bucket.type}`;
+
+
+    const startingSavings =
+        isSavings
+            ? carriedSavings
+            : 0;
+
+
+    div.innerHTML = `
+
+        <div class="jar-visual">
+
+            <img
+                class="jar-img"
+                id="jar-img-${bucket.id}"
+                src="${jarImageSrc(startingSavings)}"
+                alt=""
+                aria-hidden="true"
+            >
+
+            <div class="jar-icon">
+                ${iconMarkup(bucket.icon)}
+            </div>
+
+            <h3 class="jar-label">
+                ${bucket.name}
+            </h3>
+
+            <button
+                class="amount-entry-button"
+                type="button"
+            >
+                <span
+                    class="bucket-amount"
+                    id="amount-${bucket.id}"
+                >
+                    $${startingSavings}
+                </span>
+            </button>
+
+        </div>
+
+            `;
+
+
+    const enterButton =
+        div.querySelector(
+            ".amount-entry-button"
+        );
+
+
+    enterButton.addEventListener(
+        "click",
+        () => {
+
+            openKeypad(
+                bucket.id
+            );
+
+        }
+    );
+
+
+    return div;
 
 }
 
@@ -836,6 +1224,11 @@ const keypadError =
         "keypad-error"
     );
 
+const keypadLockNote =
+    document.getElementById(
+        "keypad-lock-note"
+    );
+
 const keypadConfirmBtn =
     document.getElementById(
         "keypad-confirm-btn"
@@ -844,7 +1237,7 @@ const keypadConfirmBtn =
 
 // How much of a bucket's balance counts as
 // "new" money out of THIS paycheck (savings
-// carried over from last month doesn't count).
+// carried over from last stage doesn't count).
 
 function newMoneyIn(
     bucketId,
@@ -853,7 +1246,7 @@ function newMoneyIn(
 
     if (
         bucketId === "savings" &&
-        currentMonth > 1
+        currentStage > 1
     ) {
 
         return Math.max(
@@ -869,14 +1262,30 @@ function newMoneyIn(
 }
 
 
+// A bucket can carry a hard floor: from Stage 2 on, Savings can't
+// be dropped below whatever balance carried in from last stage --
+// this is the one number in the keypad that's "locked in" rather
+// than freely editable. Shared by openKeypad (badge), 
+// updateKeypadDisplay (live feedback) and confirmKeypad (the
+// actual guard) so all three always agree on the same value.
+function getKeypadMinimum(bucketId) {
+
+    return bucketId === "savings" &&
+        currentStage > 1
+            ? carriedSavings
+            : 0;
+
+}
+
+
 function openKeypad(bucketId) {
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
 
     const bucket =
-        month.buckets.find(
+        stage.buckets.find(
             item =>
                 item.id === bucketId
         );
@@ -918,6 +1327,41 @@ function openKeypad(bucketId) {
         "";
 
 
+    // ------------------------------------------
+    // LOCKED-MINIMUM BADGE
+    //
+    // Shown up front (not just as an error after
+    // the fact) so it's clear from the moment the
+    // keypad opens that part of this number is
+    // protected carryover, not freely erasable.
+    // ------------------------------------------
+
+    const minimum =
+        getKeypadMinimum(bucketId);
+
+    if (minimum > 0) {
+
+        keypadLockNote.textContent =
+            `🔒 $${minimum.toLocaleString()} of this is locked in from last stage`;
+
+        keypadLockNote.classList.remove(
+            "hidden"
+        );
+
+    }
+
+    else {
+
+        keypadLockNote.textContent =
+            "";
+
+        keypadLockNote.classList.add(
+            "hidden"
+        );
+
+    }
+
+
     updateKeypadDisplay();
 
 
@@ -943,8 +1387,8 @@ function closeKeypad() {
 
 function updateKeypadDisplay() {
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
 
     const typedAmount =
@@ -955,6 +1399,35 @@ function updateKeypadDisplay() {
 
     keypadDisplay.textContent =
         `$${typedAmount.toLocaleString()}`;
+
+
+    // ------------------------------------------
+    // LIVE FLOOR FEEDBACK
+    //
+    // The moment a typed amount dips below the
+    // locked-in minimum (see getKeypadMinimum),
+    // say so immediately -- don't make the player
+    // find out only after pressing Set Amount.
+    // ------------------------------------------
+
+    const minimum =
+        getKeypadMinimum(activeKeypadBucket);
+
+    const belowMinimum =
+        minimum > 0 &&
+        typedAmount < minimum;
+
+    keypadDisplay.classList.toggle(
+        "keypad-display-danger",
+        belowMinimum
+    );
+
+    if (belowMinimum) {
+
+        keypadError.textContent =
+            `Can't go below $${minimum.toLocaleString()} — that's locked in from last stage.`;
+
+    }
 
 
     const currentValue =
@@ -982,7 +1455,7 @@ function updateKeypadDisplay() {
 
 
     const previewRemaining =
-        month.income -
+        stage.income -
         previewAllocated;
 
 
@@ -1075,8 +1548,8 @@ function pressKeypadClear() {
 
 function confirmKeypad() {
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
     const bucketId =
         activeKeypadBucket;
@@ -1092,10 +1565,7 @@ function confirmKeypad() {
     // ------------------------------------------
 
     const minimum =
-        bucketId === "savings" &&
-        currentMonth > 1
-            ? carriedSavings
-            : 0;
+        getKeypadMinimum(bucketId);
 
 
     if (
@@ -1103,7 +1573,7 @@ function confirmKeypad() {
     ) {
 
         keypadError.textContent =
-            `Can't go below your carried savings of $${minimum}.`;
+            `Can't go below $${minimum.toLocaleString()} — that's locked in from last stage.`;
 
         return;
 
@@ -1139,11 +1609,11 @@ function confirmKeypad() {
 
     if (
         otherAllocated + newContribution >
-        month.income
+        stage.income
     ) {
 
         const maxAllowed =
-            month.income -
+            stage.income -
             otherAllocated +
             minimum;
 
@@ -1273,8 +1743,8 @@ function getAllocatedFromPaycheck() {
 
 function updateBudgetDisplay() {
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
 
     const allocated =
@@ -1282,7 +1752,7 @@ function updateBudgetDisplay() {
 
 
     const remaining =
-        month.income -
+        stage.income -
         allocated;
 
 
@@ -1311,6 +1781,24 @@ function updateBudgetDisplay() {
 
             }
 
+
+            const jarImgElement =
+                document.getElementById(
+                    `jar-img-${bucketId}`
+                );
+
+
+            if (
+                jarImgElement
+            ) {
+
+                jarImgElement.src =
+                    jarImageSrc(
+                        buckets[bucketId]
+                    );
+
+            }
+
         }
     );
 
@@ -1319,14 +1807,14 @@ function updateBudgetDisplay() {
     // CAN START?
     //
     // Every dollar needs a bucket before the
-    // month can start — zero-based budgeting.
-    // This is what makes the allocation
-    // decision matter: there's no leftover
-    // pot to fall back on once the month begins.
+    // stage can start — zero-based budgeting.
+    // This is what makes "just put it all in
+    // Savings" a losing move: Needs still has to
+    // get funded from the same fixed paycheck.
     // ------------------------------------------
 
     if (
-        allocated > month.income
+        allocated > stage.income
     ) {
 
         setStartButtonReady(
@@ -1342,7 +1830,7 @@ function updateBudgetDisplay() {
     }
 
     else if (
-        allocated === month.income
+        allocated === stage.income
     ) {
 
         setStartButtonReady(
@@ -1383,7 +1871,7 @@ function updateBudgetDisplay() {
 //
 // One control does double duty: it's the "left
 // to allocate" stat while budgeting, and flips
-// into the actual Start Month button the moment
+// into the actual Start Stage button the moment
 // every dollar has a bucket — rather than a
 // separate stat box plus a separate button.
 // ============================================
@@ -1471,22 +1959,18 @@ function showBudgetMessage(
 
 
 // ============================================
-// CREATE BILLS PREVIEW
+// CREATE NEEDS PREVIEW
 // ============================================
 //
-// Shows only the FIXED, consistent-every-month
-// bills (rent, insurance, subscriptions, etc.)
-// so the player can plan for those first — and
-// which bucket each one will need to come from,
-// since that bucket is the ONLY thing that can
-// pay it once the month starts.
-// Discretionary spending (food, gas, fun) is
-// deliberately left off — that's the player's
-// own call to plan for, not a known bill.
-// Expenses flagged "surprise" are also left out
-// on purpose — that's the point of a surprise.
+// Shows every Needs expense for the stage (known,
+// fixed amounts — including anything carried
+// forward: a Loan Payment, or a bill missed last
+// stage) so the player can plan for those first,
+// per the "Needs are always shown upfront" rule.
+// Wants are deliberately left off — those amounts
+// aren't known in advance, and that's the point.
 
-function createBillsPreview() {
+function createNeedsPreview() {
 
     const section =
         document.getElementById(
@@ -1500,21 +1984,10 @@ function createBillsPreview() {
         );
 
 
-    const note =
-        document.getElementById(
-            "bills-preview-note"
-        );
-
-
-    const month =
-        months[currentMonth];
-
-
     const visibleExpenses =
-        month.expenses.filter(
+        currentStageExpenses.filter(
             expense =>
-                expense.fixed &&
-                !expense.surprise
+                expense.fixed
         );
 
 
@@ -1557,7 +2030,7 @@ function createBillsPreview() {
                 </span>
 
                 <span class="bill-preview-name">
-                    ${expense.title}
+                    ${expense.title}${expense.loan || expense.carried ? " (carried over)" : ""}
                 </span>
 
                 <span class="bill-preview-amount">
@@ -1573,10 +2046,6 @@ function createBillsPreview() {
 
         }
     );
-
-
-    note.textContent =
-        "Food, gas, and fun aren't listed — that's your call.";
 
 }
 
@@ -1601,7 +2070,7 @@ function updateSavingsCarryover() {
 
 
     if (
-        currentMonth > 1 &&
+        currentStage > 1 &&
         carriedSavings > 0
     ) {
 
@@ -1628,10 +2097,7 @@ function updateSavingsCarryover() {
 
 
 // ============================================
-
-
-// ============================================
-// START MONTH
+// START STAGE
 // ============================================
 
 startButton.addEventListener(
@@ -1664,12 +2130,8 @@ function startMonth() {
 
 function showExpense() {
 
-    const month =
-        months[currentMonth];
-
-
     const expense =
-        month.expenses[currentExpense];
+        currentStageExpenses[currentExpense];
 
 
     document.getElementById(
@@ -1699,12 +2161,12 @@ function showExpense() {
     document.getElementById(
         "expense-progress"
     ).textContent =
-        `Expense ${currentExpense + 1} of ${month.expenses.length}`;
+        `Expense ${currentExpense + 1} of ${currentStageExpenses.length}`;
 
 
     const progress =
         (currentExpense /
-        month.expenses.length) * 100;
+        currentStageExpenses.length) * 100;
 
 
     document.getElementById(
@@ -1730,32 +2192,37 @@ function showExpense() {
 //
 // Every bucket is always on screen. Tapping the
 // expense's own bucket is a normal payment;
-// tapping any OTHER bucket that can afford it
-// counts as borrowing (see handleExpense) — the
-// player sees the whole picture and decides.
-// Savings is shown but never spendable. A bucket
-// that can't cover the amount is disabled rather
-// than hidden, so it's still visible as a
-// consequence of how it was funded.
+// tapping the OTHER spendable bucket counts as
+// borrowing (see handleExpense) — the player sees
+// the whole picture and decides. Savings is shown
+// but never spendable. A bucket that can't cover
+// the amount is disabled rather than hidden, so
+// it's still visible as a consequence of how it
+// was funded.
 // ============================================
 
 function renderPaymentPanel(expense) {
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
 
     document.getElementById(
         "payment-title"
     ).textContent =
         expense.optional
-            ? "Want to spend on this? Pick a bucket, or skip it."
+            ? "Pick a bucket to cover this -- it's the fun spending you planned for."
             : "Pick a bucket to pay this bill.";
 
 
-    const grid =
+    const needsRow =
         document.getElementById(
-            "payment-buckets"
+            "payment-needs-row"
+        );
+
+    const wantsRow =
+        document.getElementById(
+            "payment-wants-row"
         );
 
     const savingsSlot =
@@ -1764,7 +2231,9 @@ function renderPaymentPanel(expense) {
         );
 
 
-    grid.innerHTML = "";
+    needsRow.innerHTML = "";
+
+    wantsRow.innerHTML = "";
 
     savingsSlot.innerHTML = "";
 
@@ -1772,17 +2241,25 @@ function renderPaymentPanel(expense) {
     let anyAffordable = false;
 
 
-    // Same split as createSetupBuckets(): Savings renders into its
-    // own featured slot below the grid instead of sitting inside it,
-    // so this screen's bucket layout matches the setup screen's
-    // exactly (regular buckets in a 3-col grid, Savings on its own
-    // row next to the row's other control).
+    // Same row split as createSetupBuckets(): Bills (pooled) plus
+    // Needs on top, Wants in the middle, Savings alone on the
+    // bottom row next to the secondary-action button -- so this
+    // screen's bucket layout always matches the setup screen's.
+
+    const needBuckets = [];
+
+    const wantBuckets = [];
+
+    let billBucket = null;
+
+    let savingsBucket = null;
+
 
     selectedBuckets.forEach(
         bucketId => {
 
             const bucket =
-                month.buckets.find(
+                stage.buckets.find(
                     item =>
                         item.id === bucketId
                 );
@@ -1795,122 +2272,100 @@ function renderPaymentPanel(expense) {
             }
 
 
-            const balance =
-                buckets[bucketId] || 0;
+            if (bucket.type === "need") {
 
-            const isSavings =
-                bucketId === "savings";
+                needBuckets.push(bucket);
 
-            const affordable =
-                !isSavings &&
-                balance >= expense.amount;
+            }
+
+            else if (bucket.type === "want") {
+
+                wantBuckets.push(bucket);
+
+            }
+
+            else if (bucket.type === "bill") {
+
+                billBucket = bucket;
+
+            }
+
+            else {
+
+                savingsBucket = bucket;
+
+            }
+
+        }
+    );
 
 
-            if (affordable) {
+    if (billBucket) {
+
+        needBuckets.unshift(billBucket);
+
+    }
+
+
+    setRowColumns(needsRow, needBuckets.length);
+
+    setRowColumns(wantsRow, wantBuckets.length);
+
+
+    const placeTile =
+        (row, bucket) => {
+
+            const result =
+                buildPaymentBucketTile(
+                    bucket,
+                    expense
+                );
+
+
+            if (result.affordable) {
 
                 anyAffordable = true;
 
             }
 
 
-            let noteHTML = "";
-
-            if (isSavings) {
-
-                noteHTML =
-                    `<span class="lock-tag">🔒 Protected</span>`;
-
-            }
-
-            else if (!affordable) {
-
-                noteHTML =
-                    `<span class="lock-tag">Not enough</span>`;
-
-            }
-
-
-            const tile =
-                document.createElement(
-                    "button"
-                );
-
-
-            tile.type =
-                "button";
-
-            // Reuses the exact same "bucket" card component as the
-            // setup screen (icon, uppercase name, pale pill amount)
-            // instead of a separately-styled tile, so the two screens'
-            // buckets read as one shared shape. Savings gets the
-            // featured bucket-savings look instead of the grey
-            // "disabled" treatment -- it's permanently protected, not
-            // short on funds, so it shouldn't look like the others.
-
-            // No "correct bucket" hint here on purpose -- the player
-            // figures out which bucket pays a bill on their own.
-            tile.className =
-                "bucket" +
-                (isSavings ? " bucket-savings" : (affordable ? "" : " disabled"));
-
-
-            tile.innerHTML = `
-
-                <div class="bucket-icon">
-                    ${iconMarkup(bucket.icon)}
-                </div>
-
-                <h3>
-                    ${bucket.name}
-                </h3>
-
-                <div class="amount-entry-button">
-                    <strong class="bucket-amount">
-                        $${balance}
-                    </strong>
-                </div>
-
-                ${noteHTML}
-
-            `;
-
-
-            if (affordable) {
-
-                tile.addEventListener(
-                    "click",
-                    () => {
-
-                        handleExpense(
-                            bucketId
-                        );
-
-                    }
-                );
-
-            }
-
-            else {
-
-                tile.disabled = true;
-
-            }
-
-
-            (isSavings ? savingsSlot : grid).appendChild(
-                tile
+            row.appendChild(
+                result.tile
             );
 
-        }
+        };
+
+
+    needBuckets.forEach(
+        bucket => placeTile(needsRow, bucket)
     );
+
+
+    wantBuckets.forEach(
+        bucket => placeTile(wantsRow, bucket)
+    );
+
+
+    if (savingsBucket) {
+
+        placeTile(savingsSlot, savingsBucket);
+
+    }
 
 
     // ------------------------------------------
     // SECONDARY ACTION
     //
-    // Optional expenses always offer a free skip.
-    // Obligations only offer "miss" once NOTHING
-    // on screen can actually cover the amount.
+    // Same gating for both now: the fallback button
+    // only shows up once NOTHING on screen can
+    // actually cover the amount -- spending on a
+    // Want you funded is the expected outcome, not
+    // something to opt out of. The two still read
+    // differently once that happens: missing a Need
+    // has real teeth (see missBill), while passing on
+    // an unfunded Want costs nothing at all (see
+    // passOnWant) -- it just means it wasn't planned
+    // for.
     // ------------------------------------------
 
     const secondaryButton =
@@ -1922,10 +2377,11 @@ function renderPaymentPanel(expense) {
     if (expense.optional) {
 
         secondaryButton.textContent =
-            "Skip This";
+            "Not Enough Saved For This";
 
-        secondaryButton.classList.remove(
-            "hidden"
+        secondaryButton.classList.toggle(
+            "hidden",
+            anyAffordable
         );
 
         secondaryButton.classList.remove(
@@ -1933,7 +2389,7 @@ function renderPaymentPanel(expense) {
         );
 
         secondaryButton.onclick =
-            () => skipExpense(expense);
+            () => passOnWant(expense);
 
     }
 
@@ -1959,18 +2415,148 @@ function renderPaymentPanel(expense) {
 }
 
 
+// Builds one jar tile for the payment screen -- tapping an
+// affordable bucket pays the current expense from it (see
+// handleExpense); an unaffordable one is disabled but still
+// shown, same "this bucket funded a consequence" idea as before,
+// just applied across however many jars a stage now has.
+function buildPaymentBucketTile(bucket, expense) {
+
+    const balance =
+        buckets[bucket.id] || 0;
+
+    const isSavings =
+        bucket.id === "savings";
+
+    const affordable =
+        !isSavings &&
+        balance >= expense.amount;
+
+
+    let noteHTML = "";
+
+    if (isSavings) {
+
+        noteHTML =
+            `<span class="lock-tag">🔒 Protected</span>`;
+
+    }
+
+    else if (!affordable) {
+
+        noteHTML =
+            `<span class="lock-tag">Not enough</span>`;
+
+    }
+
+
+    const tile =
+        document.createElement(
+            "button"
+        );
+
+
+    tile.type =
+        "button";
+
+    // Reuses the exact same "bucket" card component as the setup
+    // screen (type tag, icon, uppercase name, pale pill amount)
+    // instead of a separately-styled tile, so the two screens'
+    // buckets read as one shared shape. Savings gets the featured
+    // bucket-savings look instead of the grey "disabled" treatment
+    // -- it's permanently protected, not short on funds, so it
+    // shouldn't look like the others.
+
+    // No "correct bucket" hint here on purpose -- the player
+    // figures out which bucket pays a bill on their own.
+    tile.className =
+        "bucket" +
+        (isSavings
+            ? " bucket-savings"
+            : ` bucket-${bucket.type}` + (affordable ? "" : " disabled"));
+
+
+    tile.innerHTML = `
+
+        <div class="jar-visual">
+
+            <img
+                class="jar-img"
+                src="${jarImageSrc(balance)}"
+                alt=""
+                aria-hidden="true"
+            >
+
+            <div class="jar-icon">
+                ${iconMarkup(bucket.icon)}
+            </div>
+
+            <h3 class="jar-label">
+                ${bucket.name}
+            </h3>
+
+            <div class="amount-entry-button">
+                <strong class="bucket-amount">
+                    $${balance}
+                </strong>
+            </div>
+
+            ${noteHTML}
+
+        </div>
+
+    `;
+
+
+    if (affordable) {
+
+        tile.addEventListener(
+            "click",
+            () => {
+
+                handleExpense(
+                    bucket.id
+                );
+
+            }
+        );
+
+    }
+
+    else {
+
+        tile.disabled = true;
+
+    }
+
+
+    return {
+        tile,
+        affordable
+    };
+
+}
+
+
 
 // ============================================
-// SKIP AN OPTIONAL EXPENSE (NO PENALTY)
+// PASS ON A WANT (ONLY WHEN NOTHING CAN COVER IT)
+//
+// Spending on a Want you planned for is a good
+// thing, not a temptation to resist -- so there's
+// no voluntary "skip" anymore. This only fires as
+// a fallback when no bucket has enough to cover
+// it, i.e. it genuinely wasn't funded. No penalty,
+// no praise, no carryover -- it just didn't happen.
 // ============================================
 
-function skipExpense(expense) {
+function passOnWant(expense) {
 
     showMessage(
 
-        `Good call — you kept $${expense.amount} for something else.`,
+        `You didn't set enough aside for ${expense.title.toLowerCase()} — moving on, no penalty.`,
 
-        "success"
+        "neutral"
 
     );
 
@@ -1989,12 +2575,8 @@ function handleExpense(
     selectedBucket
 ) {
 
-    const month =
-        months[currentMonth];
-
-
     const expense =
-        month.expenses[currentExpense];
+        currentStageExpenses[currentExpense];
 
 
     // ------------------------------------------
@@ -2037,16 +2619,46 @@ function handleExpense(
 
     if (isBorrow) {
 
-        borrowedPayments++;
+        // Same category (a Want covering another Want, a Need
+        // covering another Need) is a minor shuffle -- still your
+        // money doing its intended kind of job, just a different
+        // jar. Crossing categories (Bills covering a Want, a Need
+        // covering a Bill, etc.) is the real violation -- see the
+        // wellness weights in finishMonth for how much each costs.
+        const sameCategory =
+            getBucketType(selectedBucket) ===
+            getBucketType(expense.bucket);
 
 
-        showMessage(
+        if (sameCategory) {
 
-            `You borrowed $${expense.amount} from ${getBucketName(selectedBucket)} to cover ${getBucketName(expense.bucket)}. That's less for its own plans later.`,
+            borrowedSameCategory++;
 
-            "warning"
 
-        );
+            showMessage(
+
+                `You covered $${expense.amount} from ${getBucketName(selectedBucket)} instead of ${getBucketName(expense.bucket)} -- same kind of money, just a different jar.`,
+
+                "warning"
+
+            );
+
+        }
+
+        else {
+
+            borrowedCrossCategory++;
+
+
+            showMessage(
+
+                `You borrowed $${expense.amount} from ${getBucketName(selectedBucket)} to cover ${getBucketName(expense.bucket)}. That's less for its own plans later.`,
+
+                "warning"
+
+            );
+
+        }
 
     }
 
@@ -2073,25 +2685,44 @@ function handleExpense(
 // MISS THIS BILL
 // (fallback when NOTHING can cover it — wired
 // up per-render in renderPaymentPanel, since
-// only obligations ever show this button)
+// only Needs ever show this button)
+//
+// Missing a Need has real teeth: it hurts the
+// Financial Wellness score AND (unless it's a
+// Loan Payment itself -- loans resolve fully
+// within the stage they're introduced in) rolls
+// into next stage as an added, carried-over bill.
 // ============================================
 
 function missBill() {
 
-    const month =
-        months[currentMonth];
-
-
     const expense =
-        month.expenses[currentExpense];
+        currentStageExpenses[currentExpense];
 
 
-    missedBills++;
+    missedNeeds++;
+
+
+    if (!expense.loan) {
+
+        pendingExtraNeeds.push({
+            icon: expense.icon,
+            title: `Overdue: ${expense.title}`,
+            description:
+                "This didn't get paid last stage — it's due again now.",
+            amount: expense.amount,
+            bucket: "bills",
+            fixed: true,
+            carried: true
+        });
+
+    }
 
 
     showMessage(
 
-        `You missed the ${expense.title} bill. That hurts your financial wellness.`,
+        expense.missNarrative ||
+            `You missed the ${expense.title} bill. That hurts your financial wellness.`,
 
         "error"
 
@@ -2110,10 +2741,6 @@ function missBill() {
 
 function advanceToNextExpense() {
 
-    const month =
-        months[currentMonth];
-
-
     setTimeout(
         () => {
 
@@ -2122,7 +2749,7 @@ function advanceToNextExpense() {
 
             if (
                 currentExpense >=
-                month.expenses.length
+                currentStageExpenses.length
             ) {
 
                 finishMonth();
@@ -2180,6 +2807,17 @@ function showMessage(
 
     }
 
+    else if (
+        type === "neutral"
+    ) {
+
+        // No penalty, no praise -- just stating what happened
+        // (e.g. passing on a Want you didn't set money aside for).
+        message.style.color =
+            "#6b7280";
+
+    }
+
     else {
 
         message.style.color =
@@ -2192,13 +2830,13 @@ function showMessage(
 
 
 // ============================================
-// FINISH MONTH
+// FINISH STAGE
 // ============================================
 
 function finishMonth() {
 
-    // The month screen stays visible (dimmed behind the popup's
-    // scrim) rather than being hidden -- #end-screen is now an
+    // The stage screen stays visible (dimmed behind the popup's
+    // scrim) rather than being hidden -- #end-screen is an
     // overlay on top of it, same convention as the #start-screen
     // welcome popup over the setup screen.
     endScreen.classList.remove(
@@ -2206,12 +2844,18 @@ function finishMonth() {
     );
 
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
 
     // ------------------------------------------
-    // CALCULATE REMAINING
+    // CALCULATE REMAINING + OVERFUNDING
+    //
+    // Needs/Wants reset to $0 every stage -- any
+    // balance still sitting in either one wasn't
+    // spent AND doesn't carry forward, so it's
+    // called out explicitly rather than quietly
+    // vanishing.
     // ------------------------------------------
 
     const remaining =
@@ -2223,16 +2867,183 @@ function finishMonth() {
             );
 
 
+    const sumLeftoverByType =
+        type =>
+            stage.buckets
+                .filter(
+                    bucket =>
+                        bucket.type === type
+                )
+                .reduce(
+                    (total, bucket) =>
+                        total + (buckets[bucket.id] || 0),
+                    0
+                );
+
+    const leftoverNeeds =
+        sumLeftoverByType("need");
+
+    const leftoverBills =
+        sumLeftoverByType("bill");
+
+    const leftoverWants =
+        sumLeftoverByType("want");
+
+
+    const overfundingSection =
+        document.getElementById(
+            "overfunding-callout"
+        );
+
+
+    const overfundingLines = [];
+
+    if (leftoverNeeds > 0) {
+
+        overfundingLines.push(
+            `You left <strong>$${leftoverNeeds}</strong> unused in Needs — it didn't carry over.`
+        );
+
+    }
+
+    if (leftoverBills > 0) {
+
+        overfundingLines.push(
+            `You left <strong>$${leftoverBills}</strong> unused in Bills — it didn't carry over.`
+        );
+
+    }
+
+    if (leftoverWants > 0) {
+
+        overfundingLines.push(
+            `You left <strong>$${leftoverWants}</strong> unused in Wants — it didn't carry over.`
+        );
+
+    }
+
+
+    if (overfundingLines.length > 0) {
+
+        overfundingSection.innerHTML =
+            overfundingLines.join("<br>");
+
+        overfundingSection.classList.remove(
+            "hidden"
+        );
+
+    }
+
+    else {
+
+        overfundingSection.classList.add(
+            "hidden"
+        );
+
+    }
+
+
     // ------------------------------------------
     // SAVE SAVINGS
     // ------------------------------------------
 
-    carriedSavings =
+    const endingSavings =
         buckets.savings || 0;
 
+    carriedSavings =
+        endingSavings;
 
-    const savings =
-        carriedSavings;
+
+    // ------------------------------------------
+    // SAVINGS RECAP
+    //
+    // No goal, hidden or otherwise -- just a plain
+    // report of what ended up in Savings. Saved
+    // something: called out positively, carries
+    // forward as a head start. Saved nothing: no
+    // penalty, no scolding, it just carries forward
+    // as $0. Either way this never blocks progress
+    // and never adds a bill -- Financial Wellness
+    // (below) is the only place savings feeds into
+    // a score, and only ever upward.
+    // ------------------------------------------
+
+    const readinessSection =
+        document.getElementById(
+            "readiness-outcome"
+        );
+
+    const isFinalStage =
+        !stages[currentStage + 1];
+
+
+    readinessSection.classList.remove(
+        "hidden"
+    );
+
+
+    if (endingSavings > 0 && isFinalStage) {
+
+        // The big moment: this is the whole "build your wealth"
+        // payoff, so it leads with the full Teenager-to-Career arc
+        // instead of just restating this stage's ending number.
+        readinessSection.className =
+            "readiness-outcome met";
+
+
+        readinessSection.innerHTML = `
+
+            <strong>🎉 You built $${endingSavings.toLocaleString()} from nothing!</strong>
+
+            <p>
+                You started with $0 back in Teenager and grew it all
+                the way to $${endingSavings.toLocaleString()} by the end
+                of Career. That's what saving a little each stage adds
+                up to.
+            </p>
+
+        `;
+
+    }
+
+    else if (endingSavings > 0) {
+
+        readinessSection.className =
+            "readiness-outcome met";
+
+
+        readinessSection.innerHTML = `
+
+            <strong>💰 You saved $${endingSavings.toLocaleString()} this stage</strong>
+
+            <p>
+                It carries forward into next stage as a head start.
+            </p>
+
+        `;
+
+    }
+
+    else {
+
+        readinessSection.className =
+            "readiness-outcome";
+
+
+        readinessSection.innerHTML = `
+
+            <strong>${isFinalStage
+                ? `You're finishing Career with $0 in Savings`
+                : `You didn't save anything this stage`}</strong>
+
+            <p>
+                That's okay -- no penalty for it, it just carries
+                forward as $0.
+            </p>
+
+        `;
+
+    }
 
 
     // ------------------------------------------
@@ -2240,15 +3051,15 @@ function finishMonth() {
     // ------------------------------------------
 
     document.getElementById(
-        "completed-month"
+        "end-title"
     ).textContent =
-        currentMonth;
+        `${stage.name} Complete!`;
 
 
     document.getElementById(
         "total-income"
     ).textContent =
-        `$${month.income.toLocaleString()}`;
+        `$${stage.income.toLocaleString()}`;
 
 
     document.getElementById(
@@ -2266,90 +3077,181 @@ function finishMonth() {
     document.getElementById(
         "final-savings"
     ).textContent =
-        `$${savings}`;
+        `$${endingSavings}`;
 
 
     // ------------------------------------------
-    // WELLNESS
+    // WELLNESS — CUMULATIVE ACROSS ALL STAGES
     //
-    // Missed bills cost the most — an unpaid
-    // bill is worse than a borrowed payment.
-    // Borrowing costs something too — it means
-    // the plan had to bend, even if nothing
-    // technically went unpaid.
+    // Savings ratio, -15/missed Need. Borrowing
+    // between buckets is now two tiers instead of
+    // one flat rate: -2 for staying within the same
+    // category (Shopping covering Takeout -- still
+    // Wants money, just a different jar), -5 for
+    // crossing categories (Bills covering a Want,
+    // a Need covering a Bill, etc.) -- that's the
+    // real violation of "every dollar has a job."
+    // Each stage's score is banked, and the running
+    // average is the "overall" score -- Stage 3's
+    // recap leads with that average instead of just
+    // its own stage's number, so the final grade
+    // reflects the whole financial life, not just
+    // the last stage.
     // ------------------------------------------
 
-    let score =
-        Math.round(
-            (savings /
-            month.income) * 100
+    const newSavingsThisStage =
+        newMoneyIn(
+            "savings",
+            endingSavings
         );
 
 
-    score -=
-        missedBills * 15;
+    let stageScore =
+        Math.round(
+            (newSavingsThisStage /
+            stage.income) * 100
+        );
 
 
-    score -=
-        borrowedPayments * 5;
+    stageScore -=
+        missedNeeds * 15;
 
 
-    if (
-        score > 100
-    ) {
+    stageScore -=
+        borrowedSameCategory * 2;
 
-        score = 100;
+
+    stageScore -=
+        borrowedCrossCategory * 5;
+
+
+    if (stageHadLoanCarriedIn) {
+
+        stageScore -= 10;
 
     }
 
 
-    if (
-        score < 0
-    ) {
+    if (stageScore > 100) {
 
-        score = 0;
+        stageScore = 100;
 
     }
+
+    if (stageScore < 0) {
+
+        stageScore = 0;
+
+    }
+
+
+    stageScores.push(stageScore);
+
+
+    const cumulativeScore =
+        Math.round(
+            stageScores.reduce(
+                (total, score) =>
+                    total + score,
+                0
+            ) / stageScores.length
+        );
+
+
+    const isCapstone =
+        !stages[currentStage + 1];
+
+
+    const displayScore =
+        isCapstone
+            ? cumulativeScore
+            : stageScore;
+
+
+    document.getElementById(
+        "wellness-scope-label"
+    ).textContent =
+        isCapstone
+            ? "(Overall)"
+            : "(This Stage)";
 
 
     document.getElementById(
         "wellness-score"
     ).textContent =
-        `${score}%`;
+        `${displayScore}%`;
 
 
     document.getElementById(
         "wellness-fill"
     ).style.width =
-        `${score}%`;
+        `${displayScore}%`;
+
+
+    const cumulativeLine =
+        document.getElementById(
+            "cumulative-wellness-line"
+        );
+
+
+    if (!isCapstone) {
+
+        cumulativeLine.classList.remove(
+            "hidden"
+        );
+
+        document.getElementById(
+            "cumulative-wellness-score"
+        ).textContent =
+            `${cumulativeScore}%`;
+
+    }
+
+    else {
+
+        cumulativeLine.classList.add(
+            "hidden"
+        );
+
+    }
 
 
     // ------------------------------------------
-    // NEXT MONTH
+    // NEXT STAGE
     // ------------------------------------------
 
     let message =
-        currentMonth === 1
-            ? "Nice work! Your savings will come with you into next month."
-            : "You handled another month. Ready for what's next?";
+        currentStage === 1
+            ? "Nice work! Your savings will come with you into next stage."
+            : "You handled another stage. Ready for what's next?";
 
 
     if (
-        missedBills > 0
+        missedNeeds > 0
     ) {
 
         message +=
-            ` You missed ${missedBills} bill${missedBills === 1 ? "" : "s"} this month — that hurt your financial wellness.`;
+            ` You missed ${missedNeeds} Need${missedNeeds === 1 ? "" : "s"} bill${missedNeeds === 1 ? "" : "s"} this stage — that hurt your financial wellness.`;
 
     }
 
 
     if (
-        borrowedPayments > 0
+        borrowedCrossCategory > 0
     ) {
 
         message +=
-            ` You borrowed between buckets ${borrowedPayments} time${borrowedPayments === 1 ? "" : "s"} to make ends meet.`;
+            ` You crossed categories to cover something ${borrowedCrossCategory} time${borrowedCrossCategory === 1 ? "" : "s"} — that cost more.`;
+
+    }
+
+
+    if (
+        borrowedSameCategory > 0
+    ) {
+
+        message +=
+            ` You shifted money within a category ${borrowedSameCategory} time${borrowedSameCategory === 1 ? "" : "s"} — a smaller ding.`;
 
     }
 
@@ -2361,7 +3263,7 @@ function finishMonth() {
 
 
     if (
-        months[currentMonth + 1]
+        stages[currentStage + 1]
     ) {
 
         nextMonthButton.classList.remove(
@@ -2370,7 +3272,7 @@ function finishMonth() {
 
 
         nextMonthButton.textContent =
-            `Start Month ${currentMonth + 1}`;
+            `Start ${stages[currentStage + 1].name}`;
 
     }
 
@@ -2387,7 +3289,7 @@ function finishMonth() {
 
 
 // ============================================
-// NEXT MONTH
+// NEXT STAGE
 // ============================================
 
 nextMonthButton.addEventListener(
@@ -2409,8 +3311,8 @@ nextMonthButton.addEventListener(
         );
 
 
-        loadMonth(
-            currentMonth + 1
+        loadStage(
+            currentStage + 1
         );
 
     }
@@ -2449,12 +3351,12 @@ function getBucketName(
     bucketId
 ) {
 
-    const month =
-        months[currentMonth];
+    const stage =
+        stages[currentStage];
 
 
     const bucket =
-        month.buckets.find(
+        stage.buckets.find(
             bucket =>
                 bucket.id === bucketId
         );
@@ -2467,9 +3369,34 @@ function getBucketName(
 }
 
 
+// Used to tell a same-category borrow (Shopping covering
+// Takeout -- both Wants) from a cross-category one (Bills
+// covering Takeout) -- see handleExpense.
+function getBucketType(
+    bucketId
+) {
+
+    const stage =
+        stages[currentStage];
+
+
+    const bucket =
+        stage.buckets.find(
+            bucket =>
+                bucket.id === bucketId
+        );
+
+
+    return bucket
+        ? bucket.type
+        : null;
+
+}
+
+
 
 // ============================================
 // START GAME
 // ============================================
 
-loadMonth(1);
+loadStage(1);
