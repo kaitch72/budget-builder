@@ -78,10 +78,19 @@ function bucketTypeLabel(type) {
 // in it this stage (a stage may not have every category -- e.g.
 // no Gas jar until Career), and hides the row entirely when this
 // stage has none for it, instead of leaving an empty gap.
-function setRowColumns(rowEl, count) {
+//
+// jarSize defaults to the original fixed 250px -- the payment
+// screen's calls (Stage 2/3's bill-paying phase) don't pass one,
+// so their jars stay exactly the size they've always been. The
+// setup screen passes its own size, computed per stage in
+// createSetupBuckets() so a stage with fewer jars per row (Stage 1,
+// now that Savings joined the grid instead of its own separate
+// slot) gets noticeably bigger jars, while a stage with more
+// (Career's 5-wide Needs row) still fits without overflowing.
+function setRowColumns(rowEl, count, jarSize = 250) {
 
     rowEl.style.gridTemplateColumns =
-        `repeat(${Math.max(count, 1)}, minmax(0, 250px))`;
+        `repeat(${Math.max(count, 1)}, minmax(0, ${jarSize}px))`;
 
     rowEl.classList.toggle(
         "hidden",
@@ -195,11 +204,19 @@ const stages = {
             },
 
             {
-                id: "bills",
-                type: "bill",
-                name: "Bills",
-                icon: "wallet",
-                description: "Bills you can't skip"
+                id: "phone",
+                type: "need",
+                name: "Phone Plan",
+                icon: "phone",
+                description: "Pick your plan level"
+            },
+
+            {
+                id: "transportation",
+                type: "need",
+                name: "Transportation",
+                icon: "car",
+                description: "Pick how you get around"
             },
 
             {
@@ -220,7 +237,7 @@ const stages = {
                 description:
                     "Your monthly phone bill is due.",
                 amount: 30,
-                bucket: "bills",
+                bucket: "phone",
                 fixed: true,
                 missNarrative: "Your phone got shut off — you'll owe this again next stage."
             },
@@ -276,7 +293,580 @@ const stages = {
                 optional: true
             }
 
-        ]
+        ],
+
+
+        // ==========================================
+        // TIER-PICK PROTOTYPE DATA (Stage 1 only, for now)
+        //
+        // Needs/Wants/Savings menus for the new "pick your
+        // level" flow the player will eventually go through
+        // instead of funding buckets blind and reacting to
+        // expenses later. Not wired into the live game yet --
+        // only feeds the isolated tier-pick prototype screens
+        // while they're being built and reviewed one piece at
+        // a time. Numbers approved by Kayla 2026-09-15.
+        // ==========================================
+
+        tieredNeeds: [
+
+            {
+                id: "phone",
+                name: "Phone Plan",
+                icon: "phone",
+                tiers: [
+                    {
+                        id: "family",
+                        label: "Shared Family Line",
+                        amount: 15,
+                        wellbeing: -3,
+                        note: "You're always fighting your family for data."
+                    },
+                    {
+                        id: "basic",
+                        label: "Basic Prepaid Plan",
+                        amount: 30,
+                        wellbeing: 0,
+                        note: "Covers what you need, nothing fancy."
+                    },
+                    {
+                        id: "unlimited",
+                        label: "Unlimited Plan",
+                        amount: 55,
+                        wellbeing: 3,
+                        note: "Never think about data again."
+                    }
+                ]
+            },
+
+            {
+                id: "food",
+                name: "Food",
+                icon: "food",
+                tiers: [
+                    {
+                        id: "ramen",
+                        label: "Ramen & Snacks",
+                        amount: 45,
+                        wellbeing: -5,
+                        note: "You're hungry a lot and it's not great food."
+                    },
+                    {
+                        id: "groceries",
+                        label: "Regular Groceries",
+                        amount: 85,
+                        wellbeing: 0,
+                        note: "Solid, dependable meals."
+                    },
+                    {
+                        id: "eatingout",
+                        label: "Groceries + Eating Out With Friends",
+                        amount: 140,
+                        wellbeing: 5,
+                        note: "Well-fed and social."
+                    }
+                ]
+            },
+
+            {
+                id: "transportation",
+                name: "Transportation",
+                icon: "dollar",
+                tiers: [
+                    {
+                        id: "walk",
+                        label: "Walk/Bike Everywhere",
+                        amount: 0,
+                        wellbeing: -2,
+                        note: "Exhausting, but free."
+                    },
+                    {
+                        id: "gas",
+                        label: "Gas Money for Rides",
+                        amount: 35,
+                        wellbeing: 0,
+                        note: "Gets you where you need to go."
+                    },
+                    {
+                        id: "own",
+                        label: "Own Gas + Insurance Contribution",
+                        amount: 75,
+                        wellbeing: 3,
+                        note: "Real independence."
+                    }
+                ]
+            }
+
+        ],
+
+        tieredWants: [
+
+            {
+                id: "shopping",
+                name: "Shopping",
+                icon: "dollar",
+                tiers: [
+                    {
+                        id: "small",
+                        label: "A Small Treat",
+                        amount: 10,
+                        wellbeing: 1,
+                        note: "Just something little for yourself."
+                    },
+                    {
+                        id: "thrift",
+                        label: "Thrift Finds",
+                        amount: 30,
+                        wellbeing: 2,
+                        note: "A few new-to-you pieces."
+                    },
+                    {
+                        id: "new",
+                        label: "New Outfit",
+                        amount: 65,
+                        wellbeing: 5,
+                        note: "Something you picked out fresh."
+                    }
+                ]
+            },
+
+            {
+                id: "entertainment",
+                name: "Entertainment",
+                icon: "movie",
+                tiers: [
+                    {
+                        id: "small",
+                        label: "A Quiet Night In",
+                        amount: 8,
+                        wellbeing: 1,
+                        note: "Just enough for a low-key night."
+                    },
+                    {
+                        id: "occasional",
+                        label: "Occasional Hangout",
+                        amount: 20,
+                        wellbeing: 2,
+                        note: "A movie night here and there."
+                    },
+                    {
+                        id: "regular",
+                        label: "Regular Movie Nights & Outings",
+                        amount: 50,
+                        wellbeing: 5,
+                        note: "Out with friends often."
+                    }
+                ]
+            },
+
+            {
+                id: "takeout",
+                name: "Takeout & Treats",
+                icon: "food",
+                tiers: [
+                    {
+                        id: "small",
+                        label: "A Little Treat",
+                        amount: 6,
+                        wellbeing: 1,
+                        note: "Just a small treat now and then."
+                    },
+                    {
+                        id: "occasional",
+                        label: "Occasional Treat",
+                        amount: 15,
+                        wellbeing: 2,
+                        note: "A treat now and then."
+                    },
+                    {
+                        id: "frequent",
+                        label: "Frequent Takeout",
+                        amount: 35,
+                        wellbeing: 3,
+                        note: "Eating out a lot."
+                    }
+                ]
+            }
+
+        ],
+
+        tieredSavings: {
+
+            id: "savings",
+            name: "Savings",
+            icon: "savings",
+            tiers: [
+                {
+                    id: "minimal",
+                    label: "Minimal",
+                    amount: 10,
+                    wellbeing: 0,
+                    note: "Something is better than nothing."
+                },
+                {
+                    id: "moderate",
+                    label: "Moderate",
+                    amount: 30,
+                    wellbeing: 0,
+                    note: "A steady habit."
+                },
+                {
+                    id: "aggressive",
+                    label: "Aggressive",
+                    amount: 60,
+                    wellbeing: 0,
+                    note: "Building real momentum."
+                }
+            ]
+
+        },
+
+
+        // ==========================================
+        // JAR NARRATIVE EVENTS
+        // (every tiered bucket has a bad/good pair of
+        // outcomes per tier now, but not every bucket
+        // fires one every stage -- buildNarrativeQueue()
+        // in game.js randomly picks just 2 of the
+        // buckets a tier was actually chosen for, then
+        // rolls a 50/50 on each of those two. Bonuses
+        // always land in Savings; penalties come
+        // straight out of Savings too (never below $0).
+        // The one exception on each bucket is its
+        // riskiest/priciest tier's bad outcome, which
+        // carries forward as a bill next stage instead
+        // of hitting Savings today -- same idea as a
+        // real emergency expense or credit card catching
+        // up with you later, and it keeps a bad stage
+        // from being erased by low savings.)
+        // ==========================================
+
+        jarNarratives: {
+
+            transportation: {
+
+                walk: [
+                    {
+                        icon: "tools",
+                        title: "New Helmet",
+                        text: "Your old helmet cracked, so you had to replace it before riding again.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Saved on Gas",
+                        text: "Great job saving on gas expenses this month!",
+                        bonus: 10
+                    }
+                ],
+
+                gas: [
+                    {
+                        icon: "car",
+                        title: "Running Late",
+                        text: "You were late one day because your friend slept in and couldn't give you a ride on time.",
+                        penalty: 15
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Being Resourceful",
+                        text: "Good job being resourceful about getting your rides this month!",
+                        bonus: 10
+                    }
+                ],
+
+                own: [
+                    {
+                        icon: "emergency",
+                        title: "Fender Bender",
+                        text: "You got in a small accident this month. It wasn't serious, but the repair bill is coming due next stage.",
+                        carryForwardBill: {
+                            title: "Car Repair Bill",
+                            amount: 40,
+                            icon: "tools"
+                        }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Extra Cash",
+                        text: "Having your own ride paid off in an unexpected way -- you picked up a few paid rides for friends and made some extra cash.",
+                        bonus: 20
+                    }
+                ]
+
+            },
+
+
+            food: {
+
+                ramen: [
+                    {
+                        icon: "food",
+                        title: "Not Enough Food",
+                        text: "Your ramen-and-snacks budget ran short by the end of the month, so you had to spend a little more to get by.",
+                        penalty: 8
+                    },
+                    {
+                        icon: "food",
+                        title: "Stretched It Well",
+                        text: "You got creative with your ramen and snacks and stretched your budget further than expected.",
+                        bonus: 8
+                    }
+                ],
+
+                groceries: [
+                    {
+                        icon: "food",
+                        title: "Grocery Prices Went Up",
+                        text: "Prices crept up at the store this month, and you had to cover the difference.",
+                        penalty: 12
+                    },
+                    {
+                        icon: "food",
+                        title: "Found Some Deals",
+                        text: "You caught a great sale and saved more than expected on groceries this month.",
+                        bonus: 12
+                    }
+                ],
+
+                eatingout: [
+                    {
+                        icon: "emergency",
+                        title: "Food Poisoning",
+                        text: "One of those restaurant meals didn't agree with you. The doctor's visit is coming due next stage.",
+                        carryForwardBill: {
+                            title: "Doctor Visit Bill",
+                            amount: 35,
+                            icon: "emergency"
+                        }
+                    },
+                    {
+                        icon: "food",
+                        title: "Free Dessert",
+                        text: "A restaurant comped your whole table's dessert after a mix-up with your order -- nice surprise.",
+                        bonus: 15
+                    }
+                ]
+
+            },
+
+
+            phone: {
+
+                family: [
+                    {
+                        icon: "phone",
+                        title: "Ran Out of Data",
+                        text: "You blew through your shared data early and had to pay an overage fee.",
+                        penalty: 8
+                    },
+                    {
+                        icon: "phone",
+                        title: "Sibling Paid You Back",
+                        text: "Your sibling used more than their share of the family plan and paid you back for it.",
+                        bonus: 8
+                    }
+                ],
+
+                basic: [
+                    {
+                        icon: "phone",
+                        title: "Lost Phone Case",
+                        text: "You lost your phone case and had to replace it.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "phone",
+                        title: "Referral Bonus",
+                        text: "Your prepaid carrier gave you a credit for referring a friend.",
+                        bonus: 10
+                    }
+                ],
+
+                unlimited: [
+                    {
+                        icon: "tools",
+                        title: "Cracked Screen",
+                        text: "You dropped your phone and cracked the screen. The repair bill is coming due next stage.",
+                        carryForwardBill: {
+                            title: "Phone Screen Repair",
+                            amount: 45,
+                            icon: "tools"
+                        }
+                    },
+                    {
+                        icon: "phone",
+                        title: "Trade-In Credit",
+                        text: "Your carrier ran a trade-in promotion and gave you an unexpected credit.",
+                        bonus: 20
+                    }
+                ]
+
+            },
+
+
+            shopping: {
+
+                small: [
+                    {
+                        icon: "dollar",
+                        title: "Impulse Buy Regret",
+                        text: "You grabbed something small on a whim that you didn't really need.",
+                        penalty: 6
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Found It On Sale",
+                        text: "That little treat you wanted turned out to be on clearance.",
+                        bonus: 6
+                    }
+                ],
+
+                thrift: [
+                    {
+                        icon: "dollar",
+                        title: "Store Credit Only",
+                        text: "One of your thrifted pieces didn't fit right, and the store only gave store credit, not cash back.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Resold for More",
+                        text: "You spotted a designer piece at the thrift store and resold it online for more than you paid.",
+                        bonus: 15
+                    }
+                ],
+
+                new: [
+                    {
+                        icon: "wallet",
+                        title: "Credit Card Interest",
+                        text: "You put your new outfit on a credit card and didn't pay it off -- the interest is catching up with you next stage.",
+                        carryForwardBill: {
+                            title: "Credit Card Balance",
+                            amount: 25,
+                            icon: "wallet"
+                        }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Style Gig",
+                        text: "A friend paid you to help style their outfit for an event.",
+                        bonus: 25
+                    }
+                ]
+
+            },
+
+
+            entertainment: {
+
+                small: [
+                    {
+                        icon: "movie",
+                        title: "Forgot to Cancel",
+                        text: "You forgot to cancel a free trial and got charged before you noticed.",
+                        penalty: 6
+                    },
+                    {
+                        icon: "movie",
+                        title: "Free Rental",
+                        text: "A friend's streaming code covered your night in for free.",
+                        bonus: 6
+                    }
+                ],
+
+                occasional: [
+                    {
+                        icon: "movie",
+                        title: "Lost Your Ticket",
+                        text: "You lost a ticket stub and had to pay for a replacement to get in.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "movie",
+                        title: "Won Something",
+                        text: "You won a small prize at the arcade and it covered part of your night.",
+                        bonus: 10
+                    }
+                ],
+
+                regular: [
+                    {
+                        icon: "wallet",
+                        title: "Overspent on a Night Out",
+                        text: "One night out got more expensive than planned, and you put the rest on a card -- it's catching up with you next stage.",
+                        carryForwardBill: {
+                            title: "Credit Card Balance",
+                            amount: 30,
+                            icon: "wallet"
+                        }
+                    },
+                    {
+                        icon: "movie",
+                        title: "Free Concert Tickets",
+                        text: "A friend had extra tickets to a show and invited you along for free.",
+                        bonus: 25
+                    }
+                ]
+
+            },
+
+
+            takeout: {
+
+                small: [
+                    {
+                        icon: "food",
+                        title: "Price Went Up",
+                        text: "Your favorite spot raised prices and your treat cost more than expected.",
+                        penalty: 4
+                    },
+                    {
+                        icon: "food",
+                        title: "Buy One Get One",
+                        text: "Your favorite spot ran a surprise deal and you got two treats for the price of one.",
+                        bonus: 4
+                    }
+                ],
+
+                occasional: [
+                    {
+                        icon: "food",
+                        title: "Forgot the Coupon",
+                        text: "You forgot to use a coupon you'd been saving and paid full price.",
+                        penalty: 8
+                    },
+                    {
+                        icon: "food",
+                        title: "Free Delivery",
+                        text: "A delivery app waived the fee on your order this month.",
+                        bonus: 8
+                    }
+                ],
+
+                frequent: [
+                    {
+                        icon: "wallet",
+                        title: "Takeout Adds Up",
+                        text: "All that takeout added up more than you realized, and some of it went on a card -- it's catching up with you next stage.",
+                        carryForwardBill: {
+                            title: "Credit Card Balance",
+                            amount: 20,
+                            icon: "wallet"
+                        }
+                    },
+                    {
+                        icon: "food",
+                        title: "Loyalty Rewards",
+                        text: "Your takeout app's rewards program paid off with a nice credit.",
+                        bonus: 15
+                    }
+                ]
+
+            }
+
+        }
 
     },
 
@@ -452,7 +1042,490 @@ const stages = {
                 optional: true
             }
 
-        ]
+        ],
+
+
+        // ==========================================
+        // TIERED NEEDS / WANTS
+        // (same tier-pick pattern as Stage 1 -- see
+        // that stage's comment block for the full
+        // rationale. Bills combines Rent + Phone into
+        // one housing-plus-plan choice instead of two
+        // separate fixed line items; a bill carried in
+        // from last stage's jar narratives adds its
+        // amount on top of whichever Bills tier is
+        // picked, same as it used to add onto the old
+        // pooled Bills bucket during the payment phase.
+        // stage.expenses above is unused dead data now,
+        // same as Stage 1's -- left alone rather than
+        // deleted.)
+        // ==========================================
+
+        tieredNeeds: [
+
+            {
+                id: "bills",
+                name: "Bills",
+                icon: "wallet",
+                tiers: [
+                    {
+                        id: "roommates",
+                        label: "Roommates + Basic Phone Plan",
+                        amount: 220,
+                        wellbeing: -3,
+                        note: "Crowded, but it's cheap."
+                    },
+                    {
+                        id: "own",
+                        label: "Own Room + Standard Phone Plan",
+                        amount: 280,
+                        wellbeing: 0,
+                        note: "Comfortable enough."
+                    },
+                    {
+                        id: "solo",
+                        label: "Private Apartment + Unlimited Plan",
+                        amount: 370,
+                        wellbeing: 4,
+                        note: "Space and freedom, at a price."
+                    }
+                ]
+            },
+
+            {
+                id: "food",
+                name: "Food",
+                icon: "food",
+                tiers: [
+                    {
+                        id: "mealplanonly",
+                        label: "Meal Plan Only",
+                        amount: 60,
+                        wellbeing: -3,
+                        note: "Cafeteria food, every meal."
+                    },
+                    {
+                        id: "groceries",
+                        label: "Meal Plan + Some Groceries",
+                        amount: 100,
+                        wellbeing: 0,
+                        note: "A bit more variety."
+                    },
+                    {
+                        id: "eatingout",
+                        label: "Meal Plan + Groceries + Eating Out",
+                        amount: 150,
+                        wellbeing: 4,
+                        note: "Never stuck with just cafeteria food."
+                    }
+                ]
+            },
+
+            {
+                id: "personalCare",
+                name: "Basics",
+                icon: "dollar",
+                tiers: [
+                    {
+                        id: "minimum",
+                        label: "Bare Minimum",
+                        amount: 15,
+                        wellbeing: -2,
+                        note: "Just the essentials, nothing extra."
+                    },
+                    {
+                        id: "stocked",
+                        label: "Well-Stocked",
+                        amount: 35,
+                        wellbeing: 0,
+                        note: "Toiletries and basics covered comfortably."
+                    },
+                    {
+                        id: "selfcare",
+                        label: "Self-Care Upgrade",
+                        amount: 60,
+                        wellbeing: 3,
+                        note: "The extras that make you feel good."
+                    }
+                ]
+            }
+
+        ],
+
+        tieredWants: [
+
+            {
+                id: "takeout",
+                name: "Takeout",
+                icon: "food",
+                tiers: [
+                    {
+                        id: "rare",
+                        label: "Rare Treat",
+                        amount: 10,
+                        wellbeing: 1,
+                        note: "Coffee once in a while."
+                    },
+                    {
+                        id: "regular",
+                        label: "Regular Coffee Runs",
+                        amount: 30,
+                        wellbeing: 2,
+                        note: "Coffee between classes, a few times a week."
+                    },
+                    {
+                        id: "frequent",
+                        label: "Coffee + Frequent Takeout",
+                        amount: 60,
+                        wellbeing: 4,
+                        note: "Barely cook for yourself."
+                    }
+                ]
+            },
+
+            {
+                id: "shopping",
+                name: "Shopping",
+                icon: "dollar",
+                tiers: [
+                    {
+                        id: "minimal",
+                        label: "Only If Necessary",
+                        amount: 15,
+                        wellbeing: 1,
+                        note: "Replace something only when it wears out."
+                    },
+                    {
+                        id: "occasional",
+                        label: "A Few New Pieces",
+                        amount: 40,
+                        wellbeing: 2,
+                        note: "Refresh your wardrobe here and there."
+                    },
+                    {
+                        id: "frequent",
+                        label: "Regular Shopping Trips",
+                        amount: 80,
+                        wellbeing: 5,
+                        note: "Always something new."
+                    }
+                ]
+            },
+
+            {
+                id: "entertainment",
+                name: "Entertainment",
+                icon: "movie",
+                tiers: [
+                    {
+                        id: "streaming",
+                        label: "Streaming Only",
+                        amount: 12,
+                        wellbeing: -1,
+                        note: "Nights in, at home."
+                    },
+                    {
+                        id: "goingout",
+                        label: "Streaming + Going Out",
+                        amount: 40,
+                        wellbeing: 3,
+                        note: "A mix of nights in and nights out."
+                    },
+                    {
+                        id: "fullsocial",
+                        label: "Streaming + Going Out + Weekend Trips",
+                        amount: 75,
+                        wellbeing: 5,
+                        note: "Rarely turning down plans."
+                    }
+                ]
+            }
+
+        ],
+
+
+        // ==========================================
+        // JAR NARRATIVE EVENTS
+        // Same shape and rules as Stage 1's block:
+        // only the flagship (priciest) tier's bad
+        // outcome carries forward as a bill; every
+        // other tier's bad outcome comes straight out
+        // of Savings instead.
+        // ==========================================
+
+        jarNarratives: {
+
+            bills: {
+                roommates: [
+                    {
+                        icon: "emergency",
+                        title: "Loud Roommates",
+                        text: "Your roommates threw a party the night before an exam and you couldn't focus for days.",
+                        penalty: 8
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Split A Grocery Run",
+                        text: "Your roommates chipped in on shared snacks and supplies, saving everyone some cash.",
+                        bonus: 8
+                    }
+                ],
+                own: [
+                    {
+                        icon: "phone",
+                        title: "Plan Overage",
+                        text: "You went over your data limit this month and got hit with an overage fee.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Referral Credit",
+                        text: "You referred a friend to your phone plan and got a bill credit.",
+                        bonus: 10
+                    }
+                ],
+                solo: [
+                    {
+                        icon: "tools",
+                        title: "Apartment Repair",
+                        text: "Something broke in your apartment and the landlord says it's on you to fix. The bill is due next stage.",
+                        carryForwardBill: { title: "Apartment Repair Bill", amount: 50, icon: "tools" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Landlord Credit",
+                        text: "Your landlord gave you a partial credit for a maintenance delay.",
+                        bonus: 25
+                    }
+                ]
+            },
+
+            food: {
+                mealplanonly: [
+                    {
+                        icon: "food",
+                        title: "Ran Out Of Meal Swipes",
+                        text: "You ran out of meal swipes early and had to scrape together food for the last few days.",
+                        penalty: 8
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Meal Swipe Refund",
+                        text: "The dining hall refunded some unused meal swipes at the end of the term.",
+                        bonus: 8
+                    }
+                ],
+                groceries: [
+                    {
+                        icon: "food",
+                        title: "Groceries Went Bad",
+                        text: "You bought more than you could eat before it went bad.",
+                        penalty: 12
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Coupon Savings",
+                        text: "You found a stack of coupons and saved on your grocery run.",
+                        bonus: 12
+                    }
+                ],
+                eatingout: [
+                    {
+                        icon: "wallet",
+                        title: "Food Delivery Adds Up",
+                        text: "Delivery fees and tips quietly piled up this month. The bill catches up with you next stage.",
+                        carryForwardBill: { title: "Food Delivery App Bill", amount: 35, icon: "wallet" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Restaurant Gift Card",
+                        text: "A friend's birthday dinner came with a surprise gift card for you too.",
+                        bonus: 20
+                    }
+                ]
+            },
+
+            personalCare: {
+                minimum: [
+                    {
+                        icon: "dollar",
+                        title: "Ran Out Of Basics",
+                        text: "You ran out of a few essentials and had to make do without them for a while.",
+                        penalty: 6
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Sample Sale",
+                        text: "You scored a bunch of basics for cheap at a campus sample sale.",
+                        bonus: 6
+                    }
+                ],
+                stocked: [
+                    {
+                        icon: "dollar",
+                        title: "Lost Your Bag",
+                        text: "You left a bag of toiletries at the gym and had to replace everything.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Store Credit",
+                        text: "A return you'd forgotten about came back as store credit.",
+                        bonus: 10
+                    }
+                ],
+                selfcare: [
+                    {
+                        icon: "tools",
+                        title: "Salon Mishap",
+                        text: "A salon appointment didn't go as planned and you're paying to get it fixed next stage.",
+                        carryForwardBill: { title: "Salon Mishap Bill", amount: 30, icon: "tools" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Referral Discount",
+                        text: "You referred a friend to your favorite self-care spot and got a discount back.",
+                        bonus: 20
+                    }
+                ]
+            },
+
+            takeout: {
+                rare: [
+                    {
+                        icon: "food",
+                        title: "Price Went Up",
+                        text: "Your usual coffee order got more expensive this month.",
+                        penalty: 4
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Buy One Get One",
+                        text: "A coffee shop near campus ran a buy-one-get-one deal.",
+                        bonus: 4
+                    }
+                ],
+                regular: [
+                    {
+                        icon: "food",
+                        title: "Forgot The Coupon",
+                        text: "You forgot your loyalty card and missed out on a free drink.",
+                        penalty: 8
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Loyalty Rewards",
+                        text: "Your loyalty card finally paid off with a free item.",
+                        bonus: 8
+                    }
+                ],
+                frequent: [
+                    {
+                        icon: "wallet",
+                        title: "Takeout Adds Up",
+                        text: "Between coffee and takeout, the small charges added up more than you noticed. It catches up with you next stage.",
+                        carryForwardBill: { title: "Credit Card Balance", amount: 25, icon: "wallet" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Loyalty Rewards",
+                        text: "A loyalty app you barely remembered signing up for paid out a reward.",
+                        bonus: 18
+                    }
+                ]
+            },
+
+            shopping: {
+                minimal: [
+                    {
+                        icon: "dollar",
+                        title: "Impulse Buy Regret",
+                        text: "You gave in and bought something small you didn't really need.",
+                        penalty: 6
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Found It On Sale",
+                        text: "Something you needed anyway turned out to be on sale.",
+                        bonus: 6
+                    }
+                ],
+                occasional: [
+                    {
+                        icon: "dollar",
+                        title: "Store Credit Only",
+                        text: "A return didn't go the way you wanted -- store credit only, no cash back.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Resold For More",
+                        text: "You resold something you didn't wear anymore for more than expected.",
+                        bonus: 12
+                    }
+                ],
+                frequent: [
+                    {
+                        icon: "wallet",
+                        title: "Credit Card Interest",
+                        text: "A few too many shopping trips this month mean interest is catching up with you next stage.",
+                        carryForwardBill: { title: "Credit Card Balance", amount: 30, icon: "wallet" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Resale Windfall",
+                        text: "You cleaned out your closet and resold a few pieces for a solid profit.",
+                        bonus: 25
+                    }
+                ]
+            },
+
+            entertainment: {
+                streaming: [
+                    {
+                        icon: "tv",
+                        title: "Forgot To Cancel A Trial",
+                        text: "A free trial quietly turned into a paid subscription you forgot about.",
+                        penalty: 5
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Found A Cheaper Plan",
+                        text: "You switched to a cheaper streaming bundle and pocketed the difference.",
+                        bonus: 5
+                    }
+                ],
+                goingout: [
+                    {
+                        icon: "movie",
+                        title: "Lost Your Ticket",
+                        text: "You lost a ticket to something you'd already paid for and had to buy it again.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Won Something",
+                        text: "You won a small raffle prize at a campus event.",
+                        bonus: 12
+                    }
+                ],
+                fullsocial: [
+                    {
+                        icon: "wallet",
+                        title: "Weekend Trip Overspend",
+                        text: "A weekend trip cost more than planned, and it's catching up with you next stage.",
+                        carryForwardBill: { title: "Credit Card Balance", amount: 30, icon: "wallet" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Free Concert Tickets",
+                        text: "A friend couldn't use their extra concert tickets, so you got in for free.",
+                        bonus: 25
+                    }
+                ]
+            }
+
+        }
 
     },
 
@@ -649,7 +1722,218 @@ const stages = {
                 optional: true
             }
 
-        ]
+        ],
+
+
+        // ==========================================
+        // TIERED NEEDS / WANTS + JAR NARRATIVES
+        // Same tier-picker + narrative system as
+        // Stages 1 & 2. Career is the capstone stage
+        // (no Stage 4), so the riskiest tier's bad
+        // outcome is just a bigger penalty here --
+        // there's no next stage for a bill to carry
+        // into.
+        // ==========================================
+
+        tieredNeeds: [
+
+            {
+                id: "bills",
+                name: "Bills",
+                icon: "wallet",
+                tiers: [
+                    { id: "shared", label: "Shared Apartment + Older Car", amount: 850, wellbeing: -4, note: "Cheaper, but your roommate's loud and your car makes a new noise every week." },
+                    { id: "standard", label: "Own Apartment + Reliable Car", amount: 1090, wellbeing: 0, note: "Comfortable and dependable -- nothing fancy, nothing missing." },
+                    { id: "upgraded", label: "Nicer Apartment + Newer Car", amount: 1400, wellbeing: 4, note: "More space, a nicer ride, one less thing to worry about." }
+                ]
+            },
+
+            {
+                id: "food",
+                name: "Food",
+                icon: "food",
+                tiers: [
+                    { id: "basic", label: "Basic Groceries", amount: 100, wellbeing: -3, note: "Keeps you fed. Ramen has range, apparently." },
+                    { id: "groceries", label: "Groceries + Occasional Takeout", amount: 160, wellbeing: 0, note: "Solid meals, dependable, with a little variety." },
+                    { id: "eatingwell", label: "Groceries + Eating Out Often", amount: 240, wellbeing: 4, note: "Good food, whenever you want it." }
+                ]
+            },
+
+            {
+                id: "gas",
+                name: "Gas",
+                icon: "car",
+                tiers: [
+                    { id: "efficient", label: "Fuel-Efficient Commute", amount: 50, wellbeing: -1, note: "You watch every gallon." },
+                    { id: "standard", label: "Standard Commute", amount: 90, wellbeing: 0, note: "Fill up when you need to, no stress about it." },
+                    { id: "flexible", label: "Fill Up Whenever", amount: 140, wellbeing: 3, note: "Road trips, detours, never checking the gauge." }
+                ]
+            },
+
+            {
+                id: "personalCare",
+                name: "Basics",
+                icon: "dollar",
+                tiers: [
+                    { id: "minimum", label: "Bare Minimum", amount: 25, wellbeing: -2, note: "Covers the basics. Barely." },
+                    { id: "stocked", label: "Well-Stocked", amount: 45, wellbeing: 0, note: "Toiletries and basics, always on hand." },
+                    { id: "selfcare", label: "Self-Care Routine", amount: 85, wellbeing: 4, note: "Skincare, haircuts, the extras that add up." }
+                ]
+            }
+
+        ],
+
+        tieredWants: [
+
+            {
+                id: "takeout",
+                name: "Takeout",
+                icon: "food",
+                tiers: [
+                    { id: "rare", label: "Rare Treat", amount: 25, wellbeing: 1, note: "Takeout once in a while." },
+                    { id: "regular", label: "Regular Takeout", amount: 60, wellbeing: 2, note: "A few nights a week you just don't cook." },
+                    { id: "frequent", label: "Frequent Takeout", amount: 110, wellbeing: 4, note: "You barely turn on your own stove." }
+                ]
+            },
+
+            {
+                id: "shopping",
+                name: "Shopping",
+                icon: "dollar",
+                tiers: [
+                    { id: "minimal", label: "Only When Necessary", amount: 30, wellbeing: 1, note: "Replace something only when it wears out." },
+                    { id: "occasional", label: "A Few New Things", amount: 75, wellbeing: 2, note: "Refresh things here and there." },
+                    { id: "frequent", label: "Regular Shopping Trips", amount: 140, wellbeing: 5, note: "Always something new on the way." }
+                ]
+            },
+
+            {
+                id: "entertainment",
+                name: "Entertainment",
+                icon: "movie",
+                tiers: [
+                    { id: "streaming", label: "Streaming Only", amount: 20, wellbeing: -1, note: "Nights in, at home." },
+                    { id: "goingout", label: "Streaming + Going Out", amount: 65, wellbeing: 3, note: "A mix of nights in and nights out." },
+                    { id: "fullsocial", label: "Streaming + Going Out + Weekend Trips", amount: 130, wellbeing: 5, note: "Rarely turning down plans." }
+                ]
+            }
+
+        ],
+
+
+        // ==========================================
+        // JAR NARRATIVE EVENTS
+        // Numbers approved by Kayla 2026-09-16.
+        // ==========================================
+
+        jarNarratives: {
+
+            bills: {
+                shared: [
+                    { icon: "tools", title: "Car Trouble", text: "Your older car needed an unexpected repair this month.", penalty: 60 },
+                    { icon: "dollar", title: "Roommate Split", text: "Your roommate covered a little extra on a shared bill.", bonus: 40 }
+                ],
+                standard: [
+                    { icon: "emergency", title: "Rent Went Up", text: "Your landlord raised the rent a little this cycle.", penalty: 50 },
+                    { icon: "dollar", title: "Utility Refund", text: "Your utility company refunded an overcharge from last cycle.", bonus: 50 }
+                ],
+                upgraded: [
+                    { icon: "tools", title: "Big Repair Bill", text: "Something major went wrong at your nicer apartment, and repairs aren't cheap.", penalty: 120 },
+                    { icon: "dollar", title: "Landlord Credit", text: "Your landlord gave you a credit for a maintenance delay.", bonus: 70 }
+                ]
+            },
+
+            food: {
+                basic: [
+                    { icon: "food", title: "Ran Out Early", text: "You ran out of groceries a few days before payday.", penalty: 15 },
+                    { icon: "dollar", title: "Coupon Haul", text: "You found a stack of coupons and stocked up for less.", bonus: 15 }
+                ],
+                groceries: [
+                    { icon: "food", title: "Food Went Bad", text: "You bought more than you could eat before it spoiled.", penalty: 20 },
+                    { icon: "dollar", title: "Store Rewards", text: "Your grocery store's rewards program paid off this month.", bonus: 20 }
+                ],
+                eatingwell: [
+                    { icon: "wallet", title: "Dining Out Adds Up", text: "Between restaurants and delivery, the tabs added up more than you noticed this month.", penalty: 60 },
+                    { icon: "dollar", title: "Free Meal", text: "A friend treated you to a nice dinner out.", bonus: 35 }
+                ]
+            },
+
+            gas: {
+                efficient: [
+                    { icon: "car", title: "Detour", text: "Road construction meant a longer route to work all month.", penalty: 10 },
+                    { icon: "dollar", title: "Gas Prices Dropped", text: "Prices at the pump dipped for a few weeks.", bonus: 10 }
+                ],
+                standard: [
+                    { icon: "car", title: "Price Spike", text: "Gas prices jumped right when you needed a fill-up.", penalty: 15 },
+                    { icon: "dollar", title: "Carpool Savings", text: "You carpooled with a coworker a few times and split the cost.", bonus: 15 }
+                ],
+                flexible: [
+                    { icon: "car", title: "Heavy Traveling Month", text: "Between errands, trips, and detours, you filled up more than expected.", penalty: 35 },
+                    { icon: "dollar", title: "Gas Rewards Card", text: "Your gas rewards card kicked back some cash this month.", bonus: 25 }
+                ]
+            },
+
+            personalCare: {
+                minimum: [
+                    { icon: "dollar", title: "Ran Out Of Basics", text: "You ran out of a few essentials and had to make do.", penalty: 8 },
+                    { icon: "dollar", title: "Sample Sizes", text: "You picked up some free samples that covered you for a bit.", bonus: 8 }
+                ],
+                stocked: [
+                    { icon: "dollar", title: "Lost Your Bag", text: "You left a bag of toiletries at the gym and had to replace everything.", penalty: 12 },
+                    { icon: "dollar", title: "Store Credit", text: "A forgotten return came back as store credit.", bonus: 12 }
+                ],
+                selfcare: [
+                    { icon: "tools", title: "Appointment Mishap", text: "A haircut appointment didn't go as planned and you're paying to get it fixed.", penalty: 30 },
+                    { icon: "dollar", title: "Referral Discount", text: "You referred a friend to your favorite spot and got a discount back.", bonus: 22 }
+                ]
+            },
+
+            takeout: {
+                rare: [
+                    { icon: "food", title: "Price Went Up", text: "Your usual order got a little pricier this month.", penalty: 6 },
+                    { icon: "dollar", title: "Buy One Get One", text: "A restaurant near work ran a deal.", bonus: 6 }
+                ],
+                regular: [
+                    { icon: "food", title: "Forgot The App Code", text: "You forgot to apply a discount code and paid full price.", penalty: 10 },
+                    { icon: "dollar", title: "Loyalty Rewards", text: "Your rewards app finally paid off with a free item.", bonus: 10 }
+                ],
+                frequent: [
+                    { icon: "wallet", title: "Takeout Adds Up", text: "Between lunches and dinners out, the small charges snowballed this month.", penalty: 28 },
+                    { icon: "dollar", title: "Surprise Gift Card", text: "A coworker passed along a gift card they weren't using.", bonus: 20 }
+                ]
+            },
+
+            shopping: {
+                minimal: [
+                    { icon: "dollar", title: "Impulse Buy Regret", text: "You gave in and bought something small you didn't need.", penalty: 8 },
+                    { icon: "dollar", title: "Found It On Sale", text: "Something you needed anyway turned out to be discounted.", bonus: 8 }
+                ],
+                occasional: [
+                    { icon: "dollar", title: "Store Credit Only", text: "A return didn't go the way you wanted -- store credit only.", penalty: 14 },
+                    { icon: "dollar", title: "Resold For More", text: "You resold something you didn't need for more than expected.", bonus: 15 }
+                ],
+                frequent: [
+                    { icon: "wallet", title: "Credit Card Interest", text: "A few too many shopping trips mean interest is catching up with you.", penalty: 35 },
+                    { icon: "dollar", title: "Resale Windfall", text: "You cleaned out your closet and resold a few pieces for a solid profit.", bonus: 28 }
+                ]
+            },
+
+            entertainment: {
+                streaming: [
+                    { icon: "tv", title: "Forgot To Cancel A Trial", text: "A free trial quietly turned into a paid subscription you forgot about.", penalty: 6 },
+                    { icon: "dollar", title: "Found A Cheaper Bundle", text: "You switched to a cheaper streaming bundle and pocketed the difference.", bonus: 6 }
+                ],
+                goingout: [
+                    { icon: "movie", title: "Lost Your Ticket", text: "You lost a ticket to something you'd already paid for and had to buy it again.", penalty: 14 },
+                    { icon: "dollar", title: "Won Something", text: "You won a raffle prize at a work event.", bonus: 15 }
+                ],
+                fullsocial: [
+                    { icon: "wallet", title: "Weekend Trip Overspend", text: "A weekend trip cost more than planned this month.", penalty: 32 },
+                    { icon: "dollar", title: "Free Concert Tickets", text: "A friend couldn't use their extra tickets, so you got in for free.", bonus: 28 }
+                ]
+            }
+
+        }
 
     }
 
@@ -698,6 +1982,17 @@ let currentStageExpenses = [];
 // loadStage() call.
 let pendingExtraNeeds = [];
 
+// Total $ of any carried-forward bills due THIS
+// stage (from last stage's jar narratives), plus
+// which ones they were -- set once per loadStage()
+// call, added on top of whichever tier the "bills"
+// bucket ends up picking (see selectTierForBucket
+// and renderTierPickerOptions), same as these used
+// to add onto the old pooled Bills bucket during the
+// payment phase.
+let carriedBillsThisStage = 0;
+let carriedBillsList = [];
+
 // Whether the stage currently in play started with a
 // carried loan bill -- costs a flat wellness penalty
 // for that stage, on top of missing/borrowing on it.
@@ -726,6 +2021,9 @@ const endScreen =
 
 const remainingMoney =
     document.getElementById("remaining-money");
+
+const allocateStatLabel =
+    document.getElementById("allocate-stat-label");
 
 const startMonthLabel =
     document.getElementById("start-month-label");
@@ -816,6 +2114,8 @@ function loadStage(stageNumber) {
 
     buckets = {};
 
+    bucketTierSelections = {};
+
 
     // ------------------------------------------
     // CREATE EMPTY BUCKET STATE
@@ -844,6 +2144,14 @@ function loadStage(stageNumber) {
 
     }
 
+    // For tiered stages this immediately overwrites the line
+    // above with the correct starting value -- at this point
+    // nothing else has been allocated yet, so the whole paycheck
+    // (plus whatever carried in) defaults into Savings until the
+    // player starts picking tiers. No-op for not-yet-migrated
+    // stages (see the function itself).
+    recomputeAutoSavings();
+
 
     // ------------------------------------------
     // BUILD THIS STAGE'S EXPENSE LIST —
@@ -864,6 +2172,25 @@ function loadStage(stageNumber) {
     stageHadLoanCarriedIn =
         pendingExtraNeeds.some(
             expense => expense.loan
+        );
+
+    // Carried-forward bills from last stage's jar narratives --
+    // always targeted at "bills" (see closeNarrativeCard's
+    // carryForwardBill handling). Captured before
+    // pendingExtraNeeds is cleared below, so a tiered "bills"
+    // bucket this stage can add the total on top of whichever
+    // tier gets picked.
+    carriedBillsList =
+        pendingExtraNeeds.filter(
+            item =>
+                item.bucket === "bills" &&
+                item.carried
+        );
+
+    carriedBillsThisStage =
+        carriedBillsList.reduce(
+            (sum, item) => sum + item.amount,
+            0
         );
 
     pendingExtraNeeds = [];
@@ -905,9 +2232,9 @@ function loadStage(stageNumber) {
     // BUILD UI
     // ------------------------------------------
 
-    createNeedsPreview();
-
     updateSavingsCarryover();
+
+    updateBillCarryover();
 
     createSetupBuckets();
 
@@ -960,17 +2287,10 @@ function createSetupBuckets() {
             "setup-wants-row"
         );
 
-    const savingsSlot =
-        document.getElementById(
-            "savings-bucket-slot"
-        );
-
 
     needsRow.innerHTML = "";
 
     wantsRow.innerHTML = "";
-
-    savingsSlot.innerHTML = "";
 
 
     const stage =
@@ -979,14 +2299,13 @@ function createSetupBuckets() {
 
     // ------------------------------------------
     // SORT THIS STAGE'S BUCKETS INTO THEIR ROW --
-    // top row is Bills (pooled, always first) plus
-    // every Need jar this stage has (groceries, gas,
-    // personal care -- however many apply), middle
-    // row is every Want jar, and the bottom row is
-    // just Savings (locked) -- Bills used to share
-    // that bottom row, but now sits up with the Needs
-    // instead, leaving Savings on its own next to the
-    // Start button.
+    // top row is Savings (first/leftmost -- moved
+    // into the grid instead of its own separate
+    // slot next to the Start button), then Bills
+    // (pooled, if this stage has it), then every
+    // Need jar this stage has (groceries, gas,
+    // personal care -- however many apply); the
+    // second row is every Want jar.
     // ------------------------------------------
 
     const needBuckets = [];
@@ -1050,9 +2369,57 @@ function createSetupBuckets() {
     }
 
 
-    setRowColumns(needsRow, needBuckets.length);
+    // Savings unshifts last so it lands at index 0 -- ahead of
+    // Bills -- landing top row, first/leftmost jar.
+    if (savingsBucket) {
 
-    setRowColumns(wantsRow, wantBuckets.length);
+        needBuckets.unshift(savingsBucket);
+
+    }
+
+
+    // ------------------------------------------
+    // JAR SIZE -- now that the grid is always
+    // exactly two rows (no more separate Savings
+    // slot competing for vertical space), jars can
+    // grow to fill it. Sized to whichever row has
+    // more jars this stage, so both rows match and
+    // a stage with more categories (Career's 5-wide
+    // Needs row) shrinks a little instead of
+    // overflowing the stage width, while a stage
+    // with fewer (Teenager's 4) gets noticeably
+    // bigger jars.
+    // ------------------------------------------
+
+    const maxColumns =
+        Math.max(
+            needBuckets.length,
+            wantBuckets.length,
+            1
+        );
+
+    // Stage width (1920) minus .screen's left/right padding (28
+    // each), minus the sidebar column (420) and the gap between
+    // sidebar and main (26) -- see .setup-columns / .screen in
+    // style.css.
+    const availableWidth = 1920 - 28 * 2 - 420 - 26;
+
+    const columnGap = 30;
+
+    const rawJarSize =
+        (availableWidth - columnGap * (maxColumns - 1)) /
+        maxColumns;
+
+    const jarSize =
+        Math.max(
+            220,
+            Math.min(330, Math.floor(rawJarSize))
+        );
+
+
+    setRowColumns(needsRow, needBuckets.length, jarSize);
+
+    setRowColumns(wantsRow, wantBuckets.length, jarSize);
 
 
     needBuckets.forEach(
@@ -1076,15 +2443,6 @@ function createSetupBuckets() {
         }
     );
 
-
-    if (savingsBucket) {
-
-        savingsSlot.appendChild(
-            buildSetupBucketTile(savingsBucket)
-        );
-
-    }
-
 }
 
 
@@ -1095,14 +2453,46 @@ function createSetupBuckets() {
 // amount instead of a plain one.
 function buildSetupBucketTile(bucket) {
 
+    const stage =
+        stages[currentStage];
+
     const isSavings =
         bucket.id === "savings";
 
+    // Once a stage is tiered (Savings has no keypad there anymore
+    // -- it auto-fills, see recomputeAutoSavings), the Savings jar
+    // itself stops being interactive at all: no click, no keypad,
+    // not even a button. Not-yet-migrated stages (Stage 3) still
+    // type Savings in freehand, so it stays a real clickable jar
+    // there, same as always.
+    const isAutoSavings =
+        isSavings &&
+        !!stage.tieredNeeds;
 
-    const div =
+
+    // The ENTIRE jar is the tap target (Kayla: "the whole jar
+    // should be the button to get into the tiers, not just the
+    // number button") -- a real <button> element instead of a div,
+    // same pattern the payment screen's buildPaymentBucketTile()
+    // already uses for its tiles, so both screens' jars behave the
+    // same way. The shared .bucket CSS already cancels the browser's
+    // default button chrome (see its own comment), so this is a
+    // safe swap. The one exception is an auto-filling Savings jar --
+    // that one is a plain, non-interactive div, since there's
+    // nothing to tap into anymore.
+
+    const tile =
         document.createElement(
-            "div"
+            isAutoSavings ? "div" : "button"
         );
+
+
+    if (!isAutoSavings) {
+
+        tile.type =
+            "button";
+
+    }
 
 
     // Savings sits apart from the rest of the buckets and gets
@@ -1112,19 +2502,42 @@ function buildSetupBucketTile(bucket) {
     // style.css) so which row/rule it belongs to reads at a
     // glance.
 
-    div.className =
+    tile.className =
         isSavings
             ? "bucket bucket-savings"
             : `bucket bucket-${bucket.type}`;
 
 
+    // Read the bucket's actual current value rather than assuming
+    // carriedSavings -- for an auto-filling Savings jar this has
+    // already been set correctly by recomputeAutoSavings() (called
+    // from loadStage() before this runs), so it reflects the whole
+    // paycheck the first time this renders, not just what carried
+    // in from last stage.
     const startingSavings =
         isSavings
-            ? carriedSavings
+            ? (buckets.savings || 0)
             : 0;
 
 
-    div.innerHTML = `
+    // Every jar shows its dollar amount now (Kayla: put the numbers
+    // back, they'll just auto-update when a tier is picked) -- this
+    // works for free because updateBudgetDisplay() already writes
+    // buckets[bucketId] into this exact #amount-<id> element on
+    // every change, tiered or not. Nothing here needs to know
+    // whether the bucket has tiers.
+
+    const amountMarkup = `
+            <span
+                class="bucket-amount visible-amount-display"
+                id="amount-${bucket.id}"
+            >
+                $${startingSavings}
+            </span>
+            `;
+
+
+    tile.innerHTML = `
 
         <div class="jar-visual">
 
@@ -1144,42 +2557,47 @@ function buildSetupBucketTile(bucket) {
                 ${bucket.name}
             </h3>
 
-            <button
-                class="amount-entry-button"
-                type="button"
-            >
-                <span
-                    class="bucket-amount"
-                    id="amount-${bucket.id}"
-                >
-                    $${startingSavings}
-                </span>
-            </button>
+            ${amountMarkup}
 
         </div>
 
             `;
 
 
-    const enterButton =
-        div.querySelector(
-            ".amount-entry-button"
+    if (!isAutoSavings) {
+
+        tile.addEventListener(
+            "click",
+            () => {
+
+                const tieredCategory =
+                    getTieredCategoryForBucket(
+                        bucket.id
+                    );
+
+                if (tieredCategory) {
+
+                    openTierPicker(
+                        bucket.id
+                    );
+
+                }
+
+                else {
+
+                    openKeypad(
+                        bucket.id
+                    );
+
+                }
+
+            }
         );
 
-
-    enterButton.addEventListener(
-        "click",
-        () => {
-
-            openKeypad(
-                bucket.id
-            );
-
-        }
-    );
+    }
 
 
-    return div;
+    return tile;
 
 }
 
@@ -1233,6 +2651,633 @@ const keypadConfirmBtn =
     document.getElementById(
         "keypad-confirm-btn"
     );
+
+
+// ============================================
+// TIER PICKER (setup-screen jars with tier data)
+//
+// A handful of buckets (so far: Food, Shopping,
+// Entertainment, Takeout) now have tier data
+// (stage.tieredNeeds / stage.tieredWants) instead
+// of relying only on free typed amounts. Their jar
+// opens this tier picker instead of the number-pad
+// keypad above; picking a tier sets buckets[id] to
+// that tier's fixed dollar amount and reuses the
+// exact same updateBudgetDisplay()/zero-based-start
+// logic the keypad already relies on -- nothing
+// about "every dollar has to be allocated" changes.
+//
+// Bills and Savings don't have matching tier data
+// yet, so they keep opening the keypad exactly as
+// before.
+// ============================================
+
+let activeTierPickerBucket = null;
+
+let bucketTierSelections = {};
+
+const tierPickerModal =
+    document.getElementById(
+        "tier-picker-modal"
+    );
+
+const tierPickerBucketIcon =
+    document.getElementById(
+        "tier-picker-bucket-icon"
+    );
+
+const tierPickerBucketName =
+    document.getElementById(
+        "tier-picker-bucket-name"
+    );
+
+const tierPickerOptions =
+    document.getElementById(
+        "tier-picker-options"
+    );
+
+const tierPickerError =
+    document.getElementById(
+        "tier-picker-error"
+    );
+
+const tierPickerNote =
+    document.getElementById(
+        "tier-picker-note"
+    );
+
+
+// ============================================
+// WELLNESS METERS (persistent header bar)
+//
+// Financial Wellness mirrors the existing end-of-stage
+// score (savings ratio minus missed-bill/borrow penalties,
+// averaged across completed stages) -- it only updates once
+// a stage actually finishes, same as it always has on the end
+// screen; this just also shows that same number up top.
+//
+// Personal Wellness is new: a running total of the wellbeing
+// values already attached to every tier choice, live-updated
+// the instant a jar's tier changes -- no need to finish a
+// stage to see it move.
+// ============================================
+
+let personalWellnessTotal = 0;
+
+const financialWellnessFill =
+    document.getElementById(
+        "financial-wellness-fill"
+    );
+
+const financialWellnessValue =
+    document.getElementById(
+        "financial-wellness-value"
+    );
+
+const personalWellnessFill =
+    document.getElementById(
+        "personal-wellness-fill"
+    );
+
+const personalWellnessValue =
+    document.getElementById(
+        "personal-wellness-value"
+    );
+
+// Same running Personal Wellness number as the top bar above --
+// also surfaced inside the end-of-stage recap popup so a
+// stage's recap isn't only about money. Not stage-scoped (no
+// "This Stage" / "Overall" split like Financial Wellness): it's
+// just the current live total, same as the top bar shows.
+const personalWellnessRecapFill =
+    document.getElementById(
+        "personal-wellness-recap-fill"
+    );
+
+const personalWellnessRecapScore =
+    document.getElementById(
+        "personal-wellness-recap-score"
+    );
+
+
+function updateWellnessMeters() {
+
+    // Personal: map the cumulative raw wellbeing total onto a
+    // 0-100 bar, treating 0 as a neutral midpoint (50%) so both
+    // rough stretches and comfortable ones have room to show.
+    const personalPercent =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                Math.round(
+                    50 + personalWellnessTotal * 2
+                )
+            )
+        );
+
+    personalWellnessFill.style.width =
+        `${personalPercent}%`;
+
+    personalWellnessValue.textContent =
+        `${personalPercent}%`;
+
+    if (personalWellnessRecapFill && personalWellnessRecapScore) {
+
+        personalWellnessRecapFill.style.width =
+            `${personalPercent}%`;
+
+        personalWellnessRecapScore.textContent =
+            `${personalPercent}%`;
+
+    }
+
+
+    // Financial: same cumulative average already computed at
+    // the end of each stage. Before the first stage finishes
+    // there's nothing to average yet, so leave it at a neutral
+    // placeholder rather than implying a real score.
+    if (stageScores.length === 0) {
+
+        financialWellnessFill.style.width = "0%";
+
+        financialWellnessValue.textContent = "--";
+
+        return;
+
+    }
+
+    const financialPercent =
+        Math.round(
+            stageScores.reduce(
+                (total, score) => total + score,
+                0
+            ) / stageScores.length
+        );
+
+    financialWellnessFill.style.width =
+        `${financialPercent}%`;
+
+    financialWellnessValue.textContent =
+        `${financialPercent}%`;
+
+}
+
+
+
+// ============================================
+// JAR NARRATIVE EVENTS
+//
+// Every tiered bucket has bad/good outcomes per
+// tier now (stage.jarNarratives), but showing all
+// six every stage would be overkill -- instead,
+// buildNarrativeQueue() randomly picks just 2 of
+// the buckets a tier was actually chosen for, then
+// rolls a 50/50 on each. The two (if any) show one
+// at a time via narrativeQueue; closing one shows
+// the next, and closing the last one finishes the
+// stage. A bad outcome on a bucket's riskiest tier
+// adds a bill that carries into next stage
+// (reusing the same pendingExtraNeeds queue
+// missBill() already feeds); every other bad
+// outcome, and every good one, hits Savings
+// directly (never below $0 on the downside).
+// ============================================
+
+const narrativeModal =
+    document.getElementById(
+        "narrative-modal"
+    );
+
+const narrativeIcon =
+    document.getElementById(
+        "narrative-icon"
+    );
+
+const narrativeTitle =
+    document.getElementById(
+        "narrative-title"
+    );
+
+const narrativeText =
+    document.getElementById(
+        "narrative-text"
+    );
+
+const narrativeContinueBtn =
+    document.getElementById(
+        "narrative-continue-btn"
+    );
+
+
+let currentNarrativeOutcome = null;
+
+let narrativeQueue = [];
+
+
+function buildNarrativeQueue() {
+
+    const stage =
+        stages[currentStage];
+
+    const narrativeData =
+        stage.jarNarratives;
+
+    if (!narrativeData) {
+        return [];
+    }
+
+
+    // Only buckets where a tier was actually picked,
+    // and narrative data exists for that specific
+    // tier, are eligible to fire this stage.
+    const eligibleBucketIds =
+        Object.keys(narrativeData).filter(
+            bucketId => {
+
+                const tier =
+                    bucketTierSelections[bucketId];
+
+                return (
+                    tier &&
+                    narrativeData[bucketId][tier.id]
+                );
+
+            }
+        );
+
+
+    // Shuffle, then keep at most 2 -- not every jar
+    // gets a consequence every stage, so it stays a
+    // surprise instead of a wall of popups.
+    const shuffled =
+        [...eligibleBucketIds].sort(
+            () => Math.random() - 0.5
+        );
+
+    const chosenBucketIds =
+        shuffled.slice(0, 2);
+
+
+    return chosenBucketIds.map(
+        bucketId => {
+
+            const tier =
+                bucketTierSelections[bucketId];
+
+            const outcomes =
+                narrativeData[bucketId][tier.id];
+
+            return outcomes[
+                Math.floor(
+                    Math.random() * outcomes.length
+                )
+            ];
+
+        }
+    );
+
+}
+
+
+function showNarrativeCard(outcome) {
+
+    currentNarrativeOutcome = outcome;
+
+
+    narrativeIcon.innerHTML =
+        iconMarkup(outcome.icon);
+
+
+    narrativeTitle.textContent =
+        outcome.title;
+
+
+    narrativeText.textContent =
+        outcome.text;
+
+
+    narrativeModal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function closeNarrativeCard() {
+
+    const outcome =
+        currentNarrativeOutcome;
+
+    currentNarrativeOutcome = null;
+
+
+    narrativeModal.classList.add(
+        "hidden"
+    );
+
+
+    if (outcome) {
+
+        if (outcome.bonus) {
+
+            buckets.savings =
+                (buckets.savings || 0) +
+                outcome.bonus;
+
+            updateBudgetDisplay();
+
+        }
+
+
+        if (outcome.penalty) {
+
+            buckets.savings =
+                Math.max(
+                    0,
+                    (buckets.savings || 0) -
+                        outcome.penalty
+                );
+
+            updateBudgetDisplay();
+
+        }
+
+
+        if (outcome.carryForwardBill) {
+
+            pendingExtraNeeds.push({
+                icon: outcome.carryForwardBill.icon,
+                title: outcome.carryForwardBill.title,
+                description:
+                    "A consequence from last stage -- due now.",
+                amount: outcome.carryForwardBill.amount,
+                bucket: "bills",
+                fixed: true,
+                carried: true
+            });
+
+        }
+
+    }
+
+
+    // The queue holds whatever's left to show --
+    // this outcome (if any) was always queue[0].
+    narrativeQueue.shift();
+
+
+    if (narrativeQueue.length > 0) {
+
+        showNarrativeCard(
+            narrativeQueue[0]
+        );
+
+    }
+
+    else {
+
+        finishMonth();
+
+    }
+
+}
+
+
+if (narrativeContinueBtn) {
+
+    narrativeContinueBtn.addEventListener(
+        "click",
+        closeNarrativeCard
+    );
+
+}
+
+
+function getTieredCategoryForBucket(bucketId) {
+
+    const stage =
+        stages[currentStage];
+
+    const needMatch =
+        (stage.tieredNeeds || []).find(
+            item => item.id === bucketId
+        );
+
+    if (needMatch) {
+        return needMatch;
+    }
+
+    const wantMatch =
+        (stage.tieredWants || []).find(
+            item => item.id === bucketId
+        );
+
+    return wantMatch || null;
+
+}
+
+
+// A carried-forward bill (see carriedBillsThisStage) always lands
+// on the "bills" bucket, so its total gets added on top of
+// whichever "bills" tier the player ends up picking -- same as it
+// used to add onto the old pooled Bills bucket during the payment
+// phase. Every other bucket has no surcharge.
+function getBillSurcharge(bucketId) {
+
+    return bucketId === "bills"
+        ? carriedBillsThisStage
+        : 0;
+
+}
+
+
+function openTierPicker(bucketId) {
+
+    const stage =
+        stages[currentStage];
+
+    const bucket =
+        stage.buckets.find(
+            item => item.id === bucketId
+        );
+
+    const category =
+        getTieredCategoryForBucket(bucketId);
+
+    if (!bucket || !category) {
+        return;
+    }
+
+    activeTierPickerBucket = bucketId;
+
+    tierPickerBucketIcon.innerHTML =
+        iconMarkup(bucket.icon);
+
+    tierPickerBucketName.textContent =
+        bucket.name;
+
+    tierPickerError.textContent = "";
+
+    const surcharge =
+        getBillSurcharge(bucketId);
+
+    if (surcharge > 0) {
+
+        tierPickerNote.textContent =
+            `+ $${surcharge} carried over from last stage `
+            + `-- already added to every option below.`;
+
+        tierPickerNote.classList.remove("hidden");
+
+    }
+
+    else {
+
+        tierPickerNote.textContent = "";
+        tierPickerNote.classList.add("hidden");
+
+    }
+
+    renderTierPickerOptions(bucketId, category);
+
+    tierPickerModal.classList.remove("hidden");
+
+}
+
+
+function renderTierPickerOptions(bucketId, category) {
+
+    tierPickerOptions.innerHTML = "";
+
+    const surcharge =
+        getBillSurcharge(bucketId);
+
+    category.tiers.forEach(tier => {
+
+        const btn =
+            document.createElement("button");
+
+        btn.type = "button";
+        btn.className = "tier-option-button";
+
+        const isSelected =
+            bucketTierSelections[bucketId]
+            && bucketTierSelections[bucketId].id === tier.id;
+
+        if (isSelected) {
+            btn.classList.add("selected");
+        }
+
+        btn.innerHTML =
+            `<span class="tier-option-label">${tier.label}</span>`
+            + `<span class="tier-option-amount">$${tier.amount + surcharge}</span>`
+            + `<span class="tier-option-note">${tier.note}</span>`;
+
+        btn.addEventListener("click", () => {
+            selectTierForBucket(bucketId, tier);
+        });
+
+        tierPickerOptions.appendChild(btn);
+
+    });
+
+}
+
+
+function selectTierForBucket(bucketId, tier) {
+
+    const stage =
+        stages[currentStage];
+
+    const surcharge =
+        getBillSurcharge(bucketId);
+
+    const totalCost =
+        tier.amount + surcharge;
+
+    // Savings has no keypad on tiered stages anymore -- it just
+    // auto-fills with whatever's left (see recomputeAutoSavings),
+    // so affordability here is purely about the OTHER tiered
+    // buckets: does everything except this one and Savings, plus
+    // this new pick, still fit inside the paycheck? Savings itself
+    // is deliberately excluded from "otherAllocated" -- it's not a
+    // fixed commitment competing for room, it's just whatever's
+    // left after the fixed ones are covered.
+    const otherAllocated =
+        stage.buckets
+            .filter(
+                bucket =>
+                    bucket.id !== "savings" &&
+                    bucket.id !== bucketId
+            )
+            .reduce(
+                (total, bucket) =>
+                    total + (buckets[bucket.id] || 0),
+                0
+            );
+
+    if (otherAllocated + totalCost > stage.income) {
+
+        const maxAllowed =
+            stage.income - otherAllocated;
+
+        tierPickerError.textContent =
+            `That's more than your paycheck allows right now `
+            + `-- you have $${maxAllowed} left to work with.`;
+
+        return;
+
+    }
+
+    const previousTier =
+        bucketTierSelections[bucketId];
+
+    personalWellnessTotal -=
+        previousTier ? previousTier.wellbeing : 0;
+
+    personalWellnessTotal +=
+        tier.wellbeing;
+
+    buckets[bucketId] = totalCost;
+    bucketTierSelections[bucketId] = tier;
+
+    recomputeAutoSavings();
+
+    closeTierPicker();
+    updateBudgetDisplay();
+    updateWellnessMeters();
+
+}
+
+
+function closeTierPicker() {
+
+    tierPickerModal.classList.add("hidden");
+
+    activeTierPickerBucket = null;
+
+}
+
+
+document.getElementById(
+    "tier-picker-close-btn"
+).addEventListener(
+    "click",
+    closeTierPicker
+);
+
+
+tierPickerModal.addEventListener(
+    "click",
+    event => {
+
+        if (event.target === tierPickerModal) {
+            closeTierPicker();
+        }
+
+    }
+);
 
 
 // How much of a bucket's balance counts as
@@ -1710,6 +3755,46 @@ keypadModal.addEventListener(
 // GET ALLOCATED FROM PAYCHECK
 // ============================================
 
+// ============================================
+// RECOMPUTE AUTO SAVINGS
+// (tiered stages only -- Savings has no keypad
+// there anymore. Whatever hasn't been committed to
+// a specific tier just sits in Savings automatically,
+// shrinking live as pricier tiers get picked. Not-yet-
+// migrated stages keep manually typing Savings via the
+// keypad, so this is a no-op for them.)
+// ============================================
+
+function recomputeAutoSavings() {
+
+    const stage =
+        stages[currentStage];
+
+    if (!stage.tieredNeeds) {
+        return;
+    }
+
+    const otherAllocated =
+        stage.buckets
+            .filter(
+                bucket => bucket.id !== "savings"
+            )
+            .reduce(
+                (total, bucket) =>
+                    total + (buckets[bucket.id] || 0),
+                0
+            );
+
+    buckets.savings =
+        carriedSavings +
+        Math.max(
+            0,
+            stage.income - otherAllocated
+        );
+
+}
+
+
 function getAllocatedFromPaycheck() {
 
     let total = 0;
@@ -1746,21 +3831,8 @@ function updateBudgetDisplay() {
     const stage =
         stages[currentStage];
 
-
-    const allocated =
-        getAllocatedFromPaycheck();
-
-
-    const remaining =
-        stage.income -
-        allocated;
-
-
-    remainingMoney.textContent =
-        `$${Math.max(
-            remaining,
-            0
-        ).toLocaleString()}`;
+    const usesAutoSavings =
+        !!stage.tieredNeeds;
 
 
     selectedBuckets.forEach(
@@ -1806,12 +3878,87 @@ function updateBudgetDisplay() {
     // ------------------------------------------
     // CAN START?
     //
-    // Every dollar needs a bucket before the
-    // stage can start — zero-based budgeting.
-    // This is what makes "just put it all in
-    // Savings" a losing move: Needs still has to
-    // get funded from the same fixed paycheck.
+    // Tiered stages (Stage 1, Stage 2): Savings has
+    // no keypad anymore -- it silently auto-fills
+    // with whatever's left over (see
+    // recomputeAutoSavings, called after every tier
+    // pick), so a dollar-based "every dollar has a
+    // bucket" check would always read as satisfied
+    // from the moment the stage loads. Readiness is
+    // about DECISIONS made, not dollars placed: every
+    // tiered Need/Want (Bills included, where a stage
+    // has one) needs an actual tier picked before the
+    // stage can start. The "Left to Allocate" stat
+    // becomes a count of jars still undecided instead
+    // of a dollar figure.
+    //
+    // Not-yet-migrated stages (Stage 3) keep the
+    // original dollar-exact, manually-typed-Savings
+    // logic untouched below.
     // ------------------------------------------
+
+    if (usesAutoSavings) {
+
+        const categories =
+            [
+                ...stage.tieredNeeds,
+                ...stage.tieredWants
+            ];
+
+        const remainingCount =
+            categories.filter(
+                category =>
+                    !bucketTierSelections[category.id]
+            ).length;
+
+        allocateStatLabel.textContent =
+            "Jars Left To Fill";
+
+        remainingMoney.textContent =
+            `${remainingCount}`;
+
+        if (remainingCount === 0) {
+
+            setStartButtonReady(true);
+
+            showBudgetMessage(
+                "✓ Every dollar has a job. Ready to go!",
+                "success"
+            );
+
+        }
+
+        else {
+
+            setStartButtonReady(false);
+
+            showBudgetMessage("", "neutral");
+
+        }
+
+        return;
+
+    }
+
+
+    allocateStatLabel.textContent =
+        "Left to Allocate";
+
+    const allocated =
+        getAllocatedFromPaycheck();
+
+
+    const remaining =
+        stage.income -
+        allocated;
+
+
+    remainingMoney.textContent =
+        `$${Math.max(
+            remaining,
+            0
+        ).toLocaleString()}`;
+
 
     if (
         allocated > stage.income
@@ -1970,87 +4117,6 @@ function showBudgetMessage(
 // Wants are deliberately left off — those amounts
 // aren't known in advance, and that's the point.
 
-function createNeedsPreview() {
-
-    const section =
-        document.getElementById(
-            "bills-preview-section"
-        );
-
-
-    const list =
-        document.getElementById(
-            "bills-preview-list"
-        );
-
-
-    const visibleExpenses =
-        currentStageExpenses.filter(
-            expense =>
-                expense.fixed
-        );
-
-
-    if (visibleExpenses.length === 0) {
-
-        section.classList.add(
-            "hidden"
-        );
-
-        return;
-
-    }
-
-
-    section.classList.remove(
-        "hidden"
-    );
-
-
-    list.innerHTML = "";
-
-
-    visibleExpenses.forEach(
-        expense => {
-
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-
-            item.className =
-                "bill-preview-item";
-
-
-            item.innerHTML = `
-
-                <span class="bill-preview-icon">
-                    ${iconMarkup(expense.icon)}
-                </span>
-
-                <span class="bill-preview-name">
-                    ${expense.title}${expense.loan || expense.carried ? " (carried over)" : ""}
-                </span>
-
-                <span class="bill-preview-amount">
-                    $${expense.amount}
-                </span>
-
-            `;
-
-
-            list.appendChild(
-                item
-            );
-
-        }
-    );
-
-}
-
-
-
 // ============================================
 // SAVINGS CARRYOVER
 // ============================================
@@ -2095,6 +4161,67 @@ function updateSavingsCarryover() {
 }
 
 
+// ============================================
+// BILL CARRYOVER
+// (same idea as updateSavingsCarryover above, but
+// for a bill that carried in from last stage's jar
+// narratives instead of money saved -- see
+// carriedBillsThisStage / carriedBillsList, set once
+// per loadStage() call.)
+// ============================================
+
+function updateBillCarryover() {
+
+    const section =
+        document.getElementById(
+            "bill-carryover"
+        );
+
+    const icon =
+        document.getElementById(
+            "bill-carryover-icon"
+        );
+
+    const title =
+        document.getElementById(
+            "bill-carryover-title"
+        );
+
+    const amount =
+        document.getElementById(
+            "bill-carryover-amount"
+        );
+
+
+    if (carriedBillsThisStage > 0) {
+
+        section.classList.remove(
+            "hidden"
+        );
+
+        icon.innerHTML =
+            iconMarkup("wallet");
+
+        title.textContent =
+            carriedBillsList
+                .map(item => item.title)
+                .join(" + ");
+
+        amount.textContent =
+            `$${carriedBillsThisStage}`;
+
+    }
+
+    else {
+
+        section.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
 
 // ============================================
 // START STAGE
@@ -2107,6 +4234,41 @@ startButton.addEventListener(
 
 
 function startMonth() {
+
+    const stage =
+        stages[currentStage];
+
+
+    // Tier-picking stages (Stage 1, for now) have no separate
+    // bill-paying phase -- every Need/Want was already fixed to
+    // its tier price at setup, so there's nothing left to "pay."
+    // Go straight to any narrative consequence (Transportation
+    // today), then the end-of-stage recap. The setup screen
+    // stays visible behind it, same convention as the other
+    // modals and the end screen.
+    if (stage.tieredNeeds) {
+
+        narrativeQueue =
+            buildNarrativeQueue();
+
+        if (narrativeQueue.length > 0) {
+
+            showNarrativeCard(
+                narrativeQueue[0]
+            );
+
+        }
+
+        else {
+
+            finishMonth();
+
+        }
+
+        return;
+
+    }
+
 
     setupScreen.classList.add(
         "hidden"
@@ -2711,7 +4873,7 @@ function missBill() {
             description:
                 "This didn't get paid last stage — it's due again now.",
             amount: expense.amount,
-            bucket: "bills",
+            bucket: expense.bucket,
             fixed: true,
             carried: true
         });
@@ -2752,7 +4914,28 @@ function advanceToNextExpense() {
                 currentStageExpenses.length
             ) {
 
-                finishMonth();
+                // Same jar-narrative hook startMonth() uses
+                // for tier-picking stages -- harmless here since
+                // Stage 2/3 don't have jarNarratives data yet, so
+                // this just falls through to finishMonth() as
+                // before, but it means this stays in sync
+                // automatically if they ever get tier data too.
+                narrativeQueue =
+                    buildNarrativeQueue();
+
+                if (narrativeQueue.length > 0) {
+
+                    showNarrativeCard(
+                        narrativeQueue[0]
+                    );
+
+                }
+
+                else {
+
+                    finishMonth();
+
+                }
 
             }
 
@@ -2858,21 +5041,26 @@ function finishMonth() {
     // vanishing.
     // ------------------------------------------
 
-    const remaining =
-        Object.values(buckets)
-            .reduce(
-                (total, amount) =>
-                    total + amount,
-                0
-            );
+    const usesTierPicking =
+        !!stage.tieredNeeds;
 
 
-    const sumLeftoverByType =
-        type =>
+    // Tier-picking stages never ran handleExpense(), so
+    // totalSpent is still sitting at 0 -- but every Need/Want
+    // bucket's tier price already IS committed spending the
+    // moment it was picked, so it counts here in one shot.
+    // Bill-type buckets count too now (Stage 2's "Bills" jar is
+    // tiered same as everything else) -- Stage 1 just never had
+    // one, so this only ever added zero there.
+    if (usesTierPicking) {
+
+        totalSpent =
             stage.buckets
                 .filter(
                     bucket =>
-                        bucket.type === type
+                        bucket.type === "need" ||
+                        bucket.type === "want" ||
+                        bucket.type === "bill"
                 )
                 .reduce(
                     (total, bucket) =>
@@ -2880,14 +5068,23 @@ function finishMonth() {
                     0
                 );
 
-    const leftoverNeeds =
-        sumLeftoverByType("need");
+    }
 
-    const leftoverBills =
-        sumLeftoverByType("bill");
 
-    const leftoverWants =
-        sumLeftoverByType("want");
+    const remaining =
+        usesTierPicking
+
+            // Nothing is "leftover" in the old sense once tiers
+            // are committed spending -- whatever's left is just
+            // Savings.
+            ? (buckets.savings || 0)
+
+            : Object.values(buckets)
+                .reduce(
+                    (total, amount) =>
+                        total + amount,
+                    0
+                );
 
 
     const overfundingSection =
@@ -2896,39 +5093,12 @@ function finishMonth() {
         );
 
 
-    const overfundingLines = [];
+    if (usesTierPicking) {
 
-    if (leftoverNeeds > 0) {
-
-        overfundingLines.push(
-            `You left <strong>$${leftoverNeeds}</strong> unused in Needs — it didn't carry over.`
-        );
-
-    }
-
-    if (leftoverBills > 0) {
-
-        overfundingLines.push(
-            `You left <strong>$${leftoverBills}</strong> unused in Bills — it didn't carry over.`
-        );
-
-    }
-
-    if (leftoverWants > 0) {
-
-        overfundingLines.push(
-            `You left <strong>$${leftoverWants}</strong> unused in Wants — it didn't carry over.`
-        );
-
-    }
-
-
-    if (overfundingLines.length > 0) {
-
-        overfundingSection.innerHTML =
-            overfundingLines.join("<br>");
-
-        overfundingSection.classList.remove(
+        // A tier is either affordable and picked, or it isn't
+        // offered -- there's no "left $40 sitting unused in
+        // Needs" scenario to call out anymore.
+        overfundingSection.classList.add(
             "hidden"
         );
 
@@ -2936,9 +5106,74 @@ function finishMonth() {
 
     else {
 
-        overfundingSection.classList.add(
-            "hidden"
-        );
+        const sumLeftoverByType =
+            type =>
+                stage.buckets
+                    .filter(
+                        bucket =>
+                            bucket.type === type
+                    )
+                    .reduce(
+                        (total, bucket) =>
+                            total + (buckets[bucket.id] || 0),
+                        0
+                    );
+
+        const leftoverNeeds =
+            sumLeftoverByType("need");
+
+        const leftoverBills =
+            sumLeftoverByType("bill");
+
+        const leftoverWants =
+            sumLeftoverByType("want");
+
+
+        const overfundingLines = [];
+
+        if (leftoverNeeds > 0) {
+
+            overfundingLines.push(
+                `You left <strong>$${leftoverNeeds}</strong> unused in Needs — it didn't carry over.`
+            );
+
+        }
+
+        if (leftoverBills > 0) {
+
+            overfundingLines.push(
+                `You left <strong>$${leftoverBills}</strong> unused in Bills — it didn't carry over.`
+            );
+
+        }
+
+        if (leftoverWants > 0) {
+
+            overfundingLines.push(
+                `You left <strong>$${leftoverWants}</strong> unused in Wants — it didn't carry over.`
+            );
+
+        }
+
+
+        if (overfundingLines.length > 0) {
+
+            overfundingSection.innerHTML =
+                overfundingLines.join("<br>");
+
+            overfundingSection.classList.remove(
+                "hidden"
+            );
+
+        }
+
+        else {
+
+            overfundingSection.classList.add(
+                "hidden"
+            );
+
+        }
 
     }
 
@@ -2946,6 +5181,17 @@ function finishMonth() {
     // ------------------------------------------
     // SAVE SAVINGS
     // ------------------------------------------
+
+    // Captured before the overwrite below -- the wellness score
+    // needs "how much carried in at the START of this stage" to
+    // measure new money saved DURING it. (Bug fix 2026-09-16:
+    // newMoneyIn() used to be called after carriedSavings was
+    // already reassigned to endingSavings, so it always computed
+    // endingSavings - endingSavings = 0 for Stage 2+ -- the "new
+    // savings" part of the score silently zeroed out every stage
+    // after the first.)
+    const carriedSavingsAtStageStart =
+        carriedSavings;
 
     const endingSavings =
         buckets.savings || 0;
@@ -3100,10 +5346,12 @@ function finishMonth() {
     // ------------------------------------------
 
     const newSavingsThisStage =
-        newMoneyIn(
-            "savings",
-            endingSavings
-        );
+        currentStage > 1
+            ? Math.max(
+                  endingSavings - carriedSavingsAtStageStart,
+                  0
+              )
+            : endingSavings;
 
 
     let stageScore =
@@ -3147,6 +5395,8 @@ function finishMonth() {
 
     stageScores.push(stageScore);
 
+    updateWellnessMeters();
+
 
     const cumulativeScore =
         Math.round(
@@ -3162,18 +5412,18 @@ function finishMonth() {
         !stages[currentStage + 1];
 
 
+    // Which number the recap's Financial Wellness bar shows --
+    // this stage's own score, or (on the capstone) the average
+    // across every completed stage. The "(This Stage)"/"(Overall)"
+    // label and the separate "Overall so far" line that used to
+    // spell this out in words were removed per Kayla's feedback
+    // (2026-09-16) -- the bar's header row (title left, percentage
+    // right, matching the top wellness bar's layout) is enough on
+    // its own.
     const displayScore =
         isCapstone
             ? cumulativeScore
             : stageScore;
-
-
-    document.getElementById(
-        "wellness-scope-label"
-    ).textContent =
-        isCapstone
-            ? "(Overall)"
-            : "(This Stage)";
 
 
     document.getElementById(
@@ -3186,34 +5436,6 @@ function finishMonth() {
         "wellness-fill"
     ).style.width =
         `${displayScore}%`;
-
-
-    const cumulativeLine =
-        document.getElementById(
-            "cumulative-wellness-line"
-        );
-
-
-    if (!isCapstone) {
-
-        cumulativeLine.classList.remove(
-            "hidden"
-        );
-
-        document.getElementById(
-            "cumulative-wellness-score"
-        ).textContent =
-            `${cumulativeScore}%`;
-
-    }
-
-    else {
-
-        cumulativeLine.classList.add(
-            "hidden"
-        );
-
-    }
 
 
     // ------------------------------------------
@@ -3396,7 +5618,485 @@ function getBucketType(
 
 
 // ============================================
+// TIER-PICK PROTOTYPE (Needs + Wants so far)
+//
+// Isolated from the live game -- doesn't touch loadStage,
+// startMonth, or any of the bucket/expense flow above. Only
+// reachable via window.__startTierPickPrototype(stageNumber)
+// while this new flow is being built and reviewed piece by
+// piece. Needs and Wants steps are built; Savings comes in a
+// later increment once this one is approved.
+// ============================================
+
+let tierPickStage = null;
+
+let tierPickStepName = "needs";
+
+let tierPickNeedSelections = {};
+
+let tierPickWantSelections = {};
+
+let tierPickSavingsSelection = null;
+
+const tierPickScreen =
+    document.getElementById("tier-pick-screen");
+
+const tierPickHeading =
+    document.getElementById("tier-pick-heading");
+
+const tierPickSubheading =
+    document.getElementById("tier-pick-subheading");
+
+const tierPickRemainingDisplay =
+    document.getElementById("tier-pick-remaining");
+
+const tierPickNeedsList =
+    document.getElementById("tier-pick-needs-list");
+
+const tierPickWantsList =
+    document.getElementById("tier-pick-wants-list");
+
+const tierPickSavingsList =
+    document.getElementById("tier-pick-savings-list");
+
+const tierPickContinueBtn =
+    document.getElementById("tier-pick-continue-btn");
+
+const tierPickSummary =
+    document.getElementById("tier-pick-summary");
+
+
+function tierPickNeedsSpent() {
+
+    return Object.values(tierPickNeedSelections).reduce(
+        (sum, tier) => sum + tier.amount,
+        0
+    );
+
+}
+
+
+function tierPickWantsSpent() {
+
+    return Object.values(tierPickWantSelections).reduce(
+        (sum, tier) => sum + tier.amount,
+        0
+    );
+
+}
+
+
+// Shared by renderTierPickNeeds/renderTierPickWants -- builds
+// one category's card (title + its row of tier buttons) into
+// whichever list container it's given.
+function buildTierPickCard(item, selections, datasetKey, onPick) {
+
+    const card =
+        document.createElement("div");
+
+    card.className = "tier-item";
+
+    card.innerHTML =
+        `<h3>${item.name}</h3>`
+        + `<div class="tier-options" id="tier-options-${item.id}"></div>`;
+
+    const optionsRow =
+        card.querySelector(".tier-options");
+
+    item.tiers.forEach(tier => {
+
+        const btn =
+            document.createElement("button");
+
+        btn.type = "button";
+        btn.className = "tier-option-button";
+        btn.dataset[datasetKey] = item.id;
+        btn.dataset.tierId = tier.id;
+
+        const isSelected =
+            selections[item.id]
+            && selections[item.id].id === tier.id;
+
+        if (isSelected) {
+            btn.classList.add("selected");
+        }
+
+        btn.innerHTML =
+            `<span class="tier-option-label">${tier.label}</span>`
+            + `<span class="tier-option-amount">$${tier.amount}</span>`
+            + `<span class="tier-option-note">${tier.note}</span>`;
+
+        btn.addEventListener("click", () => {
+            onPick(item.id, tier);
+        });
+
+        optionsRow.appendChild(btn);
+
+    });
+
+    return card;
+
+}
+
+
+function renderTierPickNeeds() {
+
+    const stage =
+        stages[tierPickStage];
+
+    tierPickNeedsList.innerHTML = "";
+
+    stage.tieredNeeds.forEach(need => {
+
+        tierPickNeedsList.appendChild(
+            buildTierPickCard(
+                need,
+                tierPickNeedSelections,
+                "needId",
+                selectNeedTier
+            )
+        );
+
+    });
+
+    updateTierPickRemaining();
+
+}
+
+
+function renderTierPickWants() {
+
+    const stage =
+        stages[tierPickStage];
+
+    tierPickWantsList.innerHTML = "";
+
+    stage.tieredWants.forEach(want => {
+
+        tierPickWantsList.appendChild(
+            buildTierPickCard(
+                want,
+                tierPickWantSelections,
+                "wantId",
+                selectWantTier
+            )
+        );
+
+    });
+
+    updateTierPickRemaining();
+
+}
+
+
+function selectNeedTier(needId, tier) {
+
+    tierPickNeedSelections[needId] = tier;
+
+    renderTierPickNeeds();
+
+}
+
+
+function selectWantTier(wantId, tier) {
+
+    tierPickWantSelections[wantId] = tier;
+
+    renderTierPickWants();
+
+}
+
+
+function tierPickSavingsAmount() {
+
+    return tierPickSavingsSelection
+        ? tierPickSavingsSelection.amount
+        : 0;
+
+}
+
+
+function renderTierPickSavings() {
+
+    const stage =
+        stages[tierPickStage];
+
+    const savings =
+        stage.tieredSavings;
+
+    const remainingBeforeSavings =
+        stage.income
+        - tierPickNeedsSpent()
+        - tierPickWantsSpent();
+
+    tierPickSavingsList.innerHTML = "";
+
+    const card =
+        document.createElement("div");
+
+    card.className = "tier-item";
+
+    card.innerHTML =
+        `<h3>${savings.name}</h3>`
+        + `<div class="tier-options" id="tier-options-${savings.id}"></div>`;
+
+    const optionsRow =
+        card.querySelector(".tier-options");
+
+    savings.tiers.forEach(tier => {
+
+        const btn =
+            document.createElement("button");
+
+        btn.type = "button";
+        btn.className = "tier-option-button";
+        btn.dataset.savingsTierId = tier.id;
+
+        const isSelected =
+            tierPickSavingsSelection
+            && tierPickSavingsSelection.id === tier.id;
+
+        if (isSelected) {
+            btn.classList.add("selected");
+        }
+
+        // Savings tiers are fixed dollar amounts rather than a
+        // percentage of what's left, so unlike Needs/Wants (whose
+        // max combined cost always leaves room for every Savings
+        // tier this stage) a heavily-spent player could genuinely
+        // not have enough left for the bigger tiers here. Grey
+        // those out instead of letting the total go negative.
+        const affordable =
+            tier.amount <= remainingBeforeSavings;
+
+        if (!affordable) {
+            btn.disabled = true;
+            btn.classList.add("tier-option-unaffordable");
+        }
+
+        btn.innerHTML =
+            `<span class="tier-option-label">${tier.label}</span>`
+            + `<span class="tier-option-amount">$${tier.amount}</span>`
+            + `<span class="tier-option-note">`
+            + `${affordable ? tier.note : "Not enough left over for this."}`
+            + `</span>`;
+
+        if (affordable) {
+
+            btn.addEventListener("click", () => {
+                selectSavingsTier(tier);
+            });
+
+        }
+
+        optionsRow.appendChild(btn);
+
+    });
+
+    tierPickSavingsList.appendChild(card);
+
+    updateTierPickRemaining();
+
+}
+
+
+function selectSavingsTier(tier) {
+
+    tierPickSavingsSelection = tier;
+
+    renderTierPickSavings();
+
+}
+
+
+function updateTierPickRemaining() {
+
+    const stage =
+        stages[tierPickStage];
+
+    const remaining =
+        stage.income
+        - tierPickNeedsSpent()
+        - tierPickWantsSpent()
+        - tierPickSavingsAmount();
+
+    tierPickRemainingDisplay.textContent =
+        `$${remaining}`;
+
+    if (tierPickStepName === "needs") {
+
+        tierPickContinueBtn.disabled =
+            !stage.tieredNeeds.every(
+                need => tierPickNeedSelections[need.id]
+            );
+
+    }
+
+    else if (tierPickStepName === "wants") {
+
+        tierPickContinueBtn.disabled =
+            !stage.tieredWants.every(
+                want => tierPickWantSelections[want.id]
+            );
+
+    }
+
+    else {
+
+        tierPickContinueBtn.disabled =
+            !tierPickSavingsSelection;
+
+    }
+
+}
+
+
+function goToTierPickWantsStep() {
+
+    tierPickStepName = "wants";
+
+    tierPickHeading.textContent =
+        "Pick Your Wants";
+
+    tierPickSubheading.textContent =
+        "Every Want has a small option and a couple of bigger "
+        + "ones -- there's always a little room for fun, and "
+        + "spending more on it is good for how you feel about "
+        + "this stage.";
+
+    tierPickNeedsList.classList.add("hidden");
+    tierPickWantsList.classList.remove("hidden");
+
+    renderTierPickWants();
+
+}
+
+
+function goToTierPickSavingsStep() {
+
+    tierPickStepName = "savings";
+
+    tierPickHeading.textContent =
+        "Pick Your Savings";
+
+    tierPickSubheading.textContent =
+        "Whatever you set aside here carries into the next "
+        + "stage. There's no penalty for saving less -- saving "
+        + "more just feels better.";
+
+    tierPickWantsList.classList.add("hidden");
+    tierPickSavingsList.classList.remove("hidden");
+
+    renderTierPickSavings();
+
+}
+
+
+tierPickContinueBtn.addEventListener("click", () => {
+
+    if (tierPickStepName === "needs") {
+
+        goToTierPickWantsStep();
+
+        return;
+
+    }
+
+    if (tierPickStepName === "wants") {
+
+        goToTierPickSavingsStep();
+
+        return;
+
+    }
+
+    // All three steps are done -- show the full run's results.
+    // NOTE: Savings tiers are fixed amounts (not "whatever's
+    // left"), so there can be real money left over here that
+    // isn't in any bucket. Calling that out on purpose rather
+    // than hiding it -- what happens to that leftover (auto-save
+    // it? let them add more? nothing?) is still an open question.
+
+    const stage =
+        stages[tierPickStage];
+
+    const totalWellbeing =
+        Object.values(tierPickNeedSelections)
+            .concat(Object.values(tierPickWantSelections))
+            .reduce((sum, tier) => sum + tier.wellbeing, 0);
+
+    const totalSpent =
+        tierPickNeedsSpent() + tierPickWantsSpent();
+
+    const savingsAmount =
+        tierPickSavingsAmount();
+
+    const leftover =
+        stage.income - totalSpent - savingsAmount;
+
+    tierPickSummary.textContent =
+        `All done! Needs + Wants: $${totalSpent}. Savings: `
+        + `$${savingsAmount}. Well-being: `
+        + `${totalWellbeing >= 0 ? "+" : ""}${totalWellbeing}. `
+        + `$${leftover} left over and not assigned anywhere `
+        + `(open question -- see next check-in).`;
+
+});
+
+
+window.__startTierPickPrototype = function(stageNumber) {
+
+    tierPickStage = stageNumber;
+    tierPickStepName = "needs";
+    tierPickNeedSelections = {};
+    tierPickWantSelections = {};
+    tierPickSavingsSelection = null;
+
+    if (welcomeStartScreen) {
+        welcomeStartScreen.style.display = "none";
+    }
+
+    setupScreen.classList.add("hidden");
+    monthScreen.classList.add("hidden");
+    endScreen.classList.add("hidden");
+
+    tierPickScreen.classList.remove("hidden");
+
+    tierPickHeading.textContent =
+        "Pick Your Needs";
+
+    tierPickSubheading.textContent =
+        "Every Need has a few ways to cover it -- pick the "
+        + "level that fits how you want to live.";
+
+    tierPickSummary.textContent = "";
+
+    tierPickWantsList.classList.add("hidden");
+    tierPickSavingsList.classList.add("hidden");
+    tierPickNeedsList.classList.remove("hidden");
+
+    renderTierPickNeeds();
+
+};
+
+
+
+// ============================================
 // START GAME
 // ============================================
 
 loadStage(1);
+
+updateWellnessMeters();
+
+
+// Convenience preview hook -- open index.html?preview=needs in a
+// browser to jump straight to the tier-pick Needs prototype
+// without needing the browser console. Safe to remove once this
+// flow is wired into the real game.
+const previewParam =
+    new URLSearchParams(window.location.search).get("preview");
+
+if (previewParam === "needs") {
+    window.__startTierPickPrototype(1);
+}

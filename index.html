@@ -108,6 +108,51 @@
 
 
     <!-- ==========================================
+         WELLNESS BAR
+         Persistent across every screen (setup,
+         month, end) -- sits outside the .screen
+         containers so it never gets hidden.
+    =========================================== -->
+
+    <div id="wellness-bar" class="top-wellness-bar">
+
+        <div class="wellness-meter">
+
+            <div class="wellness-meter-header">
+                <span class="wellness-meter-label">Financial Wellness</span>
+                <span id="financial-wellness-value" class="wellness-meter-value">--</span>
+            </div>
+
+            <div class="wellness-meter-track">
+                <div
+                    id="financial-wellness-fill"
+                    class="wellness-meter-fill wellness-meter-fill-financial"
+                ></div>
+            </div>
+
+        </div>
+
+        <div class="wellness-meter">
+
+            <div class="wellness-meter-header">
+                <span class="wellness-meter-label">Personal Wellness</span>
+                <span id="personal-wellness-value" class="wellness-meter-value">--</span>
+            </div>
+
+            <div class="wellness-meter-track">
+                <div
+                    id="personal-wellness-fill"
+                    class="wellness-meter-fill wellness-meter-fill-personal"
+                ></div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
          SETUP SCREEN
     =========================================== -->
 
@@ -146,22 +191,74 @@
                 </div>
 
 
+                <!-- ALLOCATE / START -- moved down here under the
+                     paycheck card so the jar grid can devote its
+                     full two rows to jars only (see .setup-bottom-row
+                     removal below). Same button, same toggle-between-
+                     Left-to-Allocate-and-Start-Stage behavior. -->
 
-                <!-- FIXED MONTHLY BILLS -->
+                <div class="budget-summary sidebar-summary">
 
-                <div
-                    id="bills-preview-section"
-                    class="bills-preview-section hidden"
-                >
+                    <button
+                        id="start-month-btn"
+                        class="allocate-stat"
+                        type="button"
+                        disabled
+                    >
 
-                    <h3>
-                        Your Expenses
-                    </h3>
+                        <span id="allocate-stat-label">
+                            Left to Allocate
+                        </span>
 
-                    <div id="bills-preview-list"></div>
+                        <strong id="remaining-money">
+                            $600
+                        </strong>
+
+                        <span id="start-month-label" class="hidden">
+                            Start Teenager
+                        </span>
+
+                    </button>
 
                 </div>
 
+
+
+                <!-- BILL CARRYOVER -->
+
+                <div
+                    id="bill-carryover"
+                    class="savings-carryover bill-carryover hidden"
+                >
+
+                    <div
+                        id="bill-carryover-icon"
+                        class="carryover-icon"
+                    >
+                        <!-- CREATED BY JAVASCRIPT -->
+                    </div>
+
+                    <div class="carryover-text">
+
+                        <strong id="bill-carryover-title">
+                            Bill Carried Forward
+                        </strong>
+
+                        <p>
+                            Added to your Bills jar's
+                            cost this stage.
+                        </p>
+
+                    </div>
+
+                    <strong
+                        id="bill-carryover-amount"
+                        class="carryover-amount"
+                    >
+                        $0
+                    </strong>
+
+                </div>
 
 
                 <!-- SAVINGS CARRYOVER -->
@@ -257,50 +354,6 @@
 
 
 
-                <!-- BOTTOM ROW -- Bills moved up into the Needs
-                     row (it's a Need too, just pooled), so Savings is
-                     the only jar left down here, featured/locked, with
-                     the Start control right next to it. -->
-                <div class="setup-bottom-row">
-
-                    <div
-                        id="savings-bucket-slot"
-                        class="savings-bucket-slot"
-                    >
-
-                        <!-- CREATED BY JAVASCRIPT -->
-
-                    </div>
-
-
-                    <div class="budget-summary">
-
-                        <button
-                            id="start-month-btn"
-                            class="allocate-stat"
-                            type="button"
-                            disabled
-                        >
-
-                            <span id="allocate-stat-label">
-                                Left to Allocate
-                            </span>
-
-                            <strong id="remaining-money">
-                                $600
-                            </strong>
-
-                            <span id="start-month-label" class="hidden">
-                                Start Teenager
-                            </span>
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-
                 <p
                     id="budget-message"
                     class="message"
@@ -311,6 +364,88 @@
 
         </div>
 
+
+    </section>
+
+
+
+    <!-- ==========================================
+         TIER-PICK PROTOTYPE SCREEN (Needs only, for now)
+
+         Not part of the live game flow yet -- only reachable
+         via a debug entry point (window.__startTierPickPrototype)
+         while this new flow is being built and reviewed one
+         piece at a time. Nothing here affects setup-screen or
+         month-screen above.
+    =========================================== -->
+
+    <section
+        id="tier-pick-screen"
+        class="screen hidden"
+    >
+
+        <div class="tier-pick-columns">
+
+            <div class="step-heading">
+
+                <h2 id="tier-pick-heading">
+                    Pick Your Needs
+                </h2>
+
+                <p id="tier-pick-subheading">
+                    Every Need has a few ways to cover it --
+                    pick the level that fits how you want to live.
+                </p>
+
+            </div>
+
+            <div class="paycheck-callout tier-pick-remaining-callout">
+                <span>Left to Spend</span>
+                <strong id="tier-pick-remaining">$400</strong>
+            </div>
+
+            <div
+                id="tier-pick-needs-list"
+                class="tier-pick-list"
+            >
+
+                <!-- CREATED BY JAVASCRIPT -->
+
+            </div>
+
+            <div
+                id="tier-pick-wants-list"
+                class="tier-pick-list hidden"
+            >
+
+                <!-- CREATED BY JAVASCRIPT -->
+
+            </div>
+
+            <div
+                id="tier-pick-savings-list"
+                class="tier-pick-list hidden"
+            >
+
+                <!-- CREATED BY JAVASCRIPT -->
+
+            </div>
+
+            <button
+                id="tier-pick-continue-btn"
+                class="tier-pick-continue-btn"
+                type="button"
+                disabled
+            >
+                Continue
+            </button>
+
+            <p
+                id="tier-pick-summary"
+                class="message"
+            ></p>
+
+        </div>
 
     </section>
 
@@ -598,12 +733,21 @@
 
                 <div class="end-wellness-col">
 
+                    <!-- Header row layout (title left, percentage
+                         right) matches the top wellness bar's
+                         .wellness-meter-header pattern -- just in this
+                         popup's white-on-blue styling instead of the
+                         top bar's dark-on-light one. -->
+
                     <div class="wellness">
 
-                        <h3>
-                            Financial Wellness
-                            <span id="wellness-scope-label">(This Stage)</span>
-                        </h3>
+                        <div class="wellness-header">
+
+                            <h3>Financial Wellness</h3>
+
+                            <strong id="wellness-score">0%</strong>
+
+                        </div>
 
 
                         <div class="wellness-bar">
@@ -612,15 +756,25 @@
 
                         </div>
 
-
-                        <strong id="wellness-score">
-                            0%
-                        </strong>
+                    </div>
 
 
-                        <p id="cumulative-wellness-line" class="cumulative-wellness-line hidden">
-                            Overall so far: <strong id="cumulative-wellness-score">0%</strong>
-                        </p>
+                    <div class="wellness">
+
+                        <div class="wellness-header">
+
+                            <h3>Personal Wellness</h3>
+
+                            <strong id="personal-wellness-recap-score" class="personal-wellness-recap-score">50%</strong>
+
+                        </div>
+
+
+                        <div class="wellness-bar">
+
+                            <div id="personal-wellness-recap-fill" class="personal-wellness-recap-fill"></div>
+
+                        </div>
 
                     </div>
 
@@ -645,8 +799,104 @@
 
 
     <!-- ==========================================
+         TRANSPORTATION NARRATIVE MODAL
+
+         A one-off proof-of-concept: after the last
+         expense of a stage, if the player picked a
+         Transportation tier this stage, a short
+         narrative card shows a consequence tied to
+         that tier before the end-of-stage recap.
+         Wired up in showTransportationNarrative() /
+         closeTransportationNarrative() in game.js.
+    =========================================== -->
+
+    <div
+        id="narrative-modal"
+        class="keypad-modal hidden"
+    >
+
+        <div class="narrative-box">
+
+            <div
+                id="narrative-icon"
+                class="narrative-icon"
+            ></div>
+
+            <h3 id="narrative-title" class="narrative-title"></h3>
+
+            <p id="narrative-text" class="narrative-text"></p>
+
+            <button
+                id="narrative-continue-btn"
+                class="tier-pick-continue-btn"
+            >
+                Continue
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
          KEYPAD MODAL (ENTER BUCKET AMOUNT)
     =========================================== -->
+
+    <div
+        id="tier-picker-modal"
+        class="keypad-modal hidden"
+    >
+
+        <div class="tier-picker-box">
+
+            <button
+                id="tier-picker-close-btn"
+                class="keypad-close"
+                aria-label="Cancel"
+            >
+                ✕
+            </button>
+
+            <div class="keypad-header">
+
+                <div
+                    id="tier-picker-bucket-icon"
+                    class="keypad-bucket-icon"
+                >
+                </div>
+
+                <div
+                    id="tier-picker-bucket-name"
+                    class="keypad-bucket-name"
+                >
+                </div>
+
+            </div>
+
+            <div
+                id="tier-picker-options"
+                class="tier-options tier-picker-options"
+            >
+
+                <!-- CREATED BY JAVASCRIPT -->
+
+            </div>
+
+            <p
+                id="tier-picker-note"
+                class="tier-picker-note hidden"
+            ></p>
+
+            <p
+                id="tier-picker-error"
+                class="keypad-error"
+            ></p>
+
+        </div>
+
+    </div>
+
+
 
     <div id="keypad-modal" class="keypad-modal hidden">
 
