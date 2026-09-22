@@ -57,15 +57,117 @@
             <h1>Budget Builder</h1>
 
             <p class="start-message">
-                Build a budget through three life stages — Teenager,
-                College, and Career. Cover your Bills and Needs, enjoy
-                some Wants, and save what you can along the way — miss
-                a bill, though, and it follows you into the next stage.
+                Build a budget through four life stages. Pick a tier
+                for each jar, and whatever's left rolls into
+                Savings. Then handle whatever surprises come your
+                way.
             </p>
 
             <button id="start-button" type="button">Start</button>
 
+            <button
+                id="tutorial-button"
+                class="start-tutorial-button"
+                type="button"
+            >
+                Tutorial
+            </button>
+
         </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         STAGE INTRO SCREEN — narrative "who you are /
+         what you're working with" popup shown right
+         before a stage's sidebar and jars appear (see
+         game.js's showStageIntro() / loadStage()).
+         Unlike #start-screen above, this has NO dark
+         scrim -- the whole point is that the stage's
+         illustrated background scene (style.css's
+         PER-STAGE BACKGROUND SCENES) stays fully
+         visible behind it, since the sidebar/jars
+         haven't flown in yet at this point (see
+         .entrance-hidden in style.css). Deliberately a
+         wide/short banner shape rather than #start-
+         screen's tall card, with no badge icon or
+         corner decoration, so the two popups read as
+         different beats -- just a bold "Phase N: ..."
+         header, the story copy, and the button. Only
+         Stage 1 has a storyIntro so far -- every other
+         stage's loadStage() call just keeps this hidden
+         and skips straight to showing the sidebar/jars
+         like before, per Kayla's request to build and
+         tweak Stage 1's version first. -->
+
+    <div id="stage-intro-screen" class="hidden">
+
+        <div id="stage-intro-box">
+
+            <div class="stage-intro-text">
+
+                <h2 id="stage-intro-title">
+                    <!-- SET BY JAVASCRIPT (showStageIntro) -->
+                </h2>
+
+                <p id="stage-intro-body">
+                    <!-- SET BY JAVASCRIPT (showStageIntro) -->
+                </p>
+
+            </div>
+
+            <button id="stage-intro-continue-btn" type="button">Let's Go</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         TUTORIAL OVERLAY
+         A guided walkthrough of Stage 1's setup
+         screen, reached only via the welcome popup's
+         "Tutorial" button (see #tutorial-button
+         above). Two pieces, both absolutely
+         positioned by game.js's tutorial step logic
+         to sit on top of (and beside) whatever part
+         of the screen a given step is explaining --
+         same spotlight-and-callout pattern as
+         Lemonade Stand / Driver Decides' tutorials.
+         #tutorial-highlight is a glowing outline with
+         no fill and no pointer events, so it can sit
+         directly over an interactive element (a jar,
+         say) without blocking taps on it.
+         #tutorial-popup is the actual callout card --
+         body text, a Skip tutorial link (every step),
+         and a Next / Let's Go button (only on steps
+         that don't instead wait for the player to
+         perform the action being explained). -->
+
+    <div id="tutorial-highlight" class="hidden"></div>
+
+    <div id="tutorial-popup" class="hidden">
+
+        <button
+            id="tutorial-skip-btn"
+            class="tutorial-skip-btn"
+            type="button"
+        >
+            Skip tutorial ✕
+        </button>
+
+        <p id="tutorial-body" class="tutorial-body">
+            <!-- SET BY JAVASCRIPT (showTutorialStep) -->
+        </p>
+
+        <button
+            id="tutorial-next-btn"
+            class="tutorial-next-btn hidden"
+            type="button"
+        >
+            Next
+        </button>
 
     </div>
 
@@ -305,7 +407,7 @@
 
             <div id="allocation-section" class="setup-main">
 
-                <div class="step-heading">
+                <div id="build-budget-heading" class="step-heading">
 
                     <div>
 
@@ -784,6 +886,19 @@
 
                     <button id="next-month-btn">
                         Start Next Stage
+                    </button>
+
+
+                    <!-- PLAY AGAIN BUTTON --
+                         Only shown on the capstone stage's recap
+                         (currently Advancing Career) -- finishMonth()
+                         toggles this and next-month-btn opposite
+                         each other, so exactly one is ever visible.
+                         Same "reload the page fresh" reset the
+                         header's restart icon already uses. -->
+
+                    <button id="play-again-btn" class="hidden">
+                        Play Again
                     </button>
 
                 </div>

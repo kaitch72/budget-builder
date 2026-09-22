@@ -113,6 +113,91 @@ body {
 }
 
 
+/* ==========================================
+   PER-STAGE BACKGROUND SCENES
+
+   Kayla's illustrated backdrops for each life
+   stage. loadStage() in game.js toggles a
+   stage-bg-N class onto .game-container as the
+   player moves between stages -- these rules
+   just have to exist for whichever N currently
+   has art; a stage with no rule yet quietly
+   falls back to .game-container's plain white
+   background above.
+
+   Each rule stacks two background layers: a
+   flat white wash (first, so it paints on top)
+   over the scene art (second) -- this keeps the
+   jar/sidebar UI legible without needing a
+   separate overlay element. The jar tiles
+   themselves have no background of their own
+   (background: none, see .bucket below), so this
+   wash has to do all the legibility work alone.
+   0.65 opacity is the sweet spot found by testing
+   directly in-game: light enough that the scene
+   reads clearly, still keeps text/icons legible
+   even over the busiest part of the art (e.g. the
+   bed). Adjust that single number per-stage if a
+   given scene needs to sit lighter or bolder
+   behind the UI.
+========================================== */
+
+.game-container.stage-bg-1 {
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+        url('images/BB1-bedroom.svg');
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+}
+
+
+.game-container.stage-bg-2 {
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+        url('images/BB2-dorm.svg');
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+}
+
+
+.game-container.stage-bg-3 {
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+        url('images/BB3-cubicle.svg');
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+}
+
+
+.game-container.stage-bg-4 {
+
+    background-image:
+        linear-gradient(rgba(255,255,255,0.65), rgba(255,255,255,0.65)),
+        url('images/BB4-office.svg');
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+}
+
+
 svg {
 
     fill: var(--persian-blue);
@@ -590,6 +675,220 @@ header p {
 }
 
 
+/* Secondary button under Start -- same shape/size language as
+   #start-button (same padding, radius, bottom-shadow "3D" press
+   effect) but deliberately quieter: a light neutral fill instead
+   of brand blue, so Start still reads as the primary action and
+   Tutorial as the optional one, same pairing Lemonade Stand and
+   Driver Decides use on their own welcome popups. */
+
+.start-tutorial-button {
+
+    position: relative;
+
+    z-index: 1;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-top: 14px;
+
+    padding: 16px 64px;
+
+    border: none;
+
+    border-radius: 20px;
+
+    background: var(--mystic);
+
+    color: var(--blue-black);
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow: 0 5px 0 rgba(10,23,36,0.12);
+
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+}
+
+
+.start-tutorial-button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 7px 0 rgba(10,23,36,0.12);
+}
+
+
+.start-tutorial-button:active {
+
+    transform: translateY(3px);
+
+    box-shadow: 0 2px 0 rgba(10,23,36,0.12);
+}
+
+
+/* ==========================================
+   STAGE INTRO STORY POPUP
+   Deliberately a different shape from #start-box
+   above so the two popups read as distinct beats,
+   not the same popup twice -- wide and short (a
+   banner across the stage, not a tall square
+   card), no corner-blob decoration, no badge icon.
+   Just a bold "Phase N: <name>" header, the story
+   copy, and the continue button, laid out as a
+   text block on the left with the button anchored
+   to the right. #stage-intro-screen still has NO
+   background scrim -- this popup's whole job is to
+   let the stage's illustrated background scene
+   show through while the player reads it (the
+   sidebar and jars are still off-screen at this
+   point, see .entrance-hidden further down).
+========================================== */
+
+#stage-intro-screen {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    z-index: 105;
+}
+
+
+#stage-intro-box {
+
+    width: 1120px;
+
+    max-width: 88vw;
+
+    padding: 44px 60px;
+
+    background: #ffffff;
+
+    border-radius: 32px;
+
+    box-shadow:
+        0 24px 60px rgba(10,23,36,0.28);
+
+    display: flex;
+
+    flex-direction: row;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 48px;
+}
+
+
+.stage-intro-text {
+
+    text-align: left;
+}
+
+
+#stage-intro-title {
+
+    margin: 0 0 10px;
+
+    font-size: 32px;
+
+    font-weight: 900;
+
+    letter-spacing: 0.02em;
+
+    text-transform: uppercase;
+
+    color: var(--persian-blue);
+}
+
+
+#stage-intro-body {
+
+    margin: 0;
+
+    max-width: 620px;
+
+    font-size: 19px;
+
+    font-weight: 500;
+
+    line-height: 1.55;
+
+    color: rgba(10,23,36,0.68);
+}
+
+
+#stage-intro-continue-btn {
+
+    flex-shrink: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px 48px;
+
+    border: none;
+
+    border-radius: 20px;
+
+    background: var(--persian-blue);
+
+    color: #ffffff;
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 0 var(--sky-blue);
+
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+}
+
+
+#stage-intro-continue-btn:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 0 var(--sky-blue);
+}
+
+
+#stage-intro-continue-btn:active {
+
+    transform: translateY(3px);
+
+    box-shadow: 0 3px 0 var(--sky-blue);
+}
+
+
 /* ==========================================
    SCREEN
 ========================================== */
@@ -639,6 +938,32 @@ header p {
     flex-direction: column;
 
     gap: 36px;
+
+    /* Lets the sidebar fade in on stages with a storyIntro
+       popup (see .entrance-hidden below and game.js's
+       showStageIntro/loadStage) -- harmless on every other
+       stage, since entrance-hidden is never applied there. */
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+}
+
+
+/* STAGE-INTRO ENTRANCE REVEAL -- applied only while a
+   stage's storyIntro popup (#stage-intro-screen) is up, so
+   the sidebar and jars stay out of view and the illustrated
+   background scene reads clearly behind the popup. Removed
+   the moment the popup's continue button is clicked, which
+   is what triggers the fade/fly-up transitions defined here
+   and on .bucket below. */
+
+.setup-sidebar.entrance-hidden {
+
+    opacity: 0;
+
+    transform: translateY(20px);
+
+    pointer-events: none;
 }
 
 
@@ -1078,6 +1403,29 @@ header p {
     margin-top: 0;
 }
 
+/* Scoped to the id (not the shared .step-heading class, which the month
+   screen and old payment-panel wizard also use) so only the setup
+   screen's "Build Your Budget" heading gets this entrance fade -- it
+   should stay hidden through the welcome popup AND the first stage's
+   story popup, only fading in once the player hits "Let's Go" (see
+   hideStageIntro() in game.js). */
+
+#build-budget-heading {
+
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+}
+
+#build-budget-heading.entrance-hidden {
+
+    opacity: 0;
+
+    transform: translateY(20px);
+
+    pointer-events: none;
+}
+
 
 .step-heading h2 {
 
@@ -1305,7 +1653,52 @@ header p {
     background: none;
 
     text-align: center;
+
+    /* Lets a jar fly up into place on stages with a storyIntro
+       popup (see .jar-row.entrance-hidden and the nth-child
+       delays below) -- harmless everywhere else, since
+       entrance-hidden is never applied to a jar-row without one. */
+    transition:
+        opacity 0.45s ease,
+        transform 0.45s ease;
 }
+
+
+/* STAGE-INTRO ENTRANCE REVEAL -- see .setup-sidebar.entrance-hidden
+   above for the sidebar half of this. While a jar-row carries
+   entrance-hidden (i.e. its stage's storyIntro popup is still up),
+   every jar in it sits below the stage, invisible; removing the
+   class (on #stage-intro-continue-btn's click) lets each jar
+   transition back to its normal position. The nth-child delays
+   below stagger that so the row "flies up" left-to-right instead
+   of every jar arriving at once, and the Wants row is delayed a
+   beat behind the Needs row so the two rows read as a sequence
+   rather than two rows racing up together. Six columns' worth of
+   delays covers this layout's column-count ceiling with room to
+   spare. */
+
+.jar-row.entrance-hidden .bucket {
+
+    opacity: 0;
+
+    transform: translateY(140px);
+
+    pointer-events: none;
+}
+
+#setup-needs-row.jar-row .bucket:nth-child(1) { transition-delay: 0.05s; }
+#setup-needs-row.jar-row .bucket:nth-child(2) { transition-delay: 0.11s; }
+#setup-needs-row.jar-row .bucket:nth-child(3) { transition-delay: 0.17s; }
+#setup-needs-row.jar-row .bucket:nth-child(4) { transition-delay: 0.23s; }
+#setup-needs-row.jar-row .bucket:nth-child(5) { transition-delay: 0.29s; }
+#setup-needs-row.jar-row .bucket:nth-child(6) { transition-delay: 0.35s; }
+
+#setup-wants-row.jar-row .bucket:nth-child(1) { transition-delay: 0.2s; }
+#setup-wants-row.jar-row .bucket:nth-child(2) { transition-delay: 0.26s; }
+#setup-wants-row.jar-row .bucket:nth-child(3) { transition-delay: 0.32s; }
+#setup-wants-row.jar-row .bucket:nth-child(4) { transition-delay: 0.38s; }
+#setup-wants-row.jar-row .bucket:nth-child(5) { transition-delay: 0.44s; }
+#setup-wants-row.jar-row .bucket:nth-child(6) { transition-delay: 0.5s; }
 
 
 .jar-visual {
@@ -1700,7 +2093,8 @@ button:active {
 }
 
 
-#next-month-btn {
+#next-month-btn,
+#play-again-btn {
 
     display: block;
 
@@ -1721,7 +2115,8 @@ button:active {
 }
 
 
-#next-month-btn:active {
+#next-month-btn:active,
+#play-again-btn:active {
 
     box-shadow:
         0 2px 0 var(--blue-bird);
@@ -2354,7 +2749,8 @@ button:active {
 }
 
 
-#next-month-btn {
+#next-month-btn,
+#play-again-btn {
 
     background: white;
 
@@ -2365,7 +2761,8 @@ button:active {
 }
 
 
-#next-month-btn:active {
+#next-month-btn:active,
+#play-again-btn:active {
 
     box-shadow:
         0 2px 0 var(--hawkes-blue);
@@ -2969,6 +3366,20 @@ button:active {
 
 /* ==========================================
    WELLNESS BAR (persistent header strip)
+
+   Was one continuous white strip spanning the
+   full width (background + border-bottom lived
+   here on the row itself). Kayla asked for the
+   two meters to read as their own cards instead,
+   to match how Lemonade Stand's Checking/Savings
+   and Driver Decides' stat tiles sit as separate
+   white cards rather than one merged bar -- so
+   the row itself is now just a transparent grid
+   for layout, and each .wellness-meter below
+   carries its own card treatment (same white +
+   rounded-corner + soft-shadow language as
+   .paycheck-callout and #restart-button
+   elsewhere in this file).
 ========================================== */
 
 .top-wellness-bar {
@@ -2977,8 +3388,45 @@ button:active {
     grid-template-columns: 1fr 1fr;
     gap: 24px;
     padding: 14px 28px;
+
+    /* Lets the bar fade in once the welcome popup is dismissed on
+       a stage with a storyIntro (see .entrance-hidden below and
+       game.js's welcomeStartButton click handler) -- harmless on
+       every other load, since entrance-hidden is only ever added
+       when there's a story popup to hide it behind in the first
+       place. */
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+}
+
+
+/* Hidden until the welcome popup goes away (see .setup-sidebar
+   .entrance-hidden further up for the sidebar/jar half of this
+   same story-popup entrance system) -- keeps the wellness bar out
+   of sight while the welcome popup is up, so nothing but the
+   welcome popup itself shows over the stage's background scene. */
+
+.top-wellness-bar.entrance-hidden {
+
+    opacity: 0;
+
+    transform: translateY(-16px);
+
+    pointer-events: none;
+}
+
+
+.wellness-meter {
+
     background: white;
-    border-bottom: 1px solid var(--mystic);
+
+    border-radius: 18px;
+
+    padding: 16px 24px;
+
+    box-shadow:
+        0 4px 15px rgba(10,23,36,0.14);
 }
 
 
@@ -3037,4 +3485,182 @@ button:active {
 .wellness-meter-fill-personal {
 
     background: #16a34a;
+}
+
+
+/* ==========================================
+   TUTORIAL OVERLAY
+   Spotlight-and-callout walkthrough, reached via
+   the welcome popup's Tutorial button (see
+   .start-tutorial-button above). Both pieces are
+   positioned in game.js using the stage's fixed
+   1920x1080 coordinate space -- same space every
+   other popup here already uses -- via
+   getStageRect(), which converts whatever element
+   is being explained from its actual on-screen box
+   back into that space regardless of how much
+   .game-container's outer scale transform has
+   shrunk everything to fit the window.
+========================================== */
+
+#tutorial-highlight {
+
+    position: absolute;
+
+    /* Set by game.js per step -- left/top/width/height match the
+       target element's real box exactly (no padding added), and
+       border-radius is copied from the target's own computed style
+       rather than guessed here, so the lit-up hole always hugs the
+       real element's actual shape instead of floating slightly off
+       from it. No border/glow of its own -- Kayla asked for just
+       the plain element, dark everywhere else, no blue outline. */
+
+    /* This is the actual spotlight effect: a 9999px spread of dark
+       navy that starts right at this box's edge and reaches
+       (visually) infinitely outward, painting the entire rest of
+       the stage dark while leaving this box itself -- and the real
+       element inside it -- completely uncovered. Same trick used by
+       every "spotlight tour" pattern; no separate full-screen scrim
+       element needed. */
+    box-shadow:
+        0 0 0 9999px rgba(10,23,36,0.62);
+
+    /* Lets taps pass straight through to the real element
+       underneath -- the whole point of steps like "tap the Food
+       jar" is that the jar itself, not this glow, is what's
+       actually clickable. */
+    pointer-events: none;
+
+    z-index: 150;
+
+    transition:
+        left 0.3s ease,
+        top 0.3s ease,
+        width 0.3s ease,
+        height 0.3s ease,
+        border-radius 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+
+#tutorial-popup {
+
+    position: absolute;
+
+    width: 400px;
+
+    max-width: 90vw;
+
+    padding: 26px 26px 24px;
+
+    background: #ffffff;
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 20px 50px rgba(10,23,36,0.3);
+
+    z-index: 151;
+
+    transition:
+        left 0.3s ease,
+        top 0.3s ease;
+}
+
+
+.tutorial-skip-btn {
+
+    display: block;
+
+    margin: 0 0 14px auto;
+
+    padding: 0;
+
+    border: none;
+
+    background: none;
+
+    color: var(--persian-blue);
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.tutorial-skip-btn:hover {
+
+    text-decoration: underline;
+}
+
+
+.tutorial-body {
+
+    margin: 0;
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-size: 17px;
+
+    font-weight: 600;
+
+    line-height: 1.5;
+
+    color: var(--blue-black);
+}
+
+
+.tutorial-next-btn {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-top: 18px;
+
+    padding: 12px 30px;
+
+    border: none;
+
+    border-radius: 16px;
+
+    background: var(--persian-blue);
+
+    color: #ffffff;
+
+    font-family: 'Inter', Arial, sans-serif;
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow: 0 4px 0 var(--sky-blue);
+
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+}
+
+
+.tutorial-next-btn:hover {
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 6px 0 var(--sky-blue);
+}
+
+
+.tutorial-next-btn:active {
+
+    transform: translateY(2px);
+
+    box-shadow: 0 2px 0 var(--sky-blue);
 }

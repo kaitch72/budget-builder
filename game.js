@@ -169,6 +169,26 @@ const stages = {
         description:
             "Sort your pay into various spending buckets. Set aside enough for your expenses, save some money and delegate to fun spending.",
 
+        // Shown in #stage-intro-screen before the sidebar/jars fly
+        // in (see showStageIntro() below) -- a beat of story to
+        // set up who the player is this stage and what they're
+        // working with, before they're looking at a budget form.
+        // "title" is the bold "Phase N: ..." header (see style.css's
+        // #stage-intro-title) -- the next stage's would read
+        // "Phase 2: College", and so on. "{income}" in body is
+        // replaced with the stage's formatted income at show time.
+        // Only Stage 1 has this so far -- every other stage just
+        // skips the popup until this is built out for them too.
+        storyIntro: {
+            title: "Phase 1: Teenager",
+            body:
+                "This round, you're living at home and just started " +
+                "getting an allowance — {income} to work with. Your " +
+                "expenses are still pretty light at this age (a phone " +
+                "bill, maybe some gas money), so most of this paycheck " +
+                "is yours to figure out. Let's build your first budget."
+        },
+
         buckets: [
 
             {
@@ -1728,11 +1748,14 @@ const stages = {
         // ==========================================
         // TIERED NEEDS / WANTS + JAR NARRATIVES
         // Same tier-picker + narrative system as
-        // Stages 1 & 2. Career is the capstone stage
-        // (no Stage 4), so the riskiest tier's bad
-        // outcome is just a bigger penalty here --
-        // there's no next stage for a bill to carry
-        // into.
+        // Stages 1 & 2. Career used to be the capstone
+        // (no Stage 4 existed), so each bucket's
+        // riskiest tier's bad outcome was just a
+        // bigger flat penalty. Round 7 added Stage 4,
+        // so those same seven bad outcomes were
+        // upgraded to real carryForwardBill entries
+        // (matching Stages 1 & 2's pattern) -- Advancing
+        // Career is the capstone now.
         // ==========================================
 
         tieredNeeds: [
@@ -1838,7 +1861,7 @@ const stages = {
                     { icon: "dollar", title: "Utility Refund", text: "Your utility company refunded an overcharge from last cycle.", bonus: 50 }
                 ],
                 upgraded: [
-                    { icon: "tools", title: "Big Repair Bill", text: "Something major went wrong at your nicer apartment, and repairs aren't cheap.", penalty: 120 },
+                    { icon: "tools", title: "Big Repair Bill", text: "Something major went wrong at your nicer apartment, and repairs aren't cheap. It'll follow you into next stage.", carryForwardBill: { title: "Apartment Repair Bill", amount: 120, icon: "tools" } },
                     { icon: "dollar", title: "Landlord Credit", text: "Your landlord gave you a credit for a maintenance delay.", bonus: 70 }
                 ]
             },
@@ -1853,7 +1876,7 @@ const stages = {
                     { icon: "dollar", title: "Store Rewards", text: "Your grocery store's rewards program paid off this month.", bonus: 20 }
                 ],
                 eatingwell: [
-                    { icon: "wallet", title: "Dining Out Adds Up", text: "Between restaurants and delivery, the tabs added up more than you noticed this month.", penalty: 60 },
+                    { icon: "wallet", title: "Dining Out Adds Up", text: "Between restaurants and delivery, the tabs added up more than you noticed this month -- the balance is due next stage.", carryForwardBill: { title: "Dining Tab Balance", amount: 60, icon: "wallet" } },
                     { icon: "dollar", title: "Free Meal", text: "A friend treated you to a nice dinner out.", bonus: 35 }
                 ]
             },
@@ -1868,7 +1891,7 @@ const stages = {
                     { icon: "dollar", title: "Carpool Savings", text: "You carpooled with a coworker a few times and split the cost.", bonus: 15 }
                 ],
                 flexible: [
-                    { icon: "car", title: "Heavy Traveling Month", text: "Between errands, trips, and detours, you filled up more than expected.", penalty: 35 },
+                    { icon: "car", title: "Heavy Traveling Month", text: "Between errands, trips, and detours, you filled up more than expected -- and put some of it on a card.", carryForwardBill: { title: "Auto Maintenance Bill", amount: 35, icon: "tools" } },
                     { icon: "dollar", title: "Gas Rewards Card", text: "Your gas rewards card kicked back some cash this month.", bonus: 25 }
                 ]
             },
@@ -1883,7 +1906,7 @@ const stages = {
                     { icon: "dollar", title: "Store Credit", text: "A forgotten return came back as store credit.", bonus: 12 }
                 ],
                 selfcare: [
-                    { icon: "tools", title: "Appointment Mishap", text: "A haircut appointment didn't go as planned and you're paying to get it fixed.", penalty: 30 },
+                    { icon: "tools", title: "Appointment Mishap", text: "A haircut appointment didn't go as planned and you're paying to get it fixed next stage.", carryForwardBill: { title: "Salon Touch-Up Bill", amount: 30, icon: "tools" } },
                     { icon: "dollar", title: "Referral Discount", text: "You referred a friend to your favorite spot and got a discount back.", bonus: 22 }
                 ]
             },
@@ -1898,7 +1921,7 @@ const stages = {
                     { icon: "dollar", title: "Loyalty Rewards", text: "Your rewards app finally paid off with a free item.", bonus: 10 }
                 ],
                 frequent: [
-                    { icon: "wallet", title: "Takeout Adds Up", text: "Between lunches and dinners out, the small charges snowballed this month.", penalty: 28 },
+                    { icon: "wallet", title: "Takeout Adds Up", text: "Between lunches and dinners out, the small charges snowballed this month -- it's on a card now.", carryForwardBill: { title: "Food Delivery App Bill", amount: 28, icon: "wallet" } },
                     { icon: "dollar", title: "Surprise Gift Card", text: "A coworker passed along a gift card they weren't using.", bonus: 20 }
                 ]
             },
@@ -1913,7 +1936,7 @@ const stages = {
                     { icon: "dollar", title: "Resold For More", text: "You resold something you didn't need for more than expected.", bonus: 15 }
                 ],
                 frequent: [
-                    { icon: "wallet", title: "Credit Card Interest", text: "A few too many shopping trips mean interest is catching up with you.", penalty: 35 },
+                    { icon: "wallet", title: "Credit Card Interest", text: "A few too many shopping trips mean interest is catching up with you -- the balance rolls into next stage.", carryForwardBill: { title: "Credit Card Balance", amount: 35, icon: "wallet" } },
                     { icon: "dollar", title: "Resale Windfall", text: "You cleaned out your closet and resold a few pieces for a solid profit.", bonus: 28 }
                 ]
             },
@@ -1928,8 +1951,343 @@ const stages = {
                     { icon: "dollar", title: "Won Something", text: "You won a raffle prize at a work event.", bonus: 15 }
                 ],
                 fullsocial: [
-                    { icon: "wallet", title: "Weekend Trip Overspend", text: "A weekend trip cost more than planned this month.", penalty: 32 },
+                    { icon: "wallet", title: "Weekend Trip Overspend", text: "A weekend trip cost more than planned this month -- you put the overage on a card.", carryForwardBill: { title: "Travel Card Balance", amount: 32, icon: "wallet" } },
                     { icon: "dollar", title: "Free Concert Tickets", text: "A friend couldn't use their extra tickets, so you got in for free.", bonus: 28 }
+                ]
+            }
+
+        }
+
+    },
+
+
+    // ==========================================
+    // STAGE 4 — PEAK CAREER
+    // Added round 7 -- years further into the same
+    // career, a big promotion, and a much bigger
+    // paycheck to go with it. Same tiered/narrative/
+    // auto-savings system as every other stage, same
+    // bucket ids as Career (food/gas/personalCare/
+    // takeout/shopping/entertainment/bills/savings --
+    // no new bucket added, to keep the Needs row at
+    // its proven 5-wide layout) -- "more bills and
+    // whatnot" is folded into the Bills jar itself:
+    // its three tiers now bundle a housing + car
+    // payment (like Career's Bills jar already did)
+    // with an old-debt payoff pace on top (minimum-
+    // only at the cheap end, aggressive payoff at the
+    // expensive end), instead of adding a standalone
+    // Debt jar that would've pushed the Needs row to
+    // 6-wide and risked overflowing the stage width
+    // (see setRowColumns's jarSize clamp -- 6 columns
+    // computes below the 220px floor).
+    //
+    // This is now the CAPSTONE stage (no Stage 5) --
+    // Career's old "riskiest tier = bigger flat
+    // penalty" pattern moved here, and Career's own
+    // narratives were upgraded to real carryForwardBill
+    // entries above now that they have somewhere to
+    // carry into.
+    // ==========================================
+
+    4: {
+
+        name: "Advancing Career",
+
+        income: 4000,
+
+        title: "The Big Promotion",
+
+        description:
+            "Years of hard work paid off — a big promotion means a much bigger paycheck. But bigger responsibilities came with it: a mortgage instead of rent, a nicer car payment, and the old debt that's still hanging around. Let's see how you handle the next level.",
+
+        buckets: [
+
+            {
+                id: "food",
+                type: "need",
+                name: "Food",
+                icon: "food",
+                description: "Groceries & eating in"
+            },
+
+            {
+                id: "gas",
+                type: "need",
+                name: "Gas",
+                icon: "car",
+                description: "Fuel for your car"
+            },
+
+            {
+                id: "personalCare",
+                type: "need",
+                name: "Basics",
+                icon: "dollar",
+                description: "Toiletries & basics"
+            },
+
+            {
+                id: "takeout",
+                type: "want",
+                name: "Takeout",
+                icon: "food",
+                description: "Eating out"
+            },
+
+            {
+                id: "shopping",
+                type: "want",
+                name: "Shopping",
+                icon: "dollar",
+                description: "Hobbies & extras"
+            },
+
+            {
+                id: "entertainment",
+                type: "want",
+                name: "Entertainment",
+                icon: "movie",
+                description: "Trips & fun"
+            },
+
+            {
+                id: "bills",
+                type: "bill",
+                name: "Bills",
+                icon: "wallet",
+                description: "Bills you can't skip"
+            },
+
+            {
+                id: "savings",
+                type: "savings",
+                name: "Savings",
+                icon: "savings",
+                description: "Locked in — can't pay bills"
+            }
+
+        ],
+
+        // Dead/unused for a tiered stage (see the Career stage's
+        // own note above) -- kept as an empty array rather than a
+        // populated-but-unused one like Career's, since there's no
+        // pre-migration history to preserve here. loadStage() still
+        // reads stage.expenses unconditionally for every stage, so
+        // this has to exist even though nothing in the tiered path
+        // ever touches it.
+        expenses: [],
+
+
+        // ==========================================
+        // TIERED NEEDS / WANTS + JAR NARRATIVES
+        // Same tier-picker + narrative system as every
+        // other stage. Dollar amounts roughly double
+        // Career's to match the bigger $4,000 paycheck;
+        // Bills scales up more than that since it now
+        // bundles a debt-payoff pace on top of housing
+        // + car (see the stage-level note above).
+        // ==========================================
+
+        tieredNeeds: [
+
+            {
+                id: "bills",
+                name: "Bills",
+                icon: "wallet",
+                tiers: [
+                    { id: "modest", label: "Starter Home + Reliable Car + Minimum Debt Payments", amount: 2000, wellbeing: -3, note: "A smaller mortgage, a car that gets the job done, and every loan at its minimum -- the balances aren't moving much." },
+                    { id: "comfortable", label: "Upgraded Home + Newer Car + Steady Debt Payoff", amount: 2500, wellbeing: 0, note: "More space, a smoother commute, and steadily chipping away at what you owe." },
+                    { id: "upgraded", label: "Dream Home + Luxury Car + Aggressive Debt Payoff", amount: 3000, wellbeing: 4, note: "The house and car you always pictured, plus throwing extra at your old debt every month." }
+                ]
+            },
+
+            {
+                id: "food",
+                name: "Food",
+                icon: "food",
+                tiers: [
+                    { id: "basic", label: "Basic Groceries", amount: 220, wellbeing: -3, note: "Keeps you fed. Nothing more." },
+                    { id: "groceries", label: "Groceries + Occasional Takeout", amount: 340, wellbeing: 0, note: "Solid meals, dependable, with a little variety." },
+                    { id: "eatingwell", label: "Groceries + Eating Out Often", amount: 480, wellbeing: 4, note: "Whatever sounds good, whenever you want it." }
+                ]
+            },
+
+            {
+                id: "gas",
+                name: "Gas",
+                icon: "car",
+                tiers: [
+                    { id: "efficient", label: "Fuel-Efficient Commute", amount: 100, wellbeing: -1, note: "You plan your trips around the tank." },
+                    { id: "standard", label: "Standard Commute", amount: 160, wellbeing: 0, note: "Fill up when you need to, no stress about it." },
+                    { id: "flexible", label: "Fill Up Whenever", amount: 260, wellbeing: 3, note: "Never checking the gauge." }
+                ]
+            },
+
+            {
+                id: "personalCare",
+                name: "Basics",
+                icon: "dollar",
+                tiers: [
+                    { id: "minimum", label: "Bare Minimum", amount: 50, wellbeing: -2, note: "Covers the basics. Barely." },
+                    { id: "stocked", label: "Well-Stocked", amount: 90, wellbeing: 0, note: "Toiletries and basics, always on hand." },
+                    { id: "selfcare", label: "Self-Care Routine", amount: 160, wellbeing: 4, note: "Skincare, haircuts, the extras that make life easier." }
+                ]
+            }
+
+        ],
+
+        tieredWants: [
+
+            {
+                id: "takeout",
+                name: "Takeout",
+                icon: "food",
+                tiers: [
+                    { id: "rare", label: "Rare Treat", amount: 50, wellbeing: 1, note: "Takeout once in a while." },
+                    { id: "regular", label: "Regular Takeout", amount: 120, wellbeing: 2, note: "A few nights a week you just don't cook." },
+                    { id: "frequent", label: "Frequent Takeout", amount: 220, wellbeing: 4, note: "You barely turn on your own stove." }
+                ]
+            },
+
+            {
+                id: "shopping",
+                name: "Shopping",
+                icon: "dollar",
+                tiers: [
+                    { id: "minimal", label: "Only When Necessary", amount: 60, wellbeing: 1, note: "Replace something only when it wears out." },
+                    { id: "occasional", label: "A Few New Things", amount: 150, wellbeing: 2, note: "Refresh things here and there." },
+                    { id: "frequent", label: "Regular Shopping Trips", amount: 280, wellbeing: 5, note: "Always something new on the way." }
+                ]
+            },
+
+            {
+                id: "entertainment",
+                name: "Entertainment",
+                icon: "movie",
+                tiers: [
+                    { id: "streaming", label: "Streaming Only", amount: 40, wellbeing: -1, note: "Nights in, at home." },
+                    { id: "goingout", label: "Streaming + Going Out", amount: 130, wellbeing: 3, note: "A mix of nights in and nights out." },
+                    { id: "fullsocial", label: "Streaming + Going Out + Weekend Trips", amount: 260, wellbeing: 5, note: "Rarely turning down plans." }
+                ]
+            }
+
+        ],
+
+
+        // ==========================================
+        // JAR NARRATIVE EVENTS
+        // Advancing Career is the capstone (no Stage 5), so
+        // every bucket's riskiest tier's bad outcome is
+        // a bigger flat penalty -- same convention
+        // Career used to follow before it had a next
+        // stage to carry a bill into.
+        // ==========================================
+
+        jarNarratives: {
+
+            bills: {
+                modest: [
+                    { icon: "tools", title: "Furnace Repair", text: "Your starter home's furnace needed an emergency repair this month.", penalty: 120 },
+                    { icon: "dollar", title: "Refinance Savings", text: "You refinanced one of your loans at a slightly better rate and pocketed the difference.", bonus: 90 }
+                ],
+                comfortable: [
+                    { icon: "emergency", title: "Property Taxes Went Up", text: "Your property tax assessment came in higher than expected.", penalty: 150 },
+                    { icon: "dollar", title: "Escrow Refund", text: "Your mortgage escrow account had a surplus refunded back to you.", bonus: 120 }
+                ],
+                upgraded: [
+                    { icon: "tools", title: "Major Home Repair", text: "Something big broke at the dream house, and dream houses aren't cheap to fix.", penalty: 300 },
+                    { icon: "dollar", title: "Payoff Milestone Bonus", text: "You hit a debt payoff milestone this month and celebrated with a little breathing room.", bonus: 170 }
+                ]
+            },
+
+            food: {
+                basic: [
+                    { icon: "food", title: "Ran Out Early", text: "You ran out of groceries a few days before payday.", penalty: 25 },
+                    { icon: "dollar", title: "Coupon Haul", text: "You found a stack of coupons and stocked up for less.", bonus: 25 }
+                ],
+                groceries: [
+                    { icon: "food", title: "Food Went Bad", text: "You bought more than you could eat before it spoiled.", penalty: 35 },
+                    { icon: "dollar", title: "Store Rewards", text: "Your grocery store's rewards program paid off this month.", bonus: 35 }
+                ],
+                eatingwell: [
+                    { icon: "wallet", title: "Dining Out Adds Up", text: "Between restaurants and delivery, the tabs added up more than you noticed this month.", penalty: 90 },
+                    { icon: "dollar", title: "Client Dinner Reimbursed", text: "Work reimbursed you for a dinner you'd already paid for out of pocket.", bonus: 55 }
+                ]
+            },
+
+            gas: {
+                efficient: [
+                    { icon: "car", title: "Detour", text: "Road construction meant a longer commute all month.", penalty: 18 },
+                    { icon: "dollar", title: "Gas Prices Dropped", text: "Prices at the pump dipped for a few weeks.", bonus: 18 }
+                ],
+                standard: [
+                    { icon: "car", title: "Price Spike", text: "Gas prices jumped right when you needed a fill-up.", penalty: 25 },
+                    { icon: "dollar", title: "Carpool Savings", text: "You carpooled with a coworker a few times and split the cost.", bonus: 22 }
+                ],
+                flexible: [
+                    { icon: "car", title: "Heavy Travel Month", text: "Between errands, trips, and a few work drives, you filled up more than expected.", penalty: 55 },
+                    { icon: "dollar", title: "Mileage Reimbursement", text: "Work reimbursed your mileage for a business trip.", bonus: 45 }
+                ]
+            },
+
+            personalCare: {
+                minimum: [
+                    { icon: "dollar", title: "Ran Out Of Basics", text: "You ran out of a few essentials and had to make do.", penalty: 14 },
+                    { icon: "dollar", title: "Sample Sizes", text: "You picked up some free samples that covered you for a bit.", bonus: 14 }
+                ],
+                stocked: [
+                    { icon: "dollar", title: "Lost Your Bag", text: "You left a bag of toiletries at the gym and had to replace everything.", penalty: 20 },
+                    { icon: "dollar", title: "Store Credit", text: "A forgotten return came back as store credit.", bonus: 20 }
+                ],
+                selfcare: [
+                    { icon: "tools", title: "Appointment Mishap", text: "An appointment didn't go as planned and you're paying to get it fixed.", penalty: 45 },
+                    { icon: "dollar", title: "Referral Discount", text: "You referred a friend to your favorite spot and got a discount back.", bonus: 35 }
+                ]
+            },
+
+            takeout: {
+                rare: [
+                    { icon: "food", title: "Price Went Up", text: "Your usual order got a little pricier this month.", penalty: 10 },
+                    { icon: "dollar", title: "Buy One Get One", text: "A restaurant near work ran a deal.", bonus: 10 }
+                ],
+                regular: [
+                    { icon: "food", title: "Forgot The App Code", text: "You forgot to apply a discount code and paid full price.", penalty: 18 },
+                    { icon: "dollar", title: "Loyalty Rewards", text: "Your rewards app finally paid off with a free item.", bonus: 18 }
+                ],
+                frequent: [
+                    { icon: "wallet", title: "Takeout Adds Up", text: "Between lunches and dinners out, the small charges snowballed this month.", penalty: 50 },
+                    { icon: "dollar", title: "Surprise Gift Card", text: "A coworker passed along a gift card they weren't using.", bonus: 35 }
+                ]
+            },
+
+            shopping: {
+                minimal: [
+                    { icon: "dollar", title: "Impulse Buy Regret", text: "You gave in and bought something small you didn't need.", penalty: 14 },
+                    { icon: "dollar", title: "Found It On Sale", text: "Something you needed anyway turned out to be discounted.", bonus: 14 }
+                ],
+                occasional: [
+                    { icon: "dollar", title: "Store Credit Only", text: "A return didn't go the way you wanted -- store credit only.", penalty: 24 },
+                    { icon: "dollar", title: "Resold For More", text: "You resold something you didn't need for more than expected.", bonus: 26 }
+                ],
+                frequent: [
+                    { icon: "wallet", title: "Credit Card Interest", text: "A few too many shopping trips mean interest is catching up with you.", penalty: 60 },
+                    { icon: "dollar", title: "Resale Windfall", text: "You cleaned out a closet and resold a few pieces for a solid profit.", bonus: 48 }
+                ]
+            },
+
+            entertainment: {
+                streaming: [
+                    { icon: "tv", title: "Forgot To Cancel A Trial", text: "A free trial quietly turned into a paid subscription you forgot about.", penalty: 10 },
+                    { icon: "dollar", title: "Found A Cheaper Bundle", text: "You switched to a cheaper streaming bundle and pocketed the difference.", bonus: 10 }
+                ],
+                goingout: [
+                    { icon: "movie", title: "Lost Your Ticket", text: "You lost a ticket to something you'd already paid for and had to buy it again.", penalty: 24 },
+                    { icon: "dollar", title: "Won Something", text: "You won a raffle prize at a work event.", bonus: 26 }
+                ],
+                fullsocial: [
+                    { icon: "wallet", title: "Weekend Trip Overspend", text: "A weekend trip cost more than planned this month.", penalty: 55 },
+                    { icon: "dollar", title: "Free Concert Tickets", text: "A friend couldn't use their extra tickets, so you got in for free.", bonus: 48 }
                 ]
             }
 
@@ -2047,6 +2405,12 @@ const restartButton =
     );
 
 
+const playAgainButton =
+    document.getElementById(
+        "play-again-btn"
+    );
+
+
 // Welcome popup shown on load, before the
 // player builds their first budget. Distinct
 // from `startButton` above (the in-screen
@@ -2062,17 +2426,649 @@ const welcomeStartButton =
         "start-button"
     );
 
+// The welcome popup's second, quieter button -- takes the player
+// through the same Phase 1 story popup as a normal Start, but arms
+// tutorialActive first (see dismissWelcomePopup() below), so the
+// guided walkthrough begins the moment they clear that story popup
+// too (see stageIntroContinueBtn's handler further down).
+const welcomeTutorialButton =
+    document.getElementById(
+        "tutorial-button"
+    );
+
+// True once the welcome popup has been dismissed for the first
+// (and only) time this page load. Before that, loadStage(1)'s own
+// story-popup priming (see primeStageIntro()/showStageIntro() below)
+// stays a step short of actually revealing anything -- text is set
+// and the sidebar/jars/wellness bar/step heading are all put into
+// their hidden entrance state, but nothing pops into view behind
+// the welcome popup itself. The welcome-dismiss handler below is
+// what flips this and reveals the wellness bar + story popup.
+let welcomeDismissed = false;
+
+// True from the moment the welcome popup's Tutorial button is
+// clicked until the tutorial ends (either finished or skipped --
+// see endTutorial() in the TUTORIAL section below). Checked by
+// stageIntroContinueBtn's handler to decide whether "Let's Go"
+// should kick off the tutorial walkthrough or just behave normally.
+let tutorialActive = false;
+
+const wellnessBarEl =
+    document.getElementById(
+        "wellness-bar"
+    );
+
+// Shared by both welcome-popup buttons -- Start and Tutorial both
+// dismiss the popup and reveal the wellness bar + this stage's
+// story popup identically. Only the Tutorial button additionally
+// arms tutorialActive first (see its own handler below), so
+// everything that happens once the story popup itself is dismissed
+// is what actually tells the two paths apart.
+function dismissWelcomePopup() {
+
+    if (welcomeStartScreen) {
+        welcomeStartScreen.style.display = "none";
+    }
+
+    welcomeDismissed = true;
+
+    // The wellness bar stays hidden (see primeStageIntro())
+    // until the welcome popup goes away, so nothing but the
+    // welcome popup itself is visible over the stage's
+    // background scene on first load. Reveal it now,
+    // regardless of whether this stage has a story popup --
+    // it should never stay hidden past this point.
+    if (wellnessBarEl) {
+        wellnessBarEl.classList.remove("entrance-hidden");
+    }
+
+    // The current stage's story popup (if any) was already
+    // primed -- text set, sidebar/jars/step-heading hidden --
+    // by loadStage()'s initial call, but deliberately left
+    // un-shown until now so it couldn't peek out from behind
+    // the welcome popup (its box is wider than #start-box).
+    // Reveal it for real.
+    const stage = stages[currentStage];
+
+    if (stage && stage.storyIntro && stageIntroScreen) {
+        stageIntroScreen.classList.remove("hidden");
+    }
+
+}
+
+
 if (welcomeStartButton) {
 
     welcomeStartButton.addEventListener(
         "click",
+        dismissWelcomePopup
+    );
+
+}
+
+
+if (welcomeTutorialButton) {
+
+    welcomeTutorialButton.addEventListener(
+        "click",
         () => {
 
-            if (welcomeStartScreen) {
-                welcomeStartScreen.style.display = "none";
+            tutorialActive = true;
+
+            dismissWelcomePopup();
+
+        }
+    );
+
+}
+
+
+
+// ============================================
+// STAGE INTRO STORY POPUP
+// A short narrative beat shown before a stage's
+// sidebar/jars appear (see loadStage() below),
+// establishing who the player is this stage and
+// what they're working with. Only stages whose
+// config has a `storyIntro` field show this --
+// everything else falls through untouched, same
+// as before this feature existed.
+// ============================================
+
+const stageIntroScreen =
+    document.getElementById(
+        "stage-intro-screen"
+    );
+
+const stageIntroTitle =
+    document.getElementById(
+        "stage-intro-title"
+    );
+
+const stageIntroBody =
+    document.getElementById(
+        "stage-intro-body"
+    );
+
+const stageIntroContinueBtn =
+    document.getElementById(
+        "stage-intro-continue-btn"
+    );
+
+const setupSidebarEl =
+    document.querySelector(
+        ".setup-sidebar"
+    );
+
+const setupNeedsRowEl =
+    document.getElementById(
+        "setup-needs-row"
+    );
+
+const setupWantsRowEl =
+    document.getElementById(
+        "setup-wants-row"
+    );
+
+// The "Build Your Budget" heading + instructions above the jar
+// grid -- scoped to this one id (rather than the generic
+// .step-heading class, which the month/payment screens also use)
+// so this reveal never touches those other screens.
+const stepHeadingEl =
+    document.getElementById(
+        "build-budget-heading"
+    );
+
+
+// Sets the popup's text and puts the sidebar, jar rows, and step
+// heading into their hidden entrance state -- everything this
+// stage's reveal will eventually fly/fade in. Deliberately does
+// NOT touch #stage-intro-screen's own visibility or the wellness
+// bar: on the very first load those two stay gated behind the
+// welcome popup being dismissed (see welcomeStartButton's click
+// handler above), so nothing about this stage is visible at all
+// until the player has cleared the welcome popup first.
+function primeStageIntro(stage) {
+
+    if (!stage.storyIntro) {
+        return;
+    }
+
+    stageIntroTitle.textContent =
+        stage.storyIntro.title;
+
+    stageIntroBody.textContent =
+        stage.storyIntro.body.replace(
+            "{income}",
+            `$${stage.income.toLocaleString()}`
+        );
+
+    if (setupSidebarEl) {
+        setupSidebarEl.classList.add("entrance-hidden");
+    }
+
+    if (setupNeedsRowEl) {
+        setupNeedsRowEl.classList.add("entrance-hidden");
+    }
+
+    if (setupWantsRowEl) {
+        setupWantsRowEl.classList.add("entrance-hidden");
+    }
+
+    if (stepHeadingEl) {
+        stepHeadingEl.classList.add("entrance-hidden");
+    }
+
+    if (wellnessBarEl) {
+        wellnessBarEl.classList.add("entrance-hidden");
+    }
+
+}
+
+
+// Primes the stage (see above) AND immediately reveals the popup
+// itself. Used whenever a stage's story popup should show right
+// away -- i.e. any time other than the very first ever load, where
+// the welcome popup needs to be dismissed first (see loadStage()
+// and welcomeStartButton's handler, which call primeStageIntro()
+// alone and reveal the popup separately once welcome is gone).
+function showStageIntro(stage) {
+
+    if (!stageIntroScreen || !stage.storyIntro) {
+        return;
+    }
+
+    primeStageIntro(stage);
+
+    stageIntroScreen.classList.remove("hidden");
+
+}
+
+
+// Dismisses the popup and releases the sidebar/jars/step-heading
+// into their normal positions -- the CSS transitions on
+// .setup-sidebar, .bucket, and #build-budget-heading (see
+// style.css) are what actually animate the fade-in / fly-up, this
+// just flips the classes that gate them. Doesn't touch the
+// wellness bar -- that's revealed earlier, when the welcome popup
+// is dismissed, and stays visible from then on.
+function hideStageIntro() {
+
+    if (stageIntroScreen) {
+        stageIntroScreen.classList.add("hidden");
+    }
+
+    if (setupSidebarEl) {
+        setupSidebarEl.classList.remove("entrance-hidden");
+    }
+
+    if (setupNeedsRowEl) {
+        setupNeedsRowEl.classList.remove("entrance-hidden");
+    }
+
+    if (setupWantsRowEl) {
+        setupWantsRowEl.classList.remove("entrance-hidden");
+    }
+
+    if (stepHeadingEl) {
+        stepHeadingEl.classList.remove("entrance-hidden");
+    }
+
+}
+
+
+if (stageIntroContinueBtn) {
+
+    stageIntroContinueBtn.addEventListener(
+        "click",
+        () => {
+
+            hideStageIntro();
+
+            // If the player came in through the welcome popup's
+            // Tutorial button (see dismissWelcomePopup() above),
+            // this is the exact moment the sidebar/jars fly in for
+            // real -- the right beat for the guided walkthrough to
+            // begin too, so kick off its first step here.
+            // showTutorialStep() is defined further down (see the
+            // TUTORIAL section) but that's fine: function
+            // declarations are hoisted, and this only ever actually
+            // runs on a later click, well after the whole script
+            // has finished loading.
+            //
+            // Delayed past .setup-sidebar's own 0.5s fade/slide-up
+            // transition (triggered by hideStageIntro() removing
+            // entrance-hidden, just above) rather than fired in the
+            // same tick -- step 1's target (the paycheck card) lives
+            // inside that sidebar, and calling showTutorialStep(1)
+            // immediately would measure the card's position mid-
+            // transition (still offset by entrance-hidden's
+            // translateY(20px) starting point), locking the
+            // highlight onto that in-flight position instead of
+            // where the card actually settles. 550ms clears the
+            // sidebar's 500ms transition with a small buffer.
+            if (tutorialActive) {
+                setTimeout(
+                    () => showTutorialStep(1),
+                    550
+                );
             }
 
         }
+    );
+
+}
+
+
+// ============================================
+// TUTORIAL
+// A guided, five-step walkthrough of Stage 1's setup screen,
+// reached only through the welcome popup's Tutorial button (see
+// dismissWelcomePopup() above) -- same spotlight-and-callout
+// pattern as Lemonade Stand and Driver Decides' own tutorials: a
+// glowing outline highlights whatever part of the screen a step is
+// explaining, with a small callout beside it. Most steps wait for
+// Next; two instead wait for the player to actually perform the
+// action being explained (tapping the Food jar, then picking one
+// of its tiers), which is what makes this feel like a walkthrough
+// of the real game rather than a slideshow over it.
+// ============================================
+
+const tutorialHighlightEl =
+    document.getElementById(
+        "tutorial-highlight"
+    );
+
+const tutorialPopupEl =
+    document.getElementById(
+        "tutorial-popup"
+    );
+
+const tutorialBodyEl =
+    document.getElementById(
+        "tutorial-body"
+    );
+
+const tutorialNextBtn =
+    document.getElementById(
+        "tutorial-next-btn"
+    );
+
+const tutorialSkipBtn =
+    document.getElementById(
+        "tutorial-skip-btn"
+    );
+
+const gameContainerEl =
+    document.querySelector(
+        ".game-container"
+    );
+
+// Which step the walkthrough is currently on -- 0 means "not
+// running." Steps are 1-indexed to match how Kayla numbered them,
+// so TUTORIAL_STEPS[0] is left null on purpose.
+let tutorialStep = 0;
+
+// How far the lit-up spotlight box extends past the real target on
+// every side -- a little breathing room inside the lit area, rather
+// than the highlight hugging the target's exact pixel edges. Shared
+// between positionTutorialHighlight() (which uses it to grow the
+// box and its radius) and positionTutorialPopup() (which uses it so
+// a "right"-placed popup's top edge lines up with the lit box's
+// top, not the bare target's).
+const TUTORIAL_HIGHLIGHT_PAD = 14;
+
+// Each step: what to say, which element (if any) to light up --
+// a function, not a stored reference, since jar tiles get torn
+// down and rebuilt fresh on every loadStage() call and this only
+// ever runs on Stage 1 anyway -- where its popup sits relative to
+// that target, and how it advances. Steps without showNext instead
+// advance from elsewhere in the code, right where that action
+// actually happens (see openTierPicker() and selectTierForBucket()
+// further down).
+const TUTORIAL_STEPS = [
+
+    null,
+
+    {
+        body: "Here's your pay for each stage of life.",
+        // Just the white amount box inside the blue card -- not the
+        // whole card -- with TUTORIAL_HIGHLIGHT_PAD giving it some
+        // breathing room. (A brief detour highlighted the entire
+        // .level-banner instead; reverted -- that wasn't what Kayla
+        // wanted.)
+        target: () => document.querySelector(".paycheck-callout"),
+        placement: "right",
+        showNext: true
+    },
+
+    {
+        body: "Tap a jar to pick how much you'll budget for that category.",
+        target: () =>
+            document.getElementById("jar-img-food")
+                ?.closest(".bucket"),
+        placement: "right",
+        showNext: false
+    },
+
+    {
+        body: "Choose which tier of spending you'll put toward Food.",
+        target: null,
+        placement: "below-tier-picker",
+        showNext: false
+    },
+
+    {
+        body:
+            "Each choice will affect your Financial and Personal " +
+            "Wellness — try to find balance between the two!",
+        target: () => wellnessBarEl,
+        placement: "below-center",
+        showNext: true
+    },
+
+    {
+        body:
+            "Once you finish allocating all your money, the rest " +
+            "will be kept in Savings.",
+        target: () =>
+            document.getElementById("jar-img-savings")
+                ?.closest(".bucket"),
+        placement: "right",
+        showNext: true,
+        nextLabel: "Let's Go",
+        isLast: true
+    }
+
+];
+
+
+// Converts an element's actual on-screen box into the stage's
+// fixed 1920x1080 coordinate space -- the same space every other
+// popup/overlay in this game (the welcome popup, the story popup,
+// the tier picker) is already positioned in via plain CSS --
+// regardless of how much .game-container's outer scale transform
+// has shrunk everything down to fit the window. Both tutorial
+// pieces are absolutely positioned children of .game-container, so
+// setting their left/top to whatever this returns lines them up
+// with the real element exactly, at any window size.
+function getStageRect(el) {
+
+    const containerRect =
+        gameContainerEl.getBoundingClientRect();
+
+    const elRect =
+        el.getBoundingClientRect();
+
+    const scale =
+        containerRect.width / 1920;
+
+    return {
+        left: (elRect.left - containerRect.left) / scale,
+        top: (elRect.top - containerRect.top) / scale,
+        width: elRect.width / scale,
+        height: elRect.height / scale
+    };
+
+}
+
+
+function positionTutorialHighlight(target) {
+
+    if (!target) {
+
+        tutorialHighlightEl.classList.add("hidden");
+
+        return;
+
+    }
+
+    const rect =
+        getStageRect(target);
+
+    // Grown out by TUTORIAL_HIGHLIGHT_PAD on every side -- the lit
+    // area should give the real element a little breathing room,
+    // not hug its exact pixel edges (that exact-fit version is what
+    // Kayla asked to soften back a touch). positionTutorialPopup()
+    // uses the same constant so a "right"-placed popup's top still
+    // lines up with this box's top, not the bare target's.
+    tutorialHighlightEl.style.left =
+        (rect.left - TUTORIAL_HIGHLIGHT_PAD) + "px";
+    tutorialHighlightEl.style.top =
+        (rect.top - TUTORIAL_HIGHLIGHT_PAD) + "px";
+    tutorialHighlightEl.style.width =
+        (rect.width + TUTORIAL_HIGHLIGHT_PAD * 2) + "px";
+    tutorialHighlightEl.style.height =
+        (rect.height + TUTORIAL_HIGHLIGHT_PAD * 2) + "px";
+
+    // Copy the target's own corner rounding instead of guessing a
+    // fixed radius here -- a paycheck card (18px), a jar tile (0),
+    // the wellness bar (0), etc. all get their real shape rather
+    // than one generic rounded rectangle. Both this element and its
+    // target live inside the same scaled .game-container, so the
+    // computed CSS pixel value carries over as-is with no unit
+    // conversion needed. The pad is added on top of that base
+    // radius so the now-larger box's corners keep growing along
+    // with it, instead of a big box with a small tight radius.
+    const baseRadius =
+        parseFloat(getComputedStyle(target).borderRadius) || 0;
+
+    tutorialHighlightEl.style.borderRadius =
+        (baseRadius + TUTORIAL_HIGHLIGHT_PAD) + "px";
+
+    tutorialHighlightEl.classList.remove("hidden");
+
+}
+
+
+function positionTutorialPopup(step) {
+
+    const gap = 24;
+
+    const popupWidth =
+        tutorialPopupEl.offsetWidth || 400;
+
+    let left;
+    let top;
+
+    if (step.placement === "right") {
+
+        const rect =
+            getStageRect(step.target());
+
+        // Measured from the padded highlight box, not the bare
+        // target -- lines the popup's left/top edges up with the
+        // lit area the player actually sees, not the smaller real
+        // element sitting inside it.
+        left =
+            rect.left + rect.width + TUTORIAL_HIGHLIGHT_PAD + gap;
+        top =
+            rect.top - TUTORIAL_HIGHLIGHT_PAD;
+
+    }
+
+    else if (step.placement === "below-tier-picker") {
+
+        const box =
+            document.querySelector(".tier-picker-box");
+
+        const rect =
+            box
+                ? getStageRect(box)
+                : { left: 760, top: 480, width: 400, height: 200 };
+
+        left = rect.left + rect.width / 2 - popupWidth / 2;
+        top = rect.top + rect.height + gap;
+
+    }
+
+    else {
+
+        // "below-center"
+        const rect =
+            getStageRect(wellnessBarEl);
+
+        left = 1920 / 2 - popupWidth / 2;
+        top = rect.top + rect.height + gap;
+
+    }
+
+    // Keeps the popup fully on the 1920x1080 stage no matter which
+    // edge its target happens to sit near.
+    left = Math.max(20, Math.min(left, 1920 - popupWidth - 20));
+    top = Math.max(20, Math.min(top, 1080 - 20));
+
+    tutorialPopupEl.style.left = left + "px";
+    tutorialPopupEl.style.top = top + "px";
+
+}
+
+
+function showTutorialStep(stepNumber) {
+
+    tutorialStep = stepNumber;
+
+    const step =
+        TUTORIAL_STEPS[stepNumber];
+
+    if (!step) {
+        return;
+    }
+
+    tutorialBodyEl.textContent =
+        step.body;
+
+    if (step.showNext) {
+
+        tutorialNextBtn.textContent =
+            step.nextLabel || "Next";
+
+        tutorialNextBtn.classList.remove("hidden");
+
+    }
+
+    else {
+
+        tutorialNextBtn.classList.add("hidden");
+
+    }
+
+    const target =
+        step.target ? step.target() : null;
+
+    positionTutorialHighlight(target);
+
+    tutorialPopupEl.classList.remove("hidden");
+
+    // Positioned after the popup is unhidden so its offsetWidth
+    // (used by the centering placements above) reflects its real
+    // rendered size rather than a stale/zero value.
+    positionTutorialPopup(step);
+
+}
+
+
+function endTutorial() {
+
+    tutorialActive = false;
+    tutorialStep = 0;
+
+    tutorialPopupEl.classList.add("hidden");
+    tutorialHighlightEl.classList.add("hidden");
+
+}
+
+
+if (tutorialNextBtn) {
+
+    tutorialNextBtn.addEventListener(
+        "click",
+        () => {
+
+            const step =
+                TUTORIAL_STEPS[tutorialStep];
+
+            if (step && step.isLast) {
+
+                endTutorial();
+
+                return;
+
+            }
+
+            showTutorialStep(tutorialStep + 1);
+
+        }
+    );
+
+}
+
+
+if (tutorialSkipBtn) {
+
+    tutorialSkipBtn.addEventListener(
+        "click",
+        endTutorial
     );
 
 }
@@ -2089,6 +3085,18 @@ function loadStage(stageNumber) {
 
     const stage =
         stages[currentStage];
+
+    // Swap the per-stage background scene (see style.css's
+    // "PER-STAGE BACKGROUND SCENES" rules) -- clear every possible
+    // stage-bg-N class first, computed generically off how many
+    // stages exist, then set the one for the stage we're loading.
+    const gameContainer = document.querySelector(".game-container");
+    if (gameContainer) {
+        for (let n = 1; n <= Object.keys(stages).length; n++) {
+            gameContainer.classList.remove(`stage-bg-${n}`);
+        }
+        gameContainer.classList.add(`stage-bg-${currentStage}`);
+    }
 
 
     currentExpense = 0;
@@ -2255,6 +3263,32 @@ function loadStage(stageNumber) {
     );
 
 
+    // Reset to a clean, fully-revealed state first (in case an
+    // earlier stage left the sidebar/jars mid-entrance, or the
+    // player is replaying Stage 1 after a restart), then handle
+    // this stage's story popup if it has one. On the very first
+    // load ever (welcome popup still up, welcomeDismissed still
+    // false) this only primes -- sets the popup's text and hides
+    // the sidebar/jars/step-heading/wellness-bar -- without
+    // showing the popup itself, so nothing about this stage peeks
+    // out from behind the welcome popup; welcomeStartButton's
+    // click handler reveals it once the welcome popup is gone.
+    // Any later call (a real stage transition, welcome long since
+    // dismissed) shows the popup immediately instead, same as
+    // before this distinction existed.
+    hideStageIntro();
+
+    if (stage.storyIntro) {
+
+        if (welcomeDismissed) {
+            showStageIntro(stage);
+        } else {
+            primeStageIntro(stage);
+        }
+
+    }
+
+
     // ------------------------------------------
     // RESET ALLOCATION
     // ------------------------------------------
@@ -2266,6 +3300,14 @@ function loadStage(stageNumber) {
 
 
     updateBudgetDisplay();
+
+
+    // Refreshes both meters for the stage that just loaded --
+    // Financial resets to its live estimate against the new
+    // stage's own income/baseline (0% at the very start of a
+    // fresh stage), and Financial's "already banked" check now
+    // correctly sees the new currentStage as not yet scored.
+    updateWellnessMeters();
 
 }
 
@@ -2710,19 +3752,92 @@ const tierPickerNote =
 // ============================================
 // WELLNESS METERS (persistent header bar)
 //
-// Financial Wellness mirrors the existing end-of-stage
-// score (savings ratio minus missed-bill/borrow penalties,
-// averaged across completed stages) -- it only updates once
-// a stage actually finishes, same as it always has on the end
-// screen; this just also shows that same number up top.
+// Both meters now update live, the instant something changes,
+// and both react to the two kinds of events that can move
+// them: your own tier picks during allocation, AND the random
+// consequence cards that fire after "Start Stage" (round 6).
 //
-// Personal Wellness is new: a running total of the wellbeing
-// values already attached to every tier choice, live-updated
-// the instant a jar's tier changes -- no need to finish a
-// stage to see it move.
+// Financial Wellness live-estimates the same formula
+// finishMonth() uses to bank a stage's final score (savings
+// ratio minus missed-bill/borrow penalties) using whatever
+// buckets.savings is *right now* -- so it moves as you pick
+// tiers, then keeps moving as consequence-card bonuses/
+// penalties land on Savings, same as it always could. It only
+// stops updating once finishMonth() actually banks the stage's
+// real score into stageScores.
+//
+// Personal Wellness is a running total of wellbeing points:
+// each tier choice contributes its own hand-picked value
+// (unchanged), and now each consequence card also contributes
+// a small flat swing (see NARRATIVE_WELLBEING_PENALTY/_BONUS
+// below) -- unplanned bad news should cost you something
+// emotionally too, not just financially.
 // ============================================
 
 let personalWellnessTotal = 0;
+
+// Flat personal-wellbeing swing applied whenever a consequence
+// card resolves. Individual cards don't carry their own
+// wellbeing value the way tiers do (that's ~40 cards to
+// hand-tune) -- instead every bad outcome (a penalty OR a
+// carried-forward bill) applies the same small hit, and every
+// good outcome (a bonus) applies the same small boost, on top
+// of whatever it already does to Savings. Asymmetric on
+// purpose -- unplanned bad news tends to sting a bit more than
+// unplanned good news helps. Two numbers, tune both at once;
+// no per-card editing needed.
+const NARRATIVE_WELLBEING_PENALTY = -2;
+const NARRATIVE_WELLBEING_BONUS = 1;
+
+// Live estimate of the CURRENT (not-yet-banked) stage's
+// financial score, using the exact same formula finishMonth()
+// uses to bank the real one -- just evaluated against
+// buckets.savings as it stands right now instead of waiting
+// for the stage to finish. Returns null if there's no stage in
+// play (shouldn't normally happen once the game has started).
+function computeLiveFinancialScore() {
+
+    const stage =
+        stages[currentStage];
+
+    if (!stage) {
+
+        return null;
+
+    }
+
+    const newSavingsSoFar =
+        Math.max(
+            (buckets.savings || 0) - savingsAtStageStart,
+            0
+        );
+
+    let score =
+        Math.round(
+            (newSavingsSoFar / stage.income) * 100
+        );
+
+    score -=
+        missedNeeds * 15;
+
+    score -=
+        borrowedSameCategory * 2;
+
+    score -=
+        borrowedCrossCategory * 5;
+
+    if (stageHadLoanCarriedIn) {
+
+        score -= 10;
+
+    }
+
+    return Math.max(
+        0,
+        Math.min(100, score)
+    );
+
+}
 
 const financialWellnessFill =
     document.getElementById(
@@ -2793,11 +3908,32 @@ function updateWellnessMeters() {
     }
 
 
-    // Financial: same cumulative average already computed at
-    // the end of each stage. Before the first stage finishes
-    // there's nothing to average yet, so leave it at a neutral
-    // placeholder rather than implying a real score.
-    if (stageScores.length === 0) {
+    // Financial: the average of every stage already banked by
+    // finishMonth(), blended with a live estimate for the
+    // current stage while it's still in progress. stageScores
+    // gains one entry per finished stage, and currentStage only
+    // advances once the player moves on -- so
+    // stageScores.length >= currentStage means THIS stage's
+    // real score is already banked (the recap is showing, or
+    // we're between stages) and there's nothing live left to
+    // add on top of it.
+    const stageAlreadyBanked =
+        stageScores.length >= currentStage;
+
+    const liveScore =
+        stageAlreadyBanked
+            ? null
+            : computeLiveFinancialScore();
+
+    const scoresForAverage =
+        liveScore === null
+            ? stageScores
+            : [...stageScores, liveScore];
+
+    // Only possible before any stage has ever loaded -- keep the
+    // neutral placeholder for that split second rather than
+    // implying a real score.
+    if (scoresForAverage.length === 0) {
 
         financialWellnessFill.style.width = "0%";
 
@@ -2809,10 +3945,10 @@ function updateWellnessMeters() {
 
     const financialPercent =
         Math.round(
-            stageScores.reduce(
+            scoresForAverage.reduce(
                 (total, score) => total + score,
                 0
-            ) / stageScores.length
+            ) / scoresForAverage.length
         );
 
     financialWellnessFill.style.width =
@@ -2830,12 +3966,13 @@ function updateWellnessMeters() {
 //
 // Every tiered bucket has bad/good outcomes per
 // tier now (stage.jarNarratives), but showing all
-// six every stage would be overkill -- instead,
-// buildNarrativeQueue() randomly picks just 2 of
-// the buckets a tier was actually chosen for, then
-// rolls a 50/50 on each. The two (if any) show one
-// at a time via narrativeQueue; closing one shows
-// the next, and closing the last one finishes the
+// of them every stage would be overkill -- instead,
+// buildNarrativeQueue() randomly picks up to 3 of
+// the buckets a tier was actually chosen for (round
+// 7: bumped from 2), then rolls a 50/50 on each. The
+// three (if that many are eligible) show one at a
+// time via narrativeQueue; closing one shows the
+// next, and closing the last one finishes the
 // stage. A bad outcome on a bucket's riskiest tier
 // adds a bill that carries into next stage
 // (reusing the same pendingExtraNeeds queue
@@ -2907,8 +4044,9 @@ function buildNarrativeQueue() {
         );
 
 
-    // Shuffle, then keep at most 2 -- not every jar
-    // gets a consequence every stage, so it stays a
+    // Shuffle, then keep at most 3 (bumped up from 2
+    // per Kayla, round 7) -- not every jar gets a
+    // consequence every stage, so it still stays a
     // surprise instead of a wall of popups.
     const shuffled =
         [...eligibleBucketIds].sort(
@@ -2916,7 +4054,7 @@ function buildNarrativeQueue() {
         );
 
     const chosenBucketIds =
-        shuffled.slice(0, 2);
+        shuffled.slice(0, 3);
 
 
     return chosenBucketIds.map(
@@ -2985,6 +4123,9 @@ function closeNarrativeCard() {
                 (buckets.savings || 0) +
                 outcome.bonus;
 
+            personalWellnessTotal +=
+                NARRATIVE_WELLBEING_BONUS;
+
             updateBudgetDisplay();
 
         }
@@ -2999,12 +4140,21 @@ function closeNarrativeCard() {
                         outcome.penalty
                 );
 
+            personalWellnessTotal +=
+                NARRATIVE_WELLBEING_PENALTY;
+
             updateBudgetDisplay();
 
         }
 
 
         if (outcome.carryForwardBill) {
+
+            // Bad news now (the wellbeing hit), even though the
+            // dollar hit itself is deferred to next stage's bill
+            // -- same swing a same-stage penalty gets.
+            personalWellnessTotal +=
+                NARRATIVE_WELLBEING_PENALTY;
 
             pendingExtraNeeds.push({
                 icon: outcome.carryForwardBill.icon,
@@ -3018,6 +4168,13 @@ function closeNarrativeCard() {
             });
 
         }
+
+
+        // Refresh both meters now that Savings and/or
+        // personalWellnessTotal may have just moved -- covers
+        // every outcome type, including carryForwardBill (which
+        // touches wellbeing but not Savings).
+        updateWellnessMeters();
 
     }
 
@@ -3143,6 +4300,14 @@ function openTierPicker(bucketId) {
 
     tierPickerModal.classList.remove("hidden");
 
+    // Tutorial step 2 ("tap a jar") waits for exactly this --
+    // opening the Food jar's tier picker -- to advance into step 3,
+    // which repositions its callout underneath the now-open modal
+    // (see TUTORIAL_STEPS' "below-tier-picker" placement).
+    if (tutorialActive && tutorialStep === 2 && bucketId === "food") {
+        showTutorialStep(3);
+    }
+
 }
 
 
@@ -3247,6 +4412,15 @@ function selectTierForBucket(bucketId, tier) {
     closeTierPicker();
     updateBudgetDisplay();
     updateWellnessMeters();
+
+    // Tutorial step 3 ("choose a tier") waits for exactly this --
+    // a successful Food pick (the affordability check above didn't
+    // bail out early) -- to advance into step 4. Reaching this line
+    // at all means the pick went through, so no separate success
+    // flag is needed.
+    if (tutorialActive && tutorialStep === 3 && bucketId === "food") {
+        showTutorialStep(4);
+    }
 
 }
 
@@ -5231,8 +6405,13 @@ function finishMonth() {
     if (endingSavings > 0 && isFinalStage) {
 
         // The big moment: this is the whole "build your wealth"
-        // payoff, so it leads with the full Teenager-to-Career arc
-        // instead of just restating this stage's ending number.
+        // payoff, so it leads with the full Teenager-to-(whichever
+        // stage is the capstone right now) arc instead of just
+        // restating this stage's ending number. stage.name is
+        // whatever the currently-finishing (and therefore final)
+        // stage is called -- Career before round 7, Advancing Career
+        // after -- so this keeps working automatically if another
+        // stage is ever appended.
         readinessSection.className =
             "readiness-outcome met";
 
@@ -5244,8 +6423,8 @@ function finishMonth() {
             <p>
                 You started with $0 back in Teenager and grew it all
                 the way to $${endingSavings.toLocaleString()} by the end
-                of Career. That's what saving a little each stage adds
-                up to.
+                of ${stage.name}. That's what saving a little each
+                stage adds up to.
             </p>
 
         `;
@@ -5279,7 +6458,7 @@ function finishMonth() {
         readinessSection.innerHTML = `
 
             <strong>${isFinalStage
-                ? `You're finishing Career with $0 in Savings`
+                ? `You're finishing ${stage.name} with $0 in Savings`
                 : `You didn't save anything this stage`}</strong>
 
             <p>
@@ -5496,6 +6675,15 @@ function finishMonth() {
         nextMonthButton.textContent =
             `Start ${stages[currentStage + 1].name}`;
 
+
+        if (playAgainButton) {
+
+            playAgainButton.classList.add(
+                "hidden"
+            );
+
+        }
+
     }
 
     else {
@@ -5503,6 +6691,17 @@ function finishMonth() {
         nextMonthButton.classList.add(
             "hidden"
         );
+
+
+        // Capstone recap -- nothing left to advance to, so swap
+        // in "Play Again" instead of leaving the popup a dead end.
+        if (playAgainButton) {
+
+            playAgainButton.classList.remove(
+                "hidden"
+            );
+
+        }
 
     }
 
@@ -5553,6 +6752,26 @@ nextMonthButton.addEventListener(
 if (restartButton) {
 
     restartButton.addEventListener(
+        "click",
+        () => {
+
+            location.reload();
+
+        }
+    );
+
+}
+
+
+// ============================================
+// PLAY AGAIN BUTTON (capstone recap)
+// Same reset as the header's restart icon --
+// simplest safe way to clear this much state.
+// ============================================
+
+if (playAgainButton) {
+
+    playAgainButton.addEventListener(
         "click",
         () => {
 
