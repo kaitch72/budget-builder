@@ -174,11 +174,13 @@ const stages = {
         // set up who the player is this stage and what they're
         // working with, before they're looking at a budget form.
         // "title" is the bold "Phase N: ..." header (see style.css's
-        // #stage-intro-title) -- the next stage's would read
-        // "Phase 2: College", and so on. "{income}" in body is
-        // replaced with the stage's formatted income at show time.
-        // Only Stage 1 has this so far -- every other stage just
-        // skips the popup until this is built out for them too.
+        // #stage-intro-title). "{income}" in body is replaced with
+        // the stage's formatted income at show time. All four stages
+        // have one now (round 22 added Stages 2-4, matching this
+        // stage's original pattern/voice) -- see #stage-intro-box in
+        // style.css for the popup itself (no fixed height, grows
+        // with the copy, so keep each stage's body roughly this
+        // length rather than open-ended).
         storyIntro: {
             title: "Phase 1: Teenager",
             body:
@@ -906,6 +908,18 @@ const stages = {
         description:
             "Your paycheck grew, but so did your bills. Cover your Bills and Needs, save toward your first apartment, and decide what's worth spending on.",
 
+        // See Stage 1's storyIntro above for how this field works.
+        storyIntro: {
+            title: "Phase 2: College",
+            body:
+                "This round, you're off on your own for college — " +
+                "{income} to work with, and a real living situation " +
+                "to sort out for the first time. Roommates keep the " +
+                "rent cheap, your own place costs more, and there's " +
+                "still food, phone, and plenty of things worth " +
+                "spending on. Let's build this round's budget."
+        },
+
         buckets: [
 
             {
@@ -1565,6 +1579,19 @@ const stages = {
         description:
             "This is it — a real paycheck. See how much of it is already claimed by your responsibilities before you spend a dollar on anything else.",
 
+        // See Stage 1's storyIntro above for how this field works.
+        storyIntro: {
+            title: "Phase 3: Career",
+            body:
+                "This round, you've landed your first real job — " +
+                "{income} to work with, and real responsibilities " +
+                "to match. Rent, a car that actually needs to run, " +
+                "groceries that aren't just snacks anymore — it " +
+                "adds up fast before you even get to spend on " +
+                "yourself. Let's see how much of this paycheck is " +
+                "really yours."
+        },
+
         buckets: [
 
             {
@@ -2000,6 +2027,19 @@ const stages = {
 
         description:
             "Years of hard work paid off — a big promotion means a much bigger paycheck. But bigger responsibilities came with it: a mortgage instead of rent, a nicer car payment, and the old debt that's still hanging around. Let's see how you handle the next level.",
+
+        // See Stage 1's storyIntro above for how this field works.
+        storyIntro: {
+            title: "Phase 4: Advancing Career",
+            body:
+                "This round, the promotion came through — {income} " +
+                "to work with, a big jump from before. The " +
+                "responsibilities grew right along with it: a " +
+                "mortgage instead of rent, a nicer car payment, and " +
+                "old debt that's still hanging around and needs " +
+                "paying down. Let's see what a bigger paycheck " +
+                "actually buys you, once everything else gets its cut."
+        },
 
         buckets: [
 
@@ -2640,6 +2680,15 @@ function showStageIntro(stage) {
 
     primeStageIntro(stage);
 
+    // primeStageIntro() hides the wellness bar too (needed for the
+    // very first load, while the welcome popup is still up), but by
+    // any later stage the meters have already been revealed and
+    // should stay put -- without this, Stages 2-4 lost their meters
+    // for the rest of the game once round 22 gave them story popups.
+    if (wellnessBarEl) {
+        wellnessBarEl.classList.remove("entrance-hidden");
+    }
+
     stageIntroScreen.classList.remove("hidden");
 
 }
@@ -3082,6 +3131,12 @@ if (tutorialSkipBtn) {
 function loadStage(stageNumber) {
 
     currentStage = stageNumber;
+
+    // Bring the setup screen back after the previous stage's
+    // surprises/recap faded it out (round 26).
+    if (setupScreen) {
+        setupScreen.classList.remove("results-fade");
+    }
 
     const stage =
         stages[currentStage];
@@ -3875,21 +3930,68 @@ const personalWellnessRecapScore =
     );
 
 
+// Personal Wellness as the 0-100 number the meters show: the
+// cumulative raw wellbeing total mapped around a neutral 50%.
+// Pulled out of updateWellnessMeters() (round 23) so the
+// consequence cards can measure the exact same number before
+// and after an outcome lands.
+function computePersonalPercent() {
+
+    return Math.max(
+        0,
+        Math.min(
+            100,
+            Math.round(
+                50 + personalWellnessTotal * 2
+            )
+        )
+    );
+
+}
+
+
+// Financial Wellness as the 0-100 number the meters show (or
+// null before any stage exists). Same round-23 extraction as
+// computePersonalPercent() -- see updateWellnessMeters() for
+// how banked and live scores blend.
+function computeFinancialPercent() {
+
+    const stageAlreadyBanked =
+        stageScores.length >= currentStage;
+
+    const liveScore =
+        stageAlreadyBanked
+            ? null
+            : computeLiveFinancialScore();
+
+    const scoresForAverage =
+        liveScore === null
+            ? stageScores
+            : [...stageScores, liveScore];
+
+    if (scoresForAverage.length === 0) {
+
+        return null;
+
+    }
+
+    return Math.round(
+        scoresForAverage.reduce(
+            (total, score) => total + score,
+            0
+        ) / scoresForAverage.length
+    );
+
+}
+
+
 function updateWellnessMeters() {
 
     // Personal: map the cumulative raw wellbeing total onto a
     // 0-100 bar, treating 0 as a neutral midpoint (50%) so both
     // rough stretches and comfortable ones have room to show.
     const personalPercent =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                Math.round(
-                    50 + personalWellnessTotal * 2
-                )
-            )
-        );
+        computePersonalPercent();
 
     personalWellnessFill.style.width =
         `${personalPercent}%`;
@@ -3917,23 +4019,13 @@ function updateWellnessMeters() {
     // real score is already banked (the recap is showing, or
     // we're between stages) and there's nothing live left to
     // add on top of it.
-    const stageAlreadyBanked =
-        stageScores.length >= currentStage;
-
-    const liveScore =
-        stageAlreadyBanked
-            ? null
-            : computeLiveFinancialScore();
-
-    const scoresForAverage =
-        liveScore === null
-            ? stageScores
-            : [...stageScores, liveScore];
+    const financialPercent =
+        computeFinancialPercent();
 
     // Only possible before any stage has ever loaded -- keep the
     // neutral placeholder for that split second rather than
     // implying a real score.
-    if (scoresForAverage.length === 0) {
+    if (financialPercent === null) {
 
         financialWellnessFill.style.width = "0%";
 
@@ -3942,14 +4034,6 @@ function updateWellnessMeters() {
         return;
 
     }
-
-    const financialPercent =
-        Math.round(
-            scoresForAverage.reduce(
-                (total, score) => total + score,
-                0
-            ) / scoresForAverage.length
-        );
 
     financialWellnessFill.style.width =
         `${financialPercent}%`;
@@ -3981,35 +4065,75 @@ function updateWellnessMeters() {
 // directly (never below $0 on the downside).
 // ============================================
 
+// Round 23: consequence cards are a two-beat moment now instead of
+// a read-and-dismiss text box. The stage's first card starts
+// FACE-DOWN ("Life happens… tap to reveal"); tapping flips it over,
+// and each later surprise flips the same card again (round 24).
+// Effects only apply on each flip -- so the numbers the card shows
+// are the real before/after change on the two wellness meters,
+// not a guess. Each meter that actually moved gets its own big
+// tile (red "−4%" / green "+4%", with the meter's name under it),
+// side by side if both moved, plus a small chip for the dollar
+// side (money in/out of Savings, or a bill carried forward).
+// Bad news shakes the card, good news bounces it with confetti.
+
 const narrativeModal =
-    document.getElementById(
-        "narrative-modal"
-    );
+    document.getElementById("narrative-modal");
+
+const narrativeCard =
+    document.getElementById("narrative-card");
+
+const narrativeFront =
+    document.getElementById("narrative-front");
+
+const narrativeFrontIcon =
+    document.getElementById("narrative-front-icon");
+
+const narrativeBack =
+    document.getElementById("narrative-back");
+
+const narrativeProgress =
+    document.getElementById("narrative-progress");
+
+const narrativeBanner =
+    document.getElementById("narrative-banner");
 
 const narrativeIcon =
-    document.getElementById(
-        "narrative-icon"
-    );
+    document.getElementById("narrative-icon");
 
 const narrativeTitle =
-    document.getElementById(
-        "narrative-title"
-    );
+    document.getElementById("narrative-title");
 
 const narrativeText =
-    document.getElementById(
-        "narrative-text"
-    );
+    document.getElementById("narrative-text");
+
+const narrativeImpacts =
+    document.getElementById("narrative-impacts");
+
+const narrativeMoney =
+    document.getElementById("narrative-money");
+
+const narrativeConfetti =
+    document.getElementById("narrative-confetti");
 
 const narrativeContinueBtn =
-    document.getElementById(
-        "narrative-continue-btn"
-    );
+    document.getElementById("narrative-continue-btn");
 
 
 let currentNarrativeOutcome = null;
 
+let narrativeRevealed = false;
+
 let narrativeQueue = [];
+
+// How many cards this stage's queue started with -- drives the
+// "Surprise 2 of 3" label. Set by buildNarrativeQueue().
+let narrativeTotalThisStage = 0;
+
+// Pending reveal-animation timers, cleared whenever a card
+// closes or a new one shows, so nothing fires late onto the
+// wrong card.
+let narrativeTimers = [];
 
 
 function buildNarrativeQueue() {
@@ -4021,6 +4145,7 @@ function buildNarrativeQueue() {
         stage.jarNarratives;
 
     if (!narrativeData) {
+        narrativeTotalThisStage = 0;
         return [];
     }
 
@@ -4057,146 +4182,539 @@ function buildNarrativeQueue() {
         shuffled.slice(0, 3);
 
 
-    return chosenBucketIds.map(
-        bucketId => {
+    const queue =
+        chosenBucketIds.map(
+            bucketId => {
 
-            const tier =
-                bucketTierSelections[bucketId];
+                const tier =
+                    bucketTierSelections[bucketId];
 
-            const outcomes =
-                narrativeData[bucketId][tier.id];
+                const outcomes =
+                    narrativeData[bucketId][tier.id];
 
-            return outcomes[
-                Math.floor(
-                    Math.random() * outcomes.length
-                )
-            ];
+                const outcome =
+                    outcomes[
+                        Math.floor(
+                            Math.random() * outcomes.length
+                        )
+                    ];
 
-        }
-    );
+                // Tag which jar it came from, for the card's
+                // face-down side ("Your Food jar").
+                return { ...outcome, bucketId };
+
+            }
+        );
+
+    narrativeTotalThisStage = queue.length;
+
+    return queue;
 
 }
 
 
+function clearNarrativeTimers() {
+
+    narrativeTimers.forEach(clearTimeout);
+
+    narrativeTimers = [];
+
+}
+
+
+function narrativeLater(fn, ms) {
+
+    narrativeTimers.push(setTimeout(fn, ms));
+
+}
+
+
+function narrativeProgressLabel() {
+
+    const index =
+        narrativeTotalThisStage - narrativeQueue.length + 1;
+
+    return narrativeTotalThisStage > 1
+        ? `Surprise ${index} of ${narrativeTotalThisStage}`
+        : "Surprise!";
+
+}
+
+
+// Round 24: only the FIRST card of a stage starts face-down (a
+// generic "Life happens… tap to reveal" with a dollar icon).
+// After that the same result card just flips over to the next
+// surprise -- no face-down beat in between.
 function showNarrativeCard(outcome) {
+
+    clearNarrativeTimers();
 
     currentNarrativeOutcome = outcome;
 
+    narrativeRevealed = false;
 
-    narrativeIcon.innerHTML =
-        iconMarkup(outcome.icon);
-
-
-    narrativeTitle.textContent =
-        outcome.title;
+    narrativeFrontIcon.innerHTML =
+        iconMarkup("dollar");
 
 
-    narrativeText.textContent =
-        outcome.text;
+    // Reset any tone/flip/shake classes from a previous stage.
+    narrativeCard.className = "narrative-card";
 
+    narrativeConfetti.innerHTML = "";
 
-    narrativeModal.classList.remove(
-        "hidden"
-    );
+    // Sidebar + jars fade out while the surprises play, so the
+    // background scene shows through (round 26).
+    setupScreen.classList.add("results-fade");
+
+    narrativeFront.classList.remove("hidden");
+
+    narrativeBack.classList.add("hidden");
+
+    narrativeModal.classList.remove("hidden");
 
 }
 
 
-function closeNarrativeCard() {
+// Same numbers the top bar shows (see updateWellnessMeters),
+// captured before and after a card's effects so the card can
+// show the real change.
+function getWellnessSnapshot() {
 
-    const outcome =
-        currentNarrativeOutcome;
+    return {
+        financial: computeFinancialPercent(),
+        personal: computePersonalPercent(),
+        savings: buckets.savings || 0
+    };
 
-    currentNarrativeOutcome = null;
-
-
-    narrativeModal.classList.add(
-        "hidden"
-    );
-
-
-    if (outcome) {
-
-        if (outcome.bonus) {
-
-            buckets.savings =
-                (buckets.savings || 0) +
-                outcome.bonus;
-
-            personalWellnessTotal +=
-                NARRATIVE_WELLBEING_BONUS;
-
-            updateBudgetDisplay();
-
-        }
+}
 
 
-        if (outcome.penalty) {
+function applyNarrativeEffects(outcome) {
 
-            buckets.savings =
-                Math.max(
-                    0,
-                    (buckets.savings || 0) -
-                        outcome.penalty
-                );
+    if (outcome.bonus) {
 
-            personalWellnessTotal +=
-                NARRATIVE_WELLBEING_PENALTY;
+        buckets.savings =
+            (buckets.savings || 0) +
+            outcome.bonus;
 
-            updateBudgetDisplay();
-
-        }
-
-
-        if (outcome.carryForwardBill) {
-
-            // Bad news now (the wellbeing hit), even though the
-            // dollar hit itself is deferred to next stage's bill
-            // -- same swing a same-stage penalty gets.
-            personalWellnessTotal +=
-                NARRATIVE_WELLBEING_PENALTY;
-
-            pendingExtraNeeds.push({
-                icon: outcome.carryForwardBill.icon,
-                title: outcome.carryForwardBill.title,
-                description:
-                    "A consequence from last stage -- due now.",
-                amount: outcome.carryForwardBill.amount,
-                bucket: "bills",
-                fixed: true,
-                carried: true
-            });
-
-        }
-
-
-        // Refresh both meters now that Savings and/or
-        // personalWellnessTotal may have just moved -- covers
-        // every outcome type, including carryForwardBill (which
-        // touches wellbeing but not Savings).
-        updateWellnessMeters();
+        personalWellnessTotal +=
+            NARRATIVE_WELLBEING_BONUS;
 
     }
 
 
+    if (outcome.penalty) {
+
+        buckets.savings =
+            Math.max(
+                0,
+                (buckets.savings || 0) -
+                    outcome.penalty
+            );
+
+        personalWellnessTotal +=
+            NARRATIVE_WELLBEING_PENALTY;
+
+    }
+
+
+    if (outcome.carryForwardBill) {
+
+        // Bad news now (the wellbeing hit), even though the
+        // dollar hit itself is deferred to next stage's bill
+        // -- same swing a same-stage penalty gets.
+        personalWellnessTotal +=
+            NARRATIVE_WELLBEING_PENALTY;
+
+        pendingExtraNeeds.push({
+            icon: outcome.carryForwardBill.icon,
+            title: outcome.carryForwardBill.title,
+            description:
+                "A consequence from last stage -- due now.",
+            amount: outcome.carryForwardBill.amount,
+            bucket: "bills",
+            fixed: true,
+            carried: true
+        });
+
+    }
+
+
+    updateBudgetDisplay();
+
+    updateWellnessMeters();
+
+}
+
+
+function formatNarrativeDelta(value, sign) {
+
+    // A real minus sign (−) reads cleaner than a hyphen at
+    // this size.
+    const prefix =
+        sign > 0 ? "+" : sign < 0 ? "−" : "";
+
+    return `${prefix}${Math.abs(value)}%`;
+
+}
+
+
+function renderNarrativeImpacts(impacts) {
+
+    narrativeImpacts.innerHTML = "";
+
+    if (impacts.length === 0) {
+
+        narrativeImpacts.innerHTML =
+            `<p class="narrative-no-change">Your wellness meters held steady.</p>`;
+
+        return;
+
+    }
+
+    impacts.forEach(impact => {
+
+        const tile =
+            document.createElement("div");
+
+        tile.className =
+            `narrative-impact ${impact.delta > 0 ? "is-up" : "is-down"}`;
+
+        tile.dataset.delta =
+            impact.delta;
+
+        tile.innerHTML =
+            `<span class="narrative-impact-value">${formatNarrativeDelta(0, impact.delta)}</span>` +
+            `<span class="narrative-impact-label">${impact.label}</span>`;
+
+        narrativeImpacts.appendChild(tile);
+
+    });
+
+}
+
+
+function renderNarrativeMoney(outcome, savingsChange) {
+
+    let text = "";
+
+    let tone = "is-down";
+
+    if (outcome.carryForwardBill) {
+
+        text =
+            `$${outcome.carryForwardBill.amount.toLocaleString()} bill carries into next stage`;
+
+    }
+
+    else if (savingsChange > 0) {
+
+        text =
+            `+$${savingsChange.toLocaleString()} added to Savings`;
+
+        tone = "is-up";
+
+    }
+
+    else if (savingsChange < 0) {
+
+        text =
+            `−$${Math.abs(savingsChange).toLocaleString()} out of Savings`;
+
+    }
+
+    else if (outcome.penalty) {
+
+        text =
+            "Savings was already empty";
+
+    }
+
+    narrativeMoney.textContent = text;
+
+    narrativeMoney.className =
+        `narrative-money ${tone}`;
+
+    narrativeMoney.classList.toggle("hidden", !text);
+
+}
+
+
+// Counts a tile's number up from 0 to its real delta.
+function countUpNarrativeValue(el, delta) {
+
+    const duration = 550;
+
+    const start = performance.now();
+
+    const target = Math.abs(delta);
+
+    function step(now) {
+
+        const t =
+            Math.min(1, (now - start) / duration);
+
+        const eased =
+            1 - Math.pow(1 - t, 3);
+
+        el.textContent =
+            formatNarrativeDelta(Math.round(target * eased), delta);
+
+        if (t < 1) {
+            requestAnimationFrame(step);
+        }
+
+    }
+
+    requestAnimationFrame(step);
+
+}
+
+
+function burstNarrativeConfetti() {
+
+    const colors =
+        ["#16a34a", "#258BFF", "#59D2FE", "#FFF025", "#8BD1FF", "#1943DC"];
+
+    narrativeConfetti.innerHTML = "";
+
+    for (let i = 0; i < 22; i++) {
+
+        const piece =
+            document.createElement("span");
+
+        const angle =
+            (Math.PI * 2 * i) / 22 + (Math.random() - 0.5) * 0.4;
+
+        const distance =
+            180 + Math.random() * 140;
+
+        piece.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
+        piece.style.setProperty("--dy", `${Math.sin(angle) * distance - 60}px`);
+        piece.style.setProperty("--rot", `${Math.round(Math.random() * 540 - 270)}deg`);
+        piece.style.background = colors[i % colors.length];
+
+        narrativeConfetti.appendChild(piece);
+
+    }
+
+}
+
+
+// Applies an outcome for real (measuring both meters on either
+// side of it), then flips the card -- from the face-down front on
+// a stage's first surprise, or from the previous result on the
+// ones after -- and plays the tiles/shake/confetti on the new
+// result.
+function presentNarrativeOutcome(outcome) {
+
+    narrativeRevealed = true;
+
+    const before = getWellnessSnapshot();
+
+    applyNarrativeEffects(outcome);
+
+    const after = getWellnessSnapshot();
+
+
+    const isGood =
+        Boolean(outcome.bonus);
+
+    // Only meters that actually moved get a tile.
+    const impacts = [];
+
+    if (
+        before.financial !== null &&
+        after.financial !== null &&
+        after.financial !== before.financial
+    ) {
+        impacts.push({
+            label: "Financial Wellness",
+            delta: after.financial - before.financial
+        });
+    }
+
+    if (after.personal !== before.personal) {
+        impacts.push({
+            label: "Personal Wellness",
+            delta: after.personal - before.personal
+        });
+    }
+
+
+    // Held until the new result has landed, so a quick
+    // double-tap can't skip past it.
+    narrativeContinueBtn.disabled = true;
+
+
+    // Flip out whichever side is showing now.
+    narrativeCard.classList.remove(
+        "is-flipping-in",
+        "is-shaking",
+        "is-celebrating"
+    );
+
+    narrativeCard.classList.add("is-flipping-out");
+
+    narrativeLater(() => {
+
+        // Swap in the new result while the card is edge-on.
+        narrativeProgress.textContent =
+            narrativeProgressLabel();
+
+        narrativeBanner.textContent =
+            isGood ? "Lucky Break!" : "Setback!";
+
+        narrativeIcon.innerHTML =
+            iconMarkup(outcome.icon);
+
+        narrativeTitle.textContent =
+            outcome.title;
+
+        narrativeText.textContent =
+            outcome.text;
+
+        renderNarrativeImpacts(impacts);
+
+        renderNarrativeMoney(
+            outcome,
+            after.savings - before.savings
+        );
+
+        const remainingAfterThis =
+            narrativeQueue.length - 1;
+
+        narrativeContinueBtn.textContent =
+            remainingAfterThis === 0
+                ? "See My Results"
+                : remainingAfterThis === 1
+                    ? "Last Surprise"
+                    : "Next Surprise";
+
+        narrativeConfetti.innerHTML = "";
+
+        narrativeFront.classList.add("hidden");
+
+        narrativeBack.classList.remove("hidden");
+
+        narrativeCard.classList.remove(
+            "is-flipping-out",
+            "tone-good",
+            "tone-bad"
+        );
+
+        narrativeCard.classList.add(
+            "is-flipping-in",
+            isGood ? "tone-good" : "tone-bad"
+        );
+
+        const tiles =
+            narrativeImpacts.querySelectorAll(".narrative-impact");
+
+        tiles.forEach((tile, i) => {
+
+            narrativeLater(() => {
+
+                tile.classList.add("is-in");
+
+                countUpNarrativeValue(
+                    tile.querySelector(".narrative-impact-value"),
+                    Number(tile.dataset.delta)
+                );
+
+            }, 280 + i * 200);
+
+        });
+
+        narrativeLater(() => {
+
+            narrativeCard.classList.remove("is-flipping-in");
+
+            narrativeCard.classList.add(
+                isGood ? "is-celebrating" : "is-shaking"
+            );
+
+            if (isGood) {
+                burstNarrativeConfetti();
+            }
+
+        }, 280 + tiles.length * 200 + 120);
+
+        narrativeLater(() => {
+
+            narrativeContinueBtn.disabled = false;
+
+        }, 600);
+
+    }, 240);
+
+}
+
+
+// Tap on the face-down front (first surprise of a stage only).
+function revealNarrativeCard() {
+
+    if (!currentNarrativeOutcome || narrativeRevealed) {
+        return;
+    }
+
+    presentNarrativeOutcome(currentNarrativeOutcome);
+
+}
+
+
+// "Next Surprise" / "Last Surprise" flips the same card over to
+// the next outcome; "See My Results" closes it and finishes the
+// stage.
+function closeNarrativeCard() {
+
+    // Nothing to advance until the current card's been
+    // revealed -- its effects only land on reveal.
+    if (!narrativeRevealed) {
+        return;
+    }
+
+    clearNarrativeTimers();
+
+
     // The queue holds whatever's left to show --
-    // this outcome (if any) was always queue[0].
+    // the current outcome was always queue[0].
     narrativeQueue.shift();
 
 
     if (narrativeQueue.length > 0) {
 
-        showNarrativeCard(
-            narrativeQueue[0]
+        currentNarrativeOutcome =
+            narrativeQueue[0];
+
+        presentNarrativeOutcome(
+            currentNarrativeOutcome
         );
 
-    }
-
-    else {
-
-        finishMonth();
+        return;
 
     }
+
+
+    currentNarrativeOutcome = null;
+
+    narrativeRevealed = false;
+
+    narrativeModal.classList.add(
+        "hidden"
+    );
+
+    finishMonth();
+
+}
+
+
+if (narrativeFront) {
+
+    narrativeFront.addEventListener(
+        "click",
+        revealNarrativeCard
+    );
 
 }
 
@@ -4561,7 +5079,7 @@ function openKeypad(bucketId) {
     if (minimum > 0) {
 
         keypadLockNote.textContent =
-            `🔒 $${minimum.toLocaleString()} of this is locked in from last stage`;
+            `$${minimum.toLocaleString()} of this is locked in from last stage`;
 
         keypadLockNote.classList.remove(
             "hidden"
@@ -5774,7 +6292,7 @@ function buildPaymentBucketTile(bucket, expense) {
     if (isSavings) {
 
         noteHTML =
-            `<span class="lock-tag">🔒 Protected</span>`;
+            `<span class="lock-tag">Protected</span>`;
 
     }
 
@@ -6192,6 +6710,10 @@ function showMessage(
 
 function finishMonth() {
 
+    // Sidebar + jars fade out so the stage's background scene
+    // shows behind the recap (round 26) -- restored by loadStage().
+    setupScreen.classList.add("results-fade");
+
     // The stage screen stays visible (dimmed behind the popup's
     // scrim) rather than being hidden -- #end-screen is an
     // overlay on top of it, same convention as the #start-screen
@@ -6418,7 +6940,7 @@ function finishMonth() {
 
         readinessSection.innerHTML = `
 
-            <strong>🎉 You built $${endingSavings.toLocaleString()} from nothing!</strong>
+            <strong>You built $${endingSavings.toLocaleString()} from nothing!</strong>
 
             <p>
                 You started with $0 back in Teenager and grew it all
@@ -6439,7 +6961,7 @@ function finishMonth() {
 
         readinessSection.innerHTML = `
 
-            <strong>💰 You saved $${endingSavings.toLocaleString()} this stage</strong>
+            <strong>You saved $${endingSavings.toLocaleString()} this stage</strong>
 
             <p>
                 It carries forward into next stage as a head start.
@@ -6490,19 +7012,7 @@ function finishMonth() {
     document.getElementById(
         "total-spent"
     ).textContent =
-        `$${totalSpent}`;
-
-
-    document.getElementById(
-        "money-remaining"
-    ).textContent =
-        `$${remaining}`;
-
-
-    document.getElementById(
-        "final-savings"
-    ).textContent =
-        `$${endingSavings}`;
+        `$${totalSpent.toLocaleString()}`;
 
 
     // ------------------------------------------
@@ -6705,6 +7215,143 @@ function finishMonth() {
 
     }
 
+
+
+    // Capstone gets its own "grand finale" look (round 26).
+    applyFinaleLayout(
+        isFinalStage,
+        endingSavings,
+        stage
+    );
+
+}
+
+
+// ============================================
+// GRAND FINALE (capstone recap, round 26)
+//
+// The last stage's recap swaps the plain savings bar for a big
+// "You saved $X" hero (counting up), adds an eyebrow + bigger
+// title, a larger glowing sparkle, and gentle falling confetti.
+// Every other stage's recap is untouched -- this just toggles
+// .is-finale on #end-card and fills a few elements.
+// ============================================
+
+const endCardEl =
+    document.getElementById("end-card");
+
+const endEyebrowEl =
+    document.getElementById("end-eyebrow");
+
+const endConfettiEl =
+    document.getElementById("end-confetti");
+
+
+function applyFinaleLayout(isFinale, endingSavings, stage) {
+
+    if (!endCardEl) {
+        return;
+    }
+
+    endCardEl.classList.toggle("is-finale", isFinale);
+
+    endConfettiEl.innerHTML = "";
+
+    endEyebrowEl.classList.toggle("hidden", !isFinale);
+
+    if (!isFinale) {
+        return;
+    }
+
+
+    const stageCount =
+        Object.keys(stages).length;
+
+    endEyebrowEl.textContent =
+        `All ${stageCount} Stages Complete`;
+
+    document.getElementById("end-title").textContent =
+        "You Did It!";
+
+    document.getElementById("end-message").textContent =
+        `From your first paycheck as a Teenager to ${stage.name}, here's what you built.`;
+
+
+    const readinessSection =
+        document.getElementById("readiness-outcome");
+
+    readinessSection.className =
+        "readiness-outcome finale-hero";
+
+    readinessSection.innerHTML =
+        endingSavings > 0
+            ? `
+                <span class="finale-hero-label">You saved</span>
+                <strong class="finale-hero-amount" id="finale-hero-amount">$0</strong>
+                <p>You started with $0 and grew it one stage at a time. That's what saving a little every paycheck adds up to.</p>
+              `
+            : `
+                <span class="finale-hero-label">You finished with</span>
+                <strong class="finale-hero-amount is-zero">$0</strong>
+                <p>No savings this time. Play again and try a different mix of jars to see how much you can build.</p>
+              `;
+
+
+    // Count the hero number up from $0.
+    const amountEl =
+        document.getElementById("finale-hero-amount");
+
+    if (amountEl) {
+
+        const start = performance.now();
+
+        const duration = 1400;
+
+        const step = now => {
+
+            const t = Math.min(1, (now - start) / duration);
+
+            const eased = 1 - Math.pow(1 - t, 3);
+
+            amountEl.textContent =
+                `$${Math.round(endingSavings * eased).toLocaleString()}`;
+
+            if (t < 1) {
+                requestAnimationFrame(step);
+            }
+
+        };
+
+        requestAnimationFrame(step);
+
+    }
+
+
+    // Gentle falling confetti across the card (loops while the
+    // recap is up; cleared on the next applyFinaleLayout call).
+    if (endingSavings > 0) {
+
+        const colors =
+            ["#FF2525", "#8BD1FF", "#FFF025", "#16a34a", "#59D2FE", "#ffffff"];
+
+        for (let i = 0; i < 46; i++) {
+
+            const piece =
+                document.createElement("span");
+
+            piece.style.left = `${Math.random() * 100}%`;
+            piece.style.background = colors[i % colors.length];
+            piece.style.animationDelay = `${(Math.random() * 4).toFixed(2)}s`;
+            piece.style.animationDuration = `${(3.2 + Math.random() * 2.6).toFixed(2)}s`;
+            piece.style.setProperty("--spin", `${Math.round(Math.random() * 720 - 360)}deg`);
+            piece.style.setProperty("--drift", `${Math.round(Math.random() * 120 - 60)}px`);
+
+            endConfettiEl.appendChild(piece);
+
+        }
+
+    }
+
 }
 
 
@@ -6755,7 +7402,7 @@ if (restartButton) {
         "click",
         () => {
 
-            location.reload();
+            reloadFromStart();
 
         }
     );
@@ -6775,7 +7422,7 @@ if (playAgainButton) {
         "click",
         () => {
 
-            location.reload();
+            reloadFromStart();
 
         }
     );
@@ -7307,6 +7954,81 @@ window.__startTierPickPrototype = function(stageNumber) {
 loadStage(1);
 
 updateWellnessMeters();
+
+
+// ============================================
+// STAGE JUMP (testing / check-in shortcut)
+//
+// Add #stage1, #stage2, #stage3, or #stage4 to the end of the
+// URL (e.g. index.html#stage3) to skip the welcome popup and land
+// straight on that stage's story popup. Jumped-to stages start
+// fresh -- $0 carried savings, no carried bills, meters from
+// neutral -- since there's no real playthrough behind them.
+// Changing the hash on an open page reloads into the new stage.
+// No hash = the normal game, untouched.
+// ============================================
+
+function getStageFromHash() {
+
+    const match =
+        /^#stage(\d+)$/i.exec(window.location.hash);
+
+    const stageNumber =
+        match ? Number(match[1]) : null;
+
+    return stageNumber && stages[stageNumber]
+        ? stageNumber
+        : null;
+
+}
+
+
+const hashStage =
+    getStageFromHash();
+
+if (hashStage) {
+
+    dismissWelcomePopup();
+
+    if (hashStage !== 1) {
+
+        loadStage(hashStage);
+
+    }
+
+    updateWellnessMeters();
+
+}
+
+
+window.addEventListener(
+    "hashchange",
+    () => {
+
+        if (getStageFromHash()) {
+
+            location.reload();
+
+        }
+
+    }
+);
+
+
+// Restart / Play Again should always go back to the real start,
+// even when the page was opened with a #stageN jump -- so strip
+// the hash before reloading.
+function reloadFromStart() {
+
+    history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search
+    );
+
+    location.reload();
+
+}
 
 
 // Convenience preview hook -- open index.html?preview=needs in a

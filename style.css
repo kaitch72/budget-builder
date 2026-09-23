@@ -382,18 +382,16 @@ header p {
 
     overflow: hidden;
 
-    width: 560px;
+    width: 640px;
 
-    max-width: 80vw;
-
-    padding: 56px 55px 50px;
+    padding: 48px 40px 36px;
 
     background: #ffffff;
 
-    border-radius: 40px;
+    border-radius: 32px;
 
     box-shadow:
-        0 24px 60px rgba(10,23,36,0.22);
+        0 20px 44px rgba(10,23,36,0.28);
 
     text-align: center;
 
@@ -411,11 +409,11 @@ header p {
 
     position: absolute;
 
-    top: -70px;
-    right: -70px;
+    top: -88px;
+    right: -88px;
 
-    width: 220px;
-    height: 220px;
+    width: 250px;
+    height: 250px;
 
     border-radius: 50%;
 
@@ -431,17 +429,17 @@ header p {
 
     position: absolute;
 
-    bottom: -90px;
-    left: -60px;
+    bottom: -76px;
+    left: -53px;
 
-    width: 170px;
-    height: 170px;
+    width: 150px;
+    height: 150px;
 
     border-radius: 50%;
 
     background: var(--mystic);
 
-    opacity: 0.6;
+    opacity: 0.7;
 
     z-index: 0;
 }
@@ -455,10 +453,12 @@ header p {
 
     z-index: 1;
 
-    width: 120px;
-    height: 120px;
+    flex-shrink: 0;
 
-    margin-bottom: 30px;
+    width: 125px;
+    aspect-ratio: 1 / 1;
+
+    margin: 0 auto 26px;
 
     animation: startBadgeFloat 3.2s ease-in-out infinite;
 }
@@ -485,14 +485,14 @@ header p {
     justify-content: center;
 
     box-shadow:
-        0 14px 26px rgba(25,67,220,0.35);
+        0 12px 22px rgba(25,67,220,0.35);
 }
 
 
 .start-badge-icon {
 
-    width: 56px;
-    height: 56px;
+    width: 52%;
+    height: 52%;
 
     fill: #ffffff;
 }
@@ -505,7 +505,7 @@ header p {
     }
 
     50% {
-        transform: translateY(-8px) rotate(-5deg);
+        transform: translateY(-7px) rotate(-5deg);
     }
 }
 
@@ -535,33 +535,23 @@ header p {
 
 .start-sparkle--a {
 
-    top: -8px;
-    left: -12px;
+    top: -6px;
+    left: -10px;
 
-    width: 24px;
-    height: 24px;
-}
-
-.start-sparkle--a svg {
-
-    fill: var(--blue-bird);
+    width: 22px;
+    height: 22px;
 }
 
 
 .start-sparkle--b {
 
     bottom: 2px;
-    right: -10px;
+    right: -8px;
 
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
 
     animation-delay: 0.5s;
-}
-
-.start-sparkle--b svg {
-
-    fill: var(--malibu);
 }
 
 
@@ -587,15 +577,17 @@ header p {
 
     z-index: 1;
 
-    margin: 0 0 16px;
+    margin: 0 0 14px;
 
-    font-size: 40px;
+    font-size: 36px;
 
     font-weight: 800;
 
     color: var(--blue-black);
 
     letter-spacing: -0.01em;
+
+    line-height: 50px;
 }
 
 
@@ -605,15 +597,15 @@ header p {
 
     z-index: 1;
 
-    margin: 0 0 34px;
+    margin: 0 auto 30px;
 
-    max-width: 380px;
+    max-width: 480px;
 
-    font-size: 19px;
+    font-size: 20px;
 
-    font-weight: 500;
+    font-weight: 400;
 
-    line-height: 1.55;
+    line-height: 1.5;
 
     color: rgba(10,23,36,0.68);
 }
@@ -633,11 +625,13 @@ header p {
 
     justify-content: center;
 
-    padding: 20px 64px;
+    width: 192px;
+
+    padding: 18px 32px;
 
     border: none;
 
-    border-radius: 20px;
+    border-radius: 18px;
 
     background: var(--persian-blue);
 
@@ -645,25 +639,23 @@ header p {
 
     font-family: 'Inter', Arial, sans-serif;
 
-    font-size: 26px;
+    font-size: 30px;
 
     font-weight: 800;
 
     cursor: pointer;
 
-    box-shadow: 0 6px 0 var(--sky-blue);
+    box-shadow: 0 6px 0 var(--hawkes-blue);
 
     transition:
-        transform 0.12s ease,
-        box-shadow 0.12s ease;
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
 
 #start-button:hover {
 
-    transform: translateY(-2px);
-
-    box-shadow: 0 8px 0 var(--sky-blue);
+    transform: translateY(-3px);
 }
 
 
@@ -671,7 +663,7 @@ header p {
 
     transform: translateY(3px);
 
-    box-shadow: 0 3px 0 var(--sky-blue);
+    box-shadow: 0 2px 0 var(--hawkes-blue);
 }
 
 
@@ -694,13 +686,15 @@ header p {
 
     justify-content: center;
 
-    margin-top: 14px;
+    width: 192px;
 
-    padding: 16px 64px;
+    margin-top: 26px;
+
+    padding: 18px 32px;
 
     border: none;
 
-    border-radius: 20px;
+    border-radius: 18px;
 
     background: var(--mystic);
 
@@ -708,25 +702,23 @@ header p {
 
     font-family: 'Inter', Arial, sans-serif;
 
-    font-size: 18px;
+    font-size: 30px;
 
     font-weight: 800;
 
     cursor: pointer;
 
-    box-shadow: 0 5px 0 rgba(10,23,36,0.12);
+    box-shadow: 0 6px 0 rgba(10,23,36,0.12);
 
     transition:
-        transform 0.12s ease,
-        box-shadow 0.12s ease;
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
 
 .start-tutorial-button:hover {
 
-    transform: translateY(-2px);
-
-    box-shadow: 0 7px 0 rgba(10,23,36,0.12);
+    transform: translateY(-3px);
 }
 
 
@@ -735,6 +727,50 @@ header p {
     transform: translateY(3px);
 
     box-shadow: 0 2px 0 rgba(10,23,36,0.12);
+}
+
+
+/* Start/Tutorial now styled exactly like Lemonade Stand's intro popup
+   buttons (2026-09-23, per Kayla) -- same 192px width as before, fixed
+   70px height, 0 side padding (so the width alone sets the size), 18px
+   radius, 30px/800 label on one line, 5px offset shadows: Start =
+   Hawkes Blue (#D7E7FF), Tutorial = the darker 0.22 grey. Hover lift
+   -2px. #start-box card size untouched; Tutorial's 26px margin-top
+   (the stacked gap) is unchanged and already matches Lemonade. */
+#start-button,
+.start-tutorial-button {
+    box-sizing: border-box;
+    width: 192px;
+    height: 70px;
+    padding: 18px 0;
+    border-radius: 18px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+#start-button {
+    box-shadow: 0 5px 0 var(--hawkes-blue);
+}
+
+.start-tutorial-button {
+    box-shadow: 0 5px 0 rgba(10,23,36,0.22);
+}
+
+#start-button:hover,
+.start-tutorial-button:hover {
+    transform: translateY(-2px);
+}
+
+#start-button:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 var(--hawkes-blue);
+}
+
+.start-tutorial-button:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 rgba(10,23,36,0.22);
 }
 
 
@@ -904,6 +940,24 @@ header p {
        nets out to the same visual gap top and bottom instead of the
        bottom reading twice as tall. */
     padding: 47px 28px 34px;
+}
+
+
+/* SETUP SCREEN ONLY -- round 21. Round 20 removed the "Build Your
+   Budget" heading, which left dead space below the setup screen's
+   content (sidebar card + jar grid) since nothing grew to fill
+   where the heading used to be. Bumping just this screen's
+   padding-top (not the shared .screen rule above, which the month
+   and end screens also use and didn't lose any content) pushes the
+   sidebar and jars down to close most of that gap. 76px (up from
+   the shared rule's 47px) was measured/tuned together with the
+   taller wellness-meter cards just below -- those also grew and
+   ate into the same gap from the top -- to land on a final ~34px
+   gap at the very bottom, matching .screen's own bottom padding. */
+
+#setup-screen {
+
+    padding-top: 76px;
 }
 
 
@@ -2461,6 +2515,12 @@ button:active {
     justify-content: center;
 
     z-index: 110;
+
+    /* Centers the recap in the space BELOW the wellness meters
+       (round 26), so the taller finale card doesn't overlap them. */
+    box-sizing: border-box;
+
+    padding: 196px 20px 24px;
 }
 
 
@@ -2476,7 +2536,9 @@ button:active {
 
     max-width: 86vw;
 
-    max-height: 88vh;
+    max-height: 100%;
+
+    box-sizing: border-box;
 
     overflow-y: auto;
 
@@ -2530,9 +2592,276 @@ button:active {
 }
 
 
+/* Sparkle icon at the top of the recap (replaced the old 🎉
+   emoji, round 26) -- inline SVG from images/sparkle.svg, colored
+   here, with a slow twinkle. */
 .celebration {
 
-    font-size: 46px;
+    display: flex;
+    justify-content: center;
+}
+
+
+.celebration-sparkle {
+
+    width: 64px;
+    height: 60px;
+    fill: var(--sky-blue);
+    animation: end-sparkle-twinkle 2.4s ease-in-out infinite;
+}
+
+
+@keyframes end-sparkle-twinkle {
+    0%, 100% { transform: scale(1) rotate(0); }
+    50%      { transform: scale(1.1) rotate(6deg); }
+}
+
+
+/* ==========================================
+   GRAND FINALE (capstone recap, round 26)
+   .is-finale on #end-card, toggled by
+   applyFinaleLayout() in game.js.
+========================================== */
+
+.end-card.is-finale {
+
+    width: 1040px;
+    padding-top: 30px;
+    padding-bottom: 32px;
+}
+
+
+.end-card.is-finale .celebration-sparkle {
+
+    width: 92px;
+    height: 87px;
+    fill: #FFF025;
+    filter: drop-shadow(0 0 18px rgba(255,240,37,0.55));
+    animation: end-sparkle-finale 1.8s ease-in-out infinite;
+}
+
+
+@keyframes end-sparkle-finale {
+    0%, 100% { transform: scale(1) rotate(0); }
+    50%      { transform: scale(1.14) rotate(10deg); }
+}
+
+
+.end-eyebrow {
+
+    display: block;
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+}
+
+
+.end-card.is-finale h2 {
+
+    font-size: 44px;
+    font-weight: 900;
+    margin: 4px 0 6px;
+}
+
+
+.end-card.is-finale > p {
+
+    font-size: 18px;
+}
+
+
+.readiness-outcome.finale-hero {
+
+    max-width: 760px;
+    text-align: center;
+    border-left: none;
+    border-radius: 24px;
+    padding: 24px 32px 26px;
+    box-shadow:
+        0 0 0 6px rgba(22,163,74,0.18),
+        0 8px 24px rgba(10,23,36,0.25);
+}
+
+
+.finale-hero-label {
+
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-amount {
+
+    display: block;
+    margin: 2px 0 8px;
+    font-size: 88px;
+    font-weight: 900;
+    line-height: 1;
+    color: #16a34a;
+    font-variant-numeric: tabular-nums;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-amount.is-zero {
+
+    color: var(--blue-black);
+}
+
+
+.readiness-outcome.finale-hero p {
+
+    font-size: 16px;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+
+/* Finale drops the Starting Income / Total Spent cards (round 27)
+   and gives the two wellness meters the whole row instead: side
+   by side, each on its own glassy card, with big percentages and
+   thick bars. Play Again sits centered underneath. */
+.end-card.is-finale .end-results-col {
+
+    display: none;
+}
+
+
+.end-card.is-finale .end-columns {
+
+    display: block;
+}
+
+
+.end-card.is-finale .end-wellness-col {
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+
+
+.end-card.is-finale .wellness {
+
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 22px 28px 24px;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+
+.end-card.is-finale .wellness h3 {
+
+    font-size: 24px;
+    font-weight: 800;
+    text-align: left;
+}
+
+
+.end-card.is-finale #wellness-score,
+.end-card.is-finale .personal-wellness-recap-score {
+
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+
+.end-card.is-finale .wellness-bar {
+
+    height: 30px;
+    margin: 14px 0 0;
+}
+
+
+.end-card.is-finale #play-again-btn {
+
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-top: 6px;
+}
+
+
+.end-card > .end-confetti {
+
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+
+.end-confetti span {
+
+    position: absolute;
+    top: -30px;
+    width: 12px;
+    height: 18px;
+    border-radius: 3px;
+    opacity: 0.9;
+    animation-name: end-confetti-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+
+@keyframes end-confetti-fall {
+    0%   { transform: translate(0, 0) rotate(0); }
+    100% { transform: translate(var(--drift), 1100px) rotate(var(--spin)); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .celebration-sparkle,
+    .end-card.is-finale .celebration-sparkle {
+        animation: none;
+    }
+
+    .end-card > .end-confetti {
+        display: none;
+    }
+}
+
+
+/* ==========================================
+   RESULTS FADE (round 26)
+   While consequence cards and the recap are up,
+   the whole setup screen (sidebar + jars) fades
+   out so the stage's background scene shows
+   behind them. Added by showNarrativeCard() /
+   finishMonth(), removed by loadStage().
+========================================== */
+
+#setup-screen {
+
+    transition: opacity 0.5s ease;
+}
+
+
+#setup-screen.results-fade {
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* Lighter scrim than the other modals, so the background scene
+   reads through behind the consequence cards. */
+#narrative-modal {
+
+    background: rgba(10, 23, 36, 0.3);
 }
 
 
@@ -2564,16 +2893,7 @@ button:active {
 }
 
 
-.carryover-reminder {
-
-    text-align: center;
-
-    color: var(--hawkes-blue);
-
-    font-size: 13px;
-
-    margin-top: 14px;
-}
+/* .carryover-reminder removed from the recap (round 26). */
 
 
 /* ==========================================
@@ -2584,8 +2904,9 @@ button:active {
 
     display: grid;
 
-    grid-template-columns:
-        repeat(2, 1fr);
+    /* Only Starting Income + Total Spent now (round 26) -- stacked
+       so the left column balances the two wellness bars beside it. */
+    grid-template-columns: 1fr;
 
     gap: 15px;
 }
@@ -3323,44 +3644,431 @@ button:active {
 
 
 /* ==========================================
-   TRANSPORTATION NARRATIVE MODAL
+   CONSEQUENCE CARDS (round 23)
+
+   Two beats per card: a blue face-down side
+   (#narrative-front -- which jar, "tap to
+   reveal") that gently floats to invite a tap,
+   then a flip to the white result side
+   (#narrative-back) with big red/green tiles for
+   each wellness meter that actually moved. Tone
+   classes (.tone-bad / .tone-good) color the top
+   edge and banner; each tile colors itself by its
+   own delta (.is-down / .is-up). Reds/greens reuse
+   the #dc2626 / #16a34a already established in
+   this file.
 ========================================== */
 
-.narrative-box {
+.narrative-card {
 
-    background: white;
-    border-radius: 24px;
-    padding: 34px;
-    width: 100%;
-    max-width: 480px;
-    text-align: center;
     position: relative;
-    box-shadow: 0 20px 60px rgba(10,23,36,0.3);
+    width: 660px;
+    max-width: 88vw;
+    perspective: 1400px;
+}
+
+
+.narrative-face {
+
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 32px;
+    text-align: center;
+    box-shadow: 0 24px 70px rgba(10,23,36,0.35);
+}
+
+
+/* ---- Face-down side ---- */
+
+.narrative-front {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 40px 40px 44px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-family: inherit;
+    background: linear-gradient(160deg, var(--blue-bird) 0%, var(--persian-blue) 100%);
+    animation: narrative-float 2.6s ease-in-out infinite;
+}
+
+
+.narrative-front:hover {
+
+    filter: brightness(1.06);
+}
+
+
+.narrative-front .narrative-progress {
+
+    color: rgba(255,255,255,0.8);
+}
+
+
+.narrative-front-icon {
+
+    width: 132px;
+    height: 132px;
+    margin: 6px 0 4px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 0 rgba(10,23,36,0.18);
+    animation: narrative-wiggle 1.8s ease-in-out infinite;
+}
+
+
+.narrative-front-icon svg {
+
+    width: 66px;
+    height: 66px;
+}
+
+
+.narrative-front-kicker {
+
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+
+.narrative-front-title {
+
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+
+.narrative-tap-hint {
+
+    margin-top: 12px;
+    padding: 14px 34px;
+    border-radius: 999px;
+    background: white;
+    color: var(--persian-blue);
+    font-size: 20px;
+    font-weight: 800;
+    box-shadow: 0 5px 0 var(--hawkes-blue);
+    animation: narrative-pulse 1.4s ease-in-out infinite;
+}
+
+
+/* ---- Result side ---- */
+
+.narrative-back {
+
+    position: relative;
+    --narrative-tone: var(--persian-blue);
+    background: linear-gradient(var(--narrative-tone) 0 12px, white 12px);
+    padding: 40px 44px 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.narrative-card.tone-bad .narrative-back {
+
+    --narrative-tone: #dc2626;
+}
+
+
+.narrative-card.tone-good .narrative-back {
+
+    --narrative-tone: #16a34a;
+}
+
+
+.narrative-progress {
+
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+
+.narrative-banner {
+
+    margin-top: 12px;
+    padding: 8px 22px;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+
+.narrative-card.tone-bad .narrative-banner {
+
+    background: #fff1f1;
+    color: #dc2626;
+}
+
+
+.narrative-card.tone-good .narrative-banner {
+
+    background: #ecfdf3;
+    color: #16a34a;
 }
 
 
 .narrative-icon {
 
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 14px;
+    width: 60px;
+    height: 60px;
+    margin: 18px auto 10px;
 }
 
 
 .narrative-title {
 
     font-weight: 800;
-    font-size: 20px;
+    font-size: 28px;
     color: var(--blue-black);
-    margin-bottom: 10px;
+    margin: 0 0 8px;
 }
 
 
 .narrative-text {
 
     color: #475569;
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 18px;
+    line-height: 1.45;
+    margin: 0;
+    max-width: 540px;
+}
+
+
+.narrative-impacts {
+
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    margin-top: 24px;
+}
+
+
+.narrative-impact {
+
+    box-sizing: border-box;
+    flex: 0 0 272px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 12px 18px;
+    border-radius: 24px;
+    opacity: 0;
+    transform: scale(0.4);
+}
+
+
+.narrative-impact.is-down {
+
+    background: #fff1f1;
+    color: #dc2626;
+}
+
+
+.narrative-impact.is-up {
+
+    background: #ecfdf3;
+    color: #16a34a;
+}
+
+
+.narrative-impact.is-in {
+
+    animation: narrative-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+
+.narrative-impact-value {
+
+    font-size: 92px;
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+
+.narrative-impact-label {
+
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+
+.narrative-no-change {
+
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+
+.narrative-money {
+
+    margin-top: 16px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+.narrative-money.is-down {
+
+    background: #fff1f1;
+    color: #dc2626;
+}
+
+
+.narrative-money.is-up {
+
+    background: #ecfdf3;
+    color: #16a34a;
+}
+
+
+.narrative-back .tier-pick-continue-btn {
+
+    margin-top: 24px;
+    padding: 16px 48px;
+    font-size: 20px;
+}
+
+
+/* ---- Flip + reaction animations ---- */
+
+.narrative-card.is-flipping-out .narrative-front,
+.narrative-card.is-flipping-out .narrative-back {
+
+    animation: narrative-flip-out 0.24s ease-in forwards;
+}
+
+
+.narrative-card.is-flipping-in .narrative-back {
+
+    animation: narrative-flip-in 0.32s ease-out;
+}
+
+
+.narrative-card.is-shaking .narrative-back {
+
+    animation: narrative-shake 0.5s ease-in-out;
+}
+
+
+.narrative-card.is-celebrating .narrative-back {
+
+    animation: narrative-bounce 0.55s ease-out;
+}
+
+
+.narrative-confetti {
+
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+
+.narrative-confetti span {
+
+    position: absolute;
+    width: 14px;
+    height: 20px;
+    border-radius: 4px;
+    opacity: 0;
+    animation: narrative-confetti 1s ease-out forwards;
+}
+
+
+@keyframes narrative-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+@keyframes narrative-wiggle {
+    0%, 70%, 100% { transform: rotate(0); }
+    78%           { transform: rotate(-8deg); }
+    86%           { transform: rotate(8deg); }
+    94%           { transform: rotate(-4deg); }
+}
+
+@keyframes narrative-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
+}
+
+@keyframes narrative-flip-out {
+    from { transform: rotateY(0); }
+    to   { transform: rotateY(90deg); }
+}
+
+@keyframes narrative-flip-in {
+    from { transform: rotateY(-90deg); }
+    to   { transform: rotateY(0); }
+}
+
+@keyframes narrative-pop {
+    0%   { opacity: 0; transform: scale(0.4); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes narrative-shake {
+    0%, 100% { transform: translateX(0); }
+    15%      { transform: translateX(-14px) rotate(-1deg); }
+    30%      { transform: translateX(12px) rotate(1deg); }
+    45%      { transform: translateX(-9px); }
+    60%      { transform: translateX(7px); }
+    75%      { transform: translateX(-4px); }
+}
+
+@keyframes narrative-bounce {
+    0%, 100% { transform: scale(1); }
+    35%      { transform: scale(1.04); }
+    65%      { transform: scale(0.99); }
+}
+
+@keyframes narrative-confetti {
+    0%   { opacity: 1; transform: translate(0, 0) rotate(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .narrative-front,
+    .narrative-front-icon,
+    .narrative-tap-hint,
+    .narrative-card.is-shaking .narrative-back,
+    .narrative-card.is-celebrating .narrative-back {
+        animation: none;
+    }
+
+    .narrative-confetti {
+        display: none;
+    }
 }
 
 
@@ -3423,7 +4131,11 @@ button:active {
 
     border-radius: 18px;
 
-    padding: 16px 24px;
+    /* Padding bumped (16px/24px -> 22px/26px) in round 21, along
+       with the bigger label/value text and taller track below, to
+       make these cards read as a little taller overall per Kayla's
+       ask. */
+    padding: 22px 26px;
 
     box-shadow:
         0 4px 15px rgba(10,23,36,0.14);
@@ -3435,7 +4147,7 @@ button:active {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
 }
 
 
@@ -3443,7 +4155,8 @@ button:active {
 
     font-family: 'Inter', Arial, sans-serif;
     font-weight: 700;
-    font-size: 13px;
+    /* 13px -> 16px, round 21 */
+    font-size: 16px;
     color: var(--blue-black);
     text-transform: uppercase;
     letter-spacing: 0.4px;
@@ -3453,14 +4166,17 @@ button:active {
 .wellness-meter-value {
 
     font-weight: 800;
-    font-size: 14px;
+    /* 14px -> 19px, round 21 */
+    font-size: 19px;
     color: var(--blue-black);
 }
 
 
 .wellness-meter-track {
 
-    height: 10px;
+    /* 10px -> 12px, round 21, to stay proportional with the taller
+       card and bigger text above it. */
+    height: 12px;
     background: var(--mystic);
     border-radius: 8px;
     overflow: hidden;
@@ -3663,4 +4379,74 @@ button:active {
     transform: translateY(2px);
 
     box-shadow: 0 2px 0 var(--sky-blue);
+}
+
+
+/* ==========================================
+   TOP BAR MATCHED TO DRIVER DECIDES / COIN CATCH / LEMONADE STAND
+   (2026-09-23, per Kayla)
+   - White bar (was Hawkes Blue), same 90px height, soft shadow, no
+     border, 26px side padding.
+   - Title: Luckiest Guy 38px (font ships one weight, so 400), nudged
+     down 5.5px so it sits visually centered (Luckiest Guy's letters
+     sit high in their line box).
+   - Restart: 50px white circle, 3px Persian Blue ring, 24px icon,
+     Hawkes Blue on hover, no shadow or lift/press movement, 26px from
+     the right edge.
+========================================== */
+header {
+    position: relative;
+    z-index: 5;
+    padding: 0 26px;
+    background: var(--white, #ffffff);
+    border: none;
+    box-shadow: 0 4px 14px rgba(10, 23, 36, 0.08);
+}
+
+header h1 {
+    margin: 0;
+    font-family: "Luckiest Guy", cursive;
+    font-size: 38px;
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--blue-black);
+    position: relative;
+    top: 5.5px;
+}
+
+#restart-button {
+    width: 50px;
+    height: 50px;
+    border: 3px solid var(--persian-blue);
+    border-radius: 50%;
+    background: var(--white, #ffffff);
+    box-shadow: none;
+    padding: 0;
+    transition: none;
+}
+
+#restart-button .restart-icon {
+    width: 24px;
+    height: 24px;
+    fill: var(--persian-blue);
+}
+
+#restart-button:hover {
+    background: var(--hawkes-blue);
+    transform: none;
+}
+
+#restart-button:active {
+    transform: none;
+}
+
+
+/* Intro popup description: 520px wide so Kayla's 2026-09-23 copy
+   ("Build a budget through four life stages. Pick a spending tier for
+   each category, and save what's left. Then handle whatever surprises
+   come your way.") sits on three even lines with no orphaned last word.
+   Card size unchanged. */
+#start-box .start-message {
+    max-width: 520px;
 }
