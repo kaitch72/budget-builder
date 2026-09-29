@@ -267,7 +267,17 @@
                  BILLS PREVIEW, SAVINGS CARRYOVER
             =========================================== -->
 
-            <div class="setup-sidebar">
+            <!-- Round 34: the sidebar is a phone (images/phone-card.svg)
+                 showing a banking-app screen -- debit card, balance,
+                 the Jars Left / Start button, then a transaction list
+                 (paycheck deposit, carried bills, carried savings). -->
+            <div class="setup-sidebar phone-sidebar">
+
+              <div class="phone-frame">
+
+                <img class="phone-frame-img" src="images/phone-card.svg" alt="" aria-hidden="true">
+
+                <div class="phone-screen">
 
 
                 <!-- MONTH INTRO -->
@@ -278,19 +288,200 @@
                         Your First Paycheck
                     </h2>
 
-                    <p id="month-description">
-                        You've got your first paycheck.
-                        Now decide how you'll manage it.
-                    </p>
+                    <!-- The description paragraph under the title was
+                         removed in round 32d (Kayla: no body text above
+                         the debit card on any stage). Each stage's
+                         `description` field is still in game.js, unused. -->
 
-                    <div class="paycheck-callout">
-                        <span id="paycheck-label">Teenager Paycheck</span>
-                        <strong id="paycheck-amount">$600</strong>
+                    <!-- Debit card (round 32): the paycheck lands in
+                         checking, shown as the Securityplus debit
+                         card with the amount under it. Keeps the
+                         .paycheck-callout class so tutorial step 1
+                         still spotlights it. -->
+                    <!-- ACCOUNTS CAROUSEL (round 35): swipe left/right
+                         (or tap the dots) between Checking and Savings.
+                         Both use the debit card art until Kayla sends a
+                         savings image -- swap the second <img> src. -->
+                    <div id="phone-accounts" class="phone-accounts">
+
+                        <!-- Round 43: Checking / Savings pill tabs (segmented
+                             toggle). Tap a tab or swipe the card; the white
+                             pill slides to the active tab. Replaces the
+                             per-slide titles and the dots. -->
+                        <div class="phone-tabs" role="tablist" aria-label="Accounts">
+                            <span class="phone-tab-indicator" aria-hidden="true"></span>
+                            <button type="button" class="phone-tab active" data-index="0" role="tab">Checking</button>
+                            <button type="button" class="phone-tab" data-index="1" role="tab">Savings</button>
+                        </div>
+
+                        <div class="phone-accounts-track">
+
+                            <div class="phone-account" data-account="checking">
+
+                                <h2 class="phone-account-title">Checking</h2>
+
+                                <div class="paycheck-callout paycheck-card">
+                                    <img class="debit-card-img" src="images/debit-card.svg" alt="Securityplus Visa debit card" draggable="false">
+                                    <strong id="paycheck-amount">$600</strong>
+                                </div>
+
+                            </div>
+
+                            <div class="phone-account" data-account="savings">
+
+                                <h2 class="phone-account-title">Savings</h2>
+
+                                <!-- Round 44: half-circle savings gauge (white track,
+                                     persian-blue fill) instead of the debit card.
+                                     Fill = savings / SAVINGS_GAUGE_GOAL, set in
+                                     updatePhoneSavings(). -->
+                                <div class="paycheck-card savings-card">
+                                    <svg class="savings-gauge" viewBox="0 0 220 120" aria-hidden="true">
+                                        <path class="savings-gauge-track" d="M 20 110 A 90 90 0 0 1 200 110" pathLength="100"></path>
+                                        <path id="savings-gauge-fill" class="savings-gauge-fill" d="M 20 110 A 90 90 0 0 1 200 110" pathLength="100"></path>
+                                    </svg>
+                                    <strong id="phone-savings-amount">$0</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="phone-dots" role="tablist" aria-label="Accounts">
+                            <button type="button" class="phone-dot active" data-index="0" aria-label="Checking"></button>
+                            <button type="button" class="phone-dot" data-index="1" aria-label="Savings"></button>
+                        </div>
+
                     </div>
 
                 </div>
 
 
+                <!-- TRANSACTIONS (round 34) -- the rows below reuse the
+                     old carryover-card markup/ids, restyled as a
+                     banking-app list. -->
+
+                <div class="phone-txns">
+
+                <span class="phone-txns-title">Recent Activity</span>
+
+                <!-- Scrolls up/down when there are more rows than fit
+                     (round 35). -->
+                <div id="phone-txns-list" class="phone-txns-list">
+
+                <!-- PAYCHECK DEPOSIT (always shown) -->
+
+                <div
+                    id="deposit-row"
+                    class="savings-carryover deposit-row"
+                >
+
+                    <div class="carryover-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 159.84 138.36"><g>
+    <path d="M57.87,136.07c-20.64,4.62-38.84,2.03-57.87-5.74V8.06s10.98,4.22,10.98,4.22c16.62,6.39,34.41,6.4,51.59,1.77l18.7-5.79c7.47-2.31,14.6-4.54,22.23-6.3,19.83-4.1,37.78-1.61,56.33,6.01v122.38c-20.16-9.11-39.02-11.73-60.24-6.79l-21.49,6.55-20.24,5.97ZM63.19,124.37l24.79-7.93c10.53-3.17,21.05-5.07,31.89-5.46,1.74-15.42,14.69-26.9,30.01-26.8l-.02-45.03c-16.49-.23-29.59-13.04-30.01-29.2-8.11.12-15.45,1.78-23.02,3.87l-26.86,8.61c-9.91,3.04-19.76,4.54-30.4,4.85-1.46,15.26-14.32,26.86-29.62,26.83v45.01c16.51.28,29.55,13.24,29.91,29.36,7.9-.44,15.4-1.82,23.32-4.1ZM149.87,14.69c-6.81-2.21-13.15-3.52-20.07-4.4.93,10.61,9.17,18.64,20.06,18.82v-14.42ZM29.81,26.62c-7.16-.8-13.16-2.05-19.84-4.02v21.51c10.33-.06,18.76-7.54,19.84-17.48ZM149.87,115.72v-21.55c-10.41,0-18.51,7.51-19.7,17.46,6.7.77,12.9,2.06,19.7,4.09ZM29.91,127.82c-1.16-11.06-9.43-18.43-19.93-18.68l.03,14.45c6.77,2.18,13.11,3.6,19.9,4.23Z"/>
+    <path d="M103.24,87.67c-5.21,11.34-17.12,19.1-29.16,15.61-7.57-2.2-13.53-7.43-17.07-14.51-7.85-15.73-5.78-36.67,7.3-48.46,8.15-7.34,19.64-8.27,28.62-1.91,14.96,10.59,17.95,32.64,10.31,49.27ZM88.8,90.43c10.79-9.91,11.26-29.48,1.87-40.72-2.79-3.33-6.31-5.4-10.28-5.53-4.19-.13-7.86,1.72-10.78,4.91-9.63,10.55-9.57,29.32-.05,40.02,5.18,5.82,13.26,6.8,19.24,1.31Z"/>
+  </g></svg>
+                    </div>
+
+                    <div class="carryover-text">
+
+                        <strong id="deposit-row-title">
+                            Paycheck
+                        </strong>
+
+                        <p>Direct deposit</p>
+
+                    </div>
+
+                    <strong
+                        id="deposit-row-amount"
+                        class="carryover-amount"
+                    >
+                        +$0
+                    </strong>
+
+                </div>
+
+
+                <!-- BILL CARRYOVER -->
+
+                <div
+                    id="bill-carryover"
+                    class="savings-carryover bill-carryover hidden"
+                >
+
+                    <div
+                        id="bill-carryover-icon"
+                        class="carryover-icon"
+                    >
+                        <!-- CREATED BY JAVASCRIPT -->
+                    </div>
+
+                    <div class="carryover-text">
+
+                        <strong id="bill-carryover-title">
+                            Bill Carried Forward
+                        </strong>
+
+                        <p>Added to your Bills jar</p>
+
+                    </div>
+
+                    <strong
+                        id="bill-carryover-amount"
+                        class="carryover-amount"
+                    >
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <!-- SAVINGS CARRYOVER -->
+
+                <div
+                    id="savings-carryover"
+                    class="savings-carryover hidden"
+                >
+
+                    <div class="carryover-icon">
+                        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 149.97 160"> <g id="Layer_3" data-name="Layer 3"> <path d="M149.97,160H.01s-.01-29.53-.01-29.53c1.05-26.81,12.71-51.72,32.24-69.94l19.2-17.64L29.99,0h89.86s-21.44,42.85-21.44,42.85l20.82,19.14c19.64,19.16,30.73,44.97,30.72,72.48l.02,25.53ZM88.67,39.97l14.94-29.96h-57.38s15.01,30.01,15.01,30.01l27.43-.05ZM140.01,150l-.06-15.81c-.03-23.65-9.12-45.86-25.45-62.99l-22.9-21.2h-33.27s-17.76,16.35-17.76,16.35c-18.32,16.16-29.39,38.83-30.48,63.34l-.12,20.3h130.05Z"/> <path d="M79.97,132.49h-9.96s-.02-7.5-.02-7.5h-12.49s.02-9.97.02-9.97l23.71-.06c2.05,0,3.5-2.21,3.64-3.7.17-1.85-.81-4.41-3-4.82l-14.72-2.73c-7.63-1.42-12.79-7.9-12.11-15.44.66-7.33,6.87-13.37,14.94-13.24l.04-7.53h9.95s0,7.5,0,7.5h10.01s-.01,10.01-.01,10.01h-20.25c-2.46-.01-4.45,1.55-4.73,3.84-.29,2.42,1.28,4.47,3.89,4.95l14.39,2.64c7.48,1.37,12.42,8.43,11.53,15.74s-6.89,12.92-14.79,12.8l-.02,7.52Z"/> </g> </svg>
+                    </div>
+
+                    <div class="carryover-text">
+
+                        <strong>
+                            Moved to Savings
+                        </strong>
+
+                        <p>From Checking</p>
+
+                    </div>
+
+                    <strong
+                        id="carried-savings-amount"
+                        class="carryover-amount"
+                    >
+                        $0
+                    </strong>
+
+                </div>
+
+
+                <!-- Earlier activity: past paychecks and the
+                     money-in/money-out surprises from earlier stages,
+                     newest first. Built by renderActivityHistory(). -->
+                <div id="activity-history"></div>
+
+                </div>
+                <!-- /phone-txns-list -->
+
+                </div>
+                <!-- /phone-txns -->
+
+
+                <!-- START (round 37): pinned to the bottom of the phone
+                     screen, sized like the welcome popup's Start button. -->
                 <!-- ALLOCATE / START -- moved down here under the
                      paycheck card so the jar grid can devote its
                      full two rows to jars only (see .setup-bottom-row
@@ -324,76 +515,12 @@
 
 
 
-                <!-- BILL CARRYOVER -->
-
-                <div
-                    id="bill-carryover"
-                    class="savings-carryover bill-carryover hidden"
-                >
-
-                    <div
-                        id="bill-carryover-icon"
-                        class="carryover-icon"
-                    >
-                        <!-- CREATED BY JAVASCRIPT -->
-                    </div>
-
-                    <div class="carryover-text">
-
-                        <strong id="bill-carryover-title">
-                            Bill Carried Forward
-                        </strong>
-
-                        <p>
-                            Added to your Bills jar's
-                            cost this stage.
-                        </p>
-
-                    </div>
-
-                    <strong
-                        id="bill-carryover-amount"
-                        class="carryover-amount"
-                    >
-                        $0
-                    </strong>
 
                 </div>
+                <!-- /phone-screen -->
 
-
-                <!-- SAVINGS CARRYOVER -->
-
-                <div
-                    id="savings-carryover"
-                    class="savings-carryover hidden"
-                >
-
-                    <div class="carryover-icon">
-                        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 149.97 160"> <g id="Layer_3" data-name="Layer 3"> <path d="M149.97,160H.01s-.01-29.53-.01-29.53c1.05-26.81,12.71-51.72,32.24-69.94l19.2-17.64L29.99,0h89.86s-21.44,42.85-21.44,42.85l20.82,19.14c19.64,19.16,30.73,44.97,30.72,72.48l.02,25.53ZM88.67,39.97l14.94-29.96h-57.38s15.01,30.01,15.01,30.01l27.43-.05ZM140.01,150l-.06-15.81c-.03-23.65-9.12-45.86-25.45-62.99l-22.9-21.2h-33.27s-17.76,16.35-17.76,16.35c-18.32,16.16-29.39,38.83-30.48,63.34l-.12,20.3h130.05Z"/> <path d="M79.97,132.49h-9.96s-.02-7.5-.02-7.5h-12.49s.02-9.97.02-9.97l23.71-.06c2.05,0,3.5-2.21,3.64-3.7.17-1.85-.81-4.41-3-4.82l-14.72-2.73c-7.63-1.42-12.79-7.9-12.11-15.44.66-7.33,6.87-13.37,14.94-13.24l.04-7.53h9.95s0,7.5,0,7.5h10.01s-.01,10.01-.01,10.01h-20.25c-2.46-.01-4.45,1.55-4.73,3.84-.29,2.42,1.28,4.47,3.89,4.95l14.39,2.64c7.48,1.37,12.42,8.43,11.53,15.74s-6.89,12.92-14.79,12.8l-.02,7.52Z"/> </g> </svg>
-                    </div>
-
-                    <div class="carryover-text">
-
-                        <strong>
-                            Savings Carried Forward
-                        </strong>
-
-                        <p>
-                            This money is already saved.
-                            It stays with you this stage.
-                        </p>
-
-                    </div>
-
-                    <strong
-                        id="carried-savings-amount"
-                        class="carryover-amount"
-                    >
-                        $0
-                    </strong>
-
-                </div>
-
+              </div>
+              <!-- /phone-frame -->
 
             </div>
 
@@ -855,11 +982,13 @@
                          (currently Advancing Career) -- finishMonth()
                          toggles this and next-month-btn opposite
                          each other, so exactly one is ever visible.
-                         Same "reload the page fresh" reset the
-                         header's restart icon already uses. -->
+                         Labeled "Continue" (round 31): it opens the
+                         "Try It for Real" Student Checking popup
+                         (#real-life-screen), which has the real
+                         Play Again button. -->
 
                     <button id="play-again-btn" class="hidden">
-                        Play Again
+                        Continue
                     </button>
 
                 </div>
@@ -870,6 +999,126 @@
 
         </div>
 
+
+    </div>
+
+
+    <!-- ==========================================
+         "TRY IT FOR REAL" -- Student Checking
+         tie-in (round 31)
+
+         Shown after the capstone recap: the
+         finale's "Continue" button (#play-again-btn)
+         hides #end-screen and shows this. Its own
+         Play Again button resets the game.
+         Stage 1's story popup plants the idea
+         ("you just opened your first checking
+         account"); this pays it off.
+
+         The white dashed square is a placeholder
+         for the QR code -- swap the
+         .real-life-qr-placeholder div for an
+         <img src="images/..."> when it's ready.
+         Account facts from securityplusfcu.org
+         (personal/bank/checking/student-checking),
+         checked 2026-09-28.
+    =========================================== -->
+
+    <div id="real-life-screen" class="hidden">
+
+        <div id="real-life-card" class="real-life-card">
+
+            <div class="real-life-main">
+
+                <img class="real-life-logo" src="images/color-logo.png" alt="Securityplus Federal Credit Union">
+
+                <span class="real-life-eyebrow">Student Checking</span>
+
+                <h2 class="real-life-title">Try it for Real</h2>
+
+                <p class="real-life-lede">
+                    You've budgeted four stages of life. Now try it with your own money.
+                </p>
+
+
+                <div class="real-life-pairs">
+
+                    <div class="real-life-pairs-head">
+                        <span>In the game</span>
+                        <span></span>
+                        <span>In real life</span>
+                    </div>
+
+                    <div class="real-life-pair">
+                        <div class="real-life-game">
+                            <span class="real-life-icon"><svg viewBox="0 0 159.84 138.36" aria-hidden="true"><g>
+    <path d="M57.87,136.07c-20.64,4.62-38.84,2.03-57.87-5.74V8.06s10.98,4.22,10.98,4.22c16.62,6.39,34.41,6.4,51.59,1.77l18.7-5.79c7.47-2.31,14.6-4.54,22.23-6.3,19.83-4.1,37.78-1.61,56.33,6.01v122.38c-20.16-9.11-39.02-11.73-60.24-6.79l-21.49,6.55-20.24,5.97ZM63.19,124.37l24.79-7.93c10.53-3.17,21.05-5.07,31.89-5.46,1.74-15.42,14.69-26.9,30.01-26.8l-.02-45.03c-16.49-.23-29.59-13.04-30.01-29.2-8.11.12-15.45,1.78-23.02,3.87l-26.86,8.61c-9.91,3.04-19.76,4.54-30.4,4.85-1.46,15.26-14.32,26.86-29.62,26.83v45.01c16.51.28,29.55,13.24,29.91,29.36,7.9-.44,15.4-1.82,23.32-4.1ZM149.87,14.69c-6.81-2.21-13.15-3.52-20.07-4.4.93,10.61,9.17,18.64,20.06,18.82v-14.42ZM29.81,26.62c-7.16-.8-13.16-2.05-19.84-4.02v21.51c10.33-.06,18.76-7.54,19.84-17.48ZM149.87,115.72v-21.55c-10.41,0-18.51,7.51-19.7,17.46,6.7.77,12.9,2.06,19.7,4.09ZM29.91,127.82c-1.16-11.06-9.43-18.43-19.93-18.68l.03,14.45c6.77,2.18,13.11,3.6,19.9,4.23Z"/>
+    <path d="M103.24,87.67c-5.21,11.34-17.12,19.1-29.16,15.61-7.57-2.2-13.53-7.43-17.07-14.51-7.85-15.73-5.78-36.67,7.3-48.46,8.15-7.34,19.64-8.27,28.62-1.91,14.96,10.59,17.95,32.64,10.31,49.27ZM88.8,90.43c10.79-9.91,11.26-29.48,1.87-40.72-2.79-3.33-6.31-5.4-10.28-5.53-4.19-.13-7.86,1.72-10.78,4.91-9.63,10.55-9.57,29.32-.05,40.02,5.18,5.82,13.26,6.8,19.24,1.31Z"/>
+  </g></svg></span>
+                            Your paycheck
+                        </div>
+                        <span class="real-life-arrow" aria-hidden="true">&rarr;</span>
+                        <div class="real-life-real">Direct deposit into your account</div>
+                    </div>
+
+                    <div class="real-life-pair">
+                        <div class="real-life-game">
+                            <span class="real-life-icon"><svg viewBox="0 0 109.88 159.71" aria-hidden="true"><g>
+    <path d="M109.88,0v159.71H0V0h109.88ZM99.91,9.98H9.96v139.75h89.95V9.98Z"/>
+    <rect x="39.96" y="124.77" width="29.95" height="9.98"/>
+  </g></svg></span>
+                            Your wellness meters
+                        </div>
+                        <span class="real-life-arrow" aria-hidden="true">&rarr;</span>
+                        <div class="real-life-real">Track every dollar in the free app</div>
+                    </div>
+
+                    <div class="real-life-pair">
+                        <div class="real-life-game">
+                            <span class="real-life-icon"><svg viewBox="0 0 159.81 129.77" aria-hidden="true"><g>
+    <ellipse cx="119.81" cy="74.87" rx="7.43" ry="7.42"/>
+    <polygon points="149.85 29.95 30.02 29.95 30.02 19.97 159.81 19.97 159.8 129.77 0 129.77 0 0 149.75 0 149.75 9.98 9.94 9.99 9.96 119.79 149.85 119.79 149.85 29.95"/>
+  </g></svg></span>
+                            Your checking account
+                        </div>
+                        <span class="real-life-arrow" aria-hidden="true">&rarr;</span>
+                        <div class="real-life-real">Your own Visa&reg; debit card, included</div>
+                    </div>
+
+                </div>
+
+
+                <p class="real-life-fine-print">
+                    Ages 14&ndash;17, with a parent or guardian as joint owner.
+                    Open at any branch. Membership eligibility required.
+                </p>
+
+                <button id="real-life-play-again-btn">
+                    Play Again
+                </button>
+
+            </div>
+
+
+            <div class="real-life-side">
+
+                <span class="real-life-scan">Scan to learn more</span>
+
+                <!-- QR CODE PLACEHOLDER -- replace with the real
+                     QR image when it's ready. -->
+                <div class="real-life-qr-placeholder" aria-label="QR code coming soon">
+                    QR code
+                </div>
+
+                <ul class="real-life-chips">
+                    <li>No monthly fees</li>
+                    <li>No minimum balance</li>
+                    <li>Manage your own money</li>
+                </ul>
+
+            </div>
+
+        </div>
 
     </div>
 

@@ -100,16 +100,63 @@ function setRowColumns(rowEl, count, jarSize = 250) {
 }
 
 
-// An empty jar (Kayla's jar.svg) switches to the funded/coin
-// artwork (coin-jar.svg) the moment it's holding any money --
-// used on both the setup screen (as a bucket is funded via the
-// keypad) and the payment screen (jars already show their current
-// balance, so a funded one should already look funded).
-function jarImageSrc(amount) {
+// Jar artwork shows how much is in the jar (round 29):
+// - empty (jar.svg) while a jar holds $0, including a $0 tier
+// - tiered jars: the tier the player picked decides the coin level,
+//   cheapest = small-jar.svg, middle = mid-jar.svg, priciest = big-jar.svg
+// - Savings (no tiers): coin level follows its share of this stage's
+//   paycheck. Since round 32 it only holds carried-in savings until Start
+//   is pressed, then fills up (fillSavingsJar)
+// - anything else holding money falls back to the old coin-jar.svg
+const JAR_COIN_LEVELS = [
+    "images/small-jar.svg",
+    "images/mid-jar.svg",
+    "images/big-jar.svg"
+];
 
-    return amount > 0
-        ? "images/coin-jar.svg"
-        : "images/jar.svg";
+function jarImageSrc(amount, bucketId) {
+
+    if (!(amount > 0)) {
+        return "images/jar.svg";
+    }
+
+    const stage =
+        (typeof stages !== "undefined" && typeof currentStage !== "undefined")
+            ? stages[currentStage]
+            : null;
+
+    const picked =
+        (bucketId && typeof bucketTierSelections !== "undefined")
+            ? bucketTierSelections[bucketId]
+            : null;
+
+    if (stage && picked) {
+
+        const category =
+            [...(stage.tieredNeeds || []), ...(stage.tieredWants || [])]
+                .find(c => c.id === bucketId);
+
+        const index = category
+            ? category.tiers.findIndex(t => t.id === picked.id)
+            : -1;
+
+        if (index >= 0) {
+            return JAR_COIN_LEVELS[Math.min(index, JAR_COIN_LEVELS.length - 1)];
+        }
+
+    }
+
+    if (stage && bucketId === "savings" && stage.income > 0) {
+
+        const share = amount / stage.income;
+
+        if (share < 0.34) return JAR_COIN_LEVELS[0];
+        if (share < 0.67) return JAR_COIN_LEVELS[1];
+        return JAR_COIN_LEVELS[2];
+
+    }
+
+    return "images/coin-jar.svg";
 
 }
 
@@ -167,7 +214,7 @@ const stages = {
         title: "Your First Paycheck",
 
         description:
-            "Sort your pay into various spending buckets. Set aside enough for your expenses, save some money and delegate to fun spending.",
+            "Sort your pay into various spending buckets. Balance your personal wellness with smart financial moves.",
 
         // Shown in #stage-intro-screen before the sidebar/jars fly
         // in (see showStageIntro() below) -- a beat of story to
@@ -184,11 +231,9 @@ const stages = {
         storyIntro: {
             title: "Phase 1: Teenager",
             body:
-                "This round, you're living at home and just started " +
-                "getting an allowance — {income} to work with. Your " +
-                "expenses are still pretty light at this age (a phone " +
-                "bill, maybe some gas money), so most of this paycheck " +
-                "is yours to figure out. Let's build your first budget."
+                "You just opened your first checking account, and " +
+                "your {income} allowance goes right in. Costs are " +
+                "light. Let's build your budget!"
         },
 
         buckets: [
@@ -198,15 +243,7 @@ const stages = {
                 type: "need",
                 name: "Food",
                 icon: "food",
-                description: "Snacks & lunch money"
-            },
-
-            {
-                id: "takeout",
-                type: "want",
-                name: "Takeout",
-                icon: "food",
-                description: "Fast food & treats"
+                description: "Lunch, snacks & takeout"
             },
 
             {
@@ -273,16 +310,6 @@ const stages = {
                 bucket: "food",
                 fixed: true,
                 missNarrative: "You went without lunch money — that gap is still there."
-            },
-
-            {
-                icon: "food",
-                title: "Fast Food",
-                description:
-                    "Your friends want to grab fast food together.",
-                amount: 12,
-                bucket: "takeout",
-                optional: true
             },
 
             {
@@ -368,23 +395,23 @@ const stages = {
                 tiers: [
                     {
                         id: "ramen",
-                        label: "Ramen & Snacks",
+                        label: "Packed Lunches",
                         amount: 45,
-                        wellbeing: -5,
-                        note: "You're hungry a lot and it's not great food."
+                        wellbeing: -4,
+                        note: "Cheap, but the same sandwich gets old."
                     },
                     {
                         id: "groceries",
-                        label: "Regular Groceries",
+                        label: "Lunch Money + a Treat",
                         amount: 85,
-                        wellbeing: 0,
-                        note: "Solid, dependable meals."
+                        wellbeing: 1,
+                        note: "Lunch covered, plus a snack run now and then."
                     },
                     {
                         id: "eatingout",
-                        label: "Groceries + Eating Out With Friends",
+                        label: "Lunch + Takeout With Friends",
                         amount: 140,
-                        wellbeing: 5,
+                        wellbeing: 6,
                         note: "Well-fed and social."
                     }
                 ]
@@ -479,35 +506,6 @@ const stages = {
                         note: "Out with friends often."
                     }
                 ]
-            },
-
-            {
-                id: "takeout",
-                name: "Takeout & Treats",
-                icon: "food",
-                tiers: [
-                    {
-                        id: "small",
-                        label: "A Little Treat",
-                        amount: 6,
-                        wellbeing: 1,
-                        note: "Just a small treat now and then."
-                    },
-                    {
-                        id: "occasional",
-                        label: "Occasional Treat",
-                        amount: 15,
-                        wellbeing: 2,
-                        note: "A treat now and then."
-                    },
-                    {
-                        id: "frequent",
-                        label: "Frequent Takeout",
-                        amount: 35,
-                        wellbeing: 3,
-                        note: "Eating out a lot."
-                    }
-                ]
             }
 
         ],
@@ -585,8 +583,8 @@ const stages = {
                 gas: [
                     {
                         icon: "car",
-                        title: "Running Late",
-                        text: "You were late one day because your friend slept in and couldn't give you a ride on time.",
+                        title: "Missed Your Ride",
+                        text: "Your ride fell through at the last minute, so you had to pay for an Uber to get there on time.",
                         penalty: 15
                     },
                     {
@@ -625,13 +623,13 @@ const stages = {
                     {
                         icon: "food",
                         title: "Not Enough Food",
-                        text: "Your ramen-and-snacks budget ran short by the end of the month, so you had to spend a little more to get by.",
+                        text: "Packed lunches weren't enough some days, so you had to spend a little extra to get by.",
                         penalty: 8
                     },
                     {
                         icon: "food",
                         title: "Stretched It Well",
-                        text: "You got creative with your ramen and snacks and stretched your budget further than expected.",
+                        text: "You got creative with leftovers and stretched your lunch money further than expected.",
                         bonus: 8
                     }
                 ],
@@ -639,14 +637,14 @@ const stages = {
                 groceries: [
                     {
                         icon: "food",
-                        title: "Grocery Prices Went Up",
-                        text: "Prices crept up at the store this month, and you had to cover the difference.",
+                        title: "Lunch Prices Went Up",
+                        text: "The cafeteria raised its prices this month, and you had to cover the difference.",
                         penalty: 12
                     },
                     {
                         icon: "food",
                         title: "Found Some Deals",
-                        text: "You caught a great sale and saved more than expected on groceries this month.",
+                        text: "Your go-to snack spot ran a buy-one-get-one deal all month.",
                         bonus: 12
                     }
                 ],
@@ -693,8 +691,8 @@ const stages = {
                 basic: [
                     {
                         icon: "phone",
-                        title: "Lost Phone Case",
-                        text: "You lost your phone case and had to replace it.",
+                        title: "Needed a Top-Up",
+                        text: "Your prepaid data ran out before the month was over, so you had to buy a refill early.",
                         penalty: 10
                     },
                     {
@@ -832,60 +830,6 @@ const stages = {
                     }
                 ]
 
-            },
-
-
-            takeout: {
-
-                small: [
-                    {
-                        icon: "food",
-                        title: "Price Went Up",
-                        text: "Your favorite spot raised prices and your treat cost more than expected.",
-                        penalty: 4
-                    },
-                    {
-                        icon: "food",
-                        title: "Buy One Get One",
-                        text: "Your favorite spot ran a surprise deal and you got two treats for the price of one.",
-                        bonus: 4
-                    }
-                ],
-
-                occasional: [
-                    {
-                        icon: "food",
-                        title: "Forgot the Coupon",
-                        text: "You forgot to use a coupon you'd been saving and paid full price.",
-                        penalty: 8
-                    },
-                    {
-                        icon: "food",
-                        title: "Free Delivery",
-                        text: "A delivery app waived the fee on your order this month.",
-                        bonus: 8
-                    }
-                ],
-
-                frequent: [
-                    {
-                        icon: "wallet",
-                        title: "Takeout Adds Up",
-                        text: "All that takeout added up more than you realized, and some of it went on a card -- it's catching up with you next stage.",
-                        carryForwardBill: {
-                            title: "Credit Card Balance",
-                            amount: 20,
-                            icon: "wallet"
-                        }
-                    },
-                    {
-                        icon: "food",
-                        title: "Loyalty Rewards",
-                        text: "Your takeout app's rewards program paid off with a nice credit.",
-                        bonus: 15
-                    }
-                ]
-
             }
 
         }
@@ -912,12 +856,9 @@ const stages = {
         storyIntro: {
             title: "Phase 2: College",
             body:
-                "This round, you're off on your own for college — " +
-                "{income} to work with, and a real living situation " +
-                "to sort out for the first time. Roommates keep the " +
-                "rent cheap, your own place costs more, and there's " +
-                "still food, phone, and plenty of things worth " +
-                "spending on. Let's build this round's budget."
+                "You're off to college with {income} to work with. " +
+                "You've got more independence now, and more bills " +
+                "to match. Let's build your budget!"
         },
 
         buckets: [
@@ -1583,13 +1524,9 @@ const stages = {
         storyIntro: {
             title: "Phase 3: Career",
             body:
-                "This round, you've landed your first real job — " +
-                "{income} to work with, and real responsibilities " +
-                "to match. Rent, a car that actually needs to run, " +
-                "groceries that aren't just snacks anymore — it " +
-                "adds up fast before you even get to spend on " +
-                "yourself. Let's see how much of this paycheck is " +
-                "really yours."
+                "You landed your first full-time job, with {income} to " +
+                "work with. Rent, your car and groceries add up fast. " +
+                "Let's see what's left for you!"
         },
 
         buckets: [
@@ -2032,13 +1969,9 @@ const stages = {
         storyIntro: {
             title: "Phase 4: Advancing Career",
             body:
-                "This round, the promotion came through — {income} " +
-                "to work with, a big jump from before. The " +
-                "responsibilities grew right along with it: a " +
-                "mortgage instead of rent, a nicer car payment, and " +
-                "old debt that's still hanging around and needs " +
-                "paying down. Let's see what a bigger paycheck " +
-                "actually buys you, once everything else gets its cut."
+                "The promotion came through: {income} to work with. " +
+                "You also have a mortgage, a car payment and old " +
+                "debt. Let's make it count!"
         },
 
         buckets: [
@@ -2370,6 +2303,26 @@ let carriedSavings = 0;
 // used to work out how much of the ending balance
 // is genuinely NEW savings from this stage alone.
 let savingsAtStageStart = 0;
+
+// Round 32: during allocation the unspent paycheck stays in
+// checking (the debit card), not in the Savings jar. Savings only
+// shows what carried in from earlier stages. Pressing Start plays
+// fillSavingsJar(), which moves the leftover in, then the stage
+// resolves as before. pendingSavingsLeftover is kept current by
+// recomputeAutoSavings().
+let savingsFilledThisStage = false;
+
+// Round 35: phone "Recent Activity" history -- past paychecks plus
+// the money-in/money-out surprises, oldest first. Not reset between
+// stages (a page reload starts fresh).
+let activityHistory = [];
+let savingsFillInProgress = false;
+let pendingSavingsLeftover = 0;
+
+// Round 42: how much the last Start moved from Checking into
+// Savings, and on which stage -- shown as a green "+$X" row in the
+// next stage's Recent Activity (instead of the running total).
+let lastSavingsTransfer = { amount: 0, stageName: "" };
 
 // Expenses actually in play this stage: the stage's
 // own list, plus anything carried forward (a missed
@@ -2840,13 +2793,28 @@ const TUTORIAL_STEPS = [
     null,
 
     {
-        body: "Here's your pay for each stage of life.",
+        body: "Here's your pay for this stage, sitting in your checking account.",
         // Just the white amount box inside the blue card -- not the
         // whole card -- with TUTORIAL_HIGHLIGHT_PAD giving it some
         // breathing room. (A brief detour highlighted the entire
         // .level-banner instead; reverted -- that wasn't what Kayla
         // wanted.)
-        target: () => document.querySelector(".paycheck-callout"),
+        // Round 39: the whole accounts carousel -- "Checking" title,
+        // card, amount and the dots -- so the lit box doesn't cut
+        // through the title or the dots.
+        target: () =>
+            document.getElementById("phone-accounts") ||
+            document.querySelector(".paycheck-callout"),
+        placement: "right",
+        showNext: true
+    },
+
+    // Round 40: the card slides over to Savings on its own (see
+    // showTutorialStep) to show there's a second account, then
+    // slides back to Checking when they hit Next.
+    {
+        body: "Tap Savings or swipe the card anytime to see your Savings account. Whatever you don't spend ends up here.",
+        target: () => document.getElementById("phone-accounts"),
         placement: "right",
         showNext: true
     },
@@ -2878,11 +2846,9 @@ const TUTORIAL_STEPS = [
 
     {
         body:
-            "Once you finish allocating all your money, the rest " +
-            "will be kept in Savings.",
-        target: () =>
-            document.getElementById("jar-img-savings")
-                ?.closest(".bucket"),
+            "Once every jar is filled, press Start to see how your " +
+            "stage plays out.",
+        target: () => document.getElementById("start-month-btn"),
         placement: "right",
         showNext: true,
         nextLabel: "Let's Go",
@@ -3025,7 +2991,26 @@ function positionTutorialPopup(step) {
     // Keeps the popup fully on the 1920x1080 stage no matter which
     // edge its target happens to sit near.
     left = Math.max(20, Math.min(left, 1920 - popupWidth - 20));
-    top = Math.max(20, Math.min(top, 1080 - 20));
+
+    // Round 39: keep the whole popup on screen, not just its top
+    // edge (the Start-button step near the bottom was getting cut
+    // off). When it has to move up next to a "right"-placed target,
+    // line its bottom up with the bottom of the lit box.
+    const popupHeight =
+        tutorialPopupEl.offsetHeight || 200;
+
+    const maxTop = 1080 - popupHeight - 30;
+
+    if (top > maxTop && step.placement === "right" && step.target) {
+
+        const r = getStageRect(step.target());
+        const litBottom = r.top + r.height + TUTORIAL_HIGHLIGHT_PAD;
+
+        top = Math.min(maxTop, litBottom - popupHeight);
+
+    }
+
+    top = Math.max(20, Math.min(top, maxTop));
 
     tutorialPopupEl.style.left = left + "px";
     tutorialPopupEl.style.top = top + "px";
@@ -3036,6 +3021,14 @@ function positionTutorialPopup(step) {
 function showTutorialStep(stepNumber) {
 
     tutorialStep = stepNumber;
+
+    // Round 40: step 2 slides the phone over to Savings by itself;
+    // moving on to step 3 slides it back to Checking.
+    if (stepNumber === 2) {
+        setPhoneAccount(1, true);
+    } else if (stepNumber === 3) {
+        setPhoneAccount(0, true);
+    }
 
     const step =
         TUTORIAL_STEPS[stepNumber];
@@ -3075,6 +3068,73 @@ function showTutorialStep(stepNumber) {
     positionTutorialPopup(step);
 
 }
+
+
+// ============================================
+// TUTORIAL TAP LOCK (round 39)
+// While the tutorial is running, only the tutorial
+// popup (Next / Let's Go / Skip) and the one thing
+// the current step asks for can be tapped:
+//   step 3 -- only the Food jar
+//   step 4 -- only a tier option in the open picker
+//             (no closing it by tapping outside)
+//   steps 1, 2, 5, 6 and the short gap before step 1
+//   -- nothing but the popup.
+// The header's restart button stays usable.
+// ============================================
+
+function tutorialAllowsTap(target) {
+
+    if (!(target instanceof Element)) return true;
+
+    if (target.closest("#tutorial-popup")) return true;
+
+    if (target.closest("#restart-button")) return true;
+
+    if (tutorialStep === 3) {
+        const foodTile =
+            document.getElementById("jar-img-food")?.closest(".bucket");
+        return !!(foodTile && foodTile.contains(target));
+    }
+
+    if (tutorialStep === 4) {
+        return !!target.closest(
+            "#tier-picker-modal .tier-option-button:not([disabled])"
+        );
+    }
+
+    return false;
+
+}
+
+function tutorialLockActive() {
+
+    if (!tutorialActive) return false;
+
+    // Before step 1 the welcome and story popups still need their
+    // own buttons.
+    if (!welcomeDismissed) return false;
+    if (stageIntroScreen && !stageIntroScreen.classList.contains("hidden")) return false;
+
+    return true;
+
+}
+
+["pointerdown", "mousedown", "touchstart", "click"].forEach((type) => {
+
+    document.addEventListener(
+        type,
+        (e) => {
+            if (tutorialLockActive() && !tutorialAllowsTap(e.target)) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        },
+        { capture: true, passive: false }
+    );
+
+});
 
 
 function endTutorial() {
@@ -3197,6 +3257,12 @@ function loadStage(stageNumber) {
 
     savingsAtStageStart = 0;
 
+    savingsFilledThisStage = false;
+
+    savingsFillInProgress = false;
+
+    pendingSavingsLeftover = 0;
+
     if (currentStage > 1) {
 
         buckets.savings =
@@ -3263,16 +3329,22 @@ function loadStage(stageNumber) {
     // HEADER
     // ------------------------------------------
 
+    // Round 32g: the sidebar title is just the stage name
+    // ("Teenager", "College", "Career", "Advancing Career").
     document.getElementById(
         "month-title"
     ).textContent =
-        stage.title;
+        stage.name;
 
 
-    document.getElementById(
-        "month-description"
-    ).textContent =
-        stage.description;
+    // #month-description was removed from the sidebar (round 32d);
+    // guarded in case it comes back.
+    const monthDescriptionEl =
+        document.getElementById("month-description");
+
+    if (monthDescriptionEl) {
+        monthDescriptionEl.textContent = stage.description;
+    }
 
 
     document.getElementById(
@@ -3281,14 +3353,55 @@ function loadStage(stageNumber) {
         `$${stage.income.toLocaleString()}`;
 
 
-    document.getElementById(
-        "paycheck-label"
-    ).textContent =
-        `${stage.name} Paycheck`;
+    // Phone transaction list (round 34): this stage's pay lands
+    // as the first row.
+    const depositTitleEl =
+        document.getElementById("deposit-row-title");
+
+    const depositAmountEl =
+        document.getElementById("deposit-row-amount");
+
+    if (depositTitleEl) {
+        depositTitleEl.textContent =
+            currentStage === 1 ? "Allowance" : "Paycheck";
+    }
+
+    if (depositAmountEl) {
+        depositAmountEl.textContent =
+            `+$${stage.income.toLocaleString()}`;
+    }
+
+    // Round 38 (Kayla): Recent Activity only covers the last round
+    // -- this stage's deposit, savings carried forward, a carried
+    // bill if any, and last round's surprises. So render what the
+    // previous stage logged, then clear it for this stage's own
+    // surprises. (No past paychecks.)
+    renderActivityHistory();
+
+    activityHistory = [];
+
+    setPhoneAccount(0, false);
+
+    const txnList = document.getElementById("phone-txns-list");
+    if (txnList) txnList.scrollTop = 0;
 
 
+    // The "<Stage> Paycheck" label was removed in round 32 (the
+    // debit card art replaced it) -- guarded in case it returns.
+    const paycheckLabelEl =
+        document.getElementById("paycheck-label");
+
+    if (paycheckLabelEl) {
+        paycheckLabelEl.textContent =
+            `${stage.name} Paycheck`;
+    }
+
+
+    // Round 37: just "Start" -- the button is now the same size as
+    // the welcome popup's Start button (192x70), so the stage name
+    // no longer fits.
     startMonthLabel.textContent =
-        `Start ${stage.name}`;
+        "Start";
 
 
     // ------------------------------------------
@@ -3316,6 +3429,9 @@ function loadStage(stageNumber) {
         "compact",
         currentStage > 1
     );
+
+    // (Round 33's .card-only layout was replaced by the round 34
+    // phone layout -- see .phone-sidebar in index.html/style.css.)
 
 
     // Reset to a clean, fully-revealed state first (in case an
@@ -3468,11 +3584,10 @@ function createSetupBuckets() {
 
     // Savings unshifts last so it lands at index 0 -- ahead of
     // Bills -- landing top row, first/leftmost jar.
-    if (savingsBucket) {
-
-        needBuckets.unshift(savingsBucket);
-
-    }
+    // Round 36: no Savings jar in the grid anymore -- savings
+    // lives on the phone's Savings slide (see #phone-accounts).
+    // savingsBucket is still tracked in `buckets.savings`.
+    void savingsBucket;
 
 
     // ------------------------------------------
@@ -3641,7 +3756,7 @@ function buildSetupBucketTile(bucket) {
             <img
                 class="jar-img"
                 id="jar-img-${bucket.id}"
-                src="${jarImageSrc(startingSavings)}"
+                src="${jarImageSrc(startingSavings, bucket.id)}"
                 alt=""
                 aria-hidden="true"
             >
@@ -3861,9 +3976,19 @@ function computeLiveFinancialScore() {
 
     }
 
+    // Before Start, count the leftover that's about to go into
+    // Savings, so the meter still previews the outcome (round 32).
+    const projectedSavings =
+        (buckets.savings || 0) +
+        (
+            stages[currentStage].tieredNeeds && !savingsFilledThisStage
+                ? pendingSavingsLeftover
+                : 0
+        );
+
     const newSavingsSoFar =
         Math.max(
-            (buckets.savings || 0) - savingsAtStageStart,
+            projectedSavings - savingsAtStageStart,
             0
         );
 
@@ -3986,6 +4111,10 @@ function computeFinancialPercent() {
 
 
 function updateWellnessMeters() {
+
+    updatePhoneSavings();
+
+    updatePhoneChecking();
 
     // Personal: map the cumulative raw wellbeing total onto a
     // 0-100 bar, treating 0 as a neutral midpoint (50%) so both
@@ -4291,6 +4420,8 @@ function getWellnessSnapshot() {
 
 function applyNarrativeEffects(outcome) {
 
+    const savingsBeforeEffects = buckets.savings || 0;
+
     if (outcome.bonus) {
 
         buckets.savings =
@@ -4314,6 +4445,25 @@ function applyNarrativeEffects(outcome) {
 
         personalWellnessTotal +=
             NARRATIVE_WELLBEING_PENALTY;
+
+    }
+
+
+    // Round 35: money in/out lands in the phone's Recent Activity
+    // (shown from the next stage on). Carried bills aren't logged
+    // here -- next stage's "carried bill" row already shows them.
+    const savingsChange =
+        (buckets.savings || 0) - savingsBeforeEffects;
+
+    if (savingsChange !== 0) {
+
+        activityHistory.push({
+            title: outcome.title || (savingsChange > 0 ? "Bonus" : "Expense"),
+            subtitle: savingsChange > 0 ? "Into Savings" : "From Savings",
+            amount: savingsChange,
+            kind: savingsChange > 0 ? "in" : "out",
+            stageName: stages[currentStage] ? stages[currentStage].name : ""
+        });
 
     }
 
@@ -4822,8 +4972,8 @@ function openTierPicker(bucketId) {
     // opening the Food jar's tier picker -- to advance into step 3,
     // which repositions its callout underneath the now-open modal
     // (see TUTORIAL_STEPS' "below-tier-picker" placement).
-    if (tutorialActive && tutorialStep === 2 && bucketId === "food") {
-        showTutorialStep(3);
+    if (tutorialActive && tutorialStep === 3 && bucketId === "food") {
+        showTutorialStep(4);
     }
 
 }
@@ -4936,8 +5086,8 @@ function selectTierForBucket(bucketId, tier) {
     // bail out early) -- to advance into step 4. Reaching this line
     // at all means the pick went through, so no separate success
     // flag is needed.
-    if (tutorialActive && tutorialStep === 3 && bucketId === "food") {
-        showTutorialStep(4);
+    if (tutorialActive && tutorialStep === 4 && bucketId === "food") {
+        showTutorialStep(5);
     }
 
 }
@@ -5477,12 +5627,17 @@ function recomputeAutoSavings() {
                 0
             );
 
-    buckets.savings =
-        carriedSavings +
+    pendingSavingsLeftover =
         Math.max(
             0,
             stage.income - otherAllocated
         );
+
+    // Until Start is pressed, the leftover stays in checking --
+    // Savings holds only what carried in (round 32).
+    buckets.savings =
+        carriedSavings +
+        (savingsFilledThisStage ? pendingSavingsLeftover : 0);
 
 }
 
@@ -5558,7 +5713,8 @@ function updateBudgetDisplay() {
 
                 jarImgElement.src =
                     jarImageSrc(
-                        buckets[bucketId]
+                        buckets[bucketId],
+                        bucketId
                     );
 
             }
@@ -5728,22 +5884,16 @@ function setStartButtonReady(
     );
 
 
+    // Round 36: the button always reads "Start <stage>" -- greyed
+    // out (disabled) until every jar has a tier, then blue. The
+    // old "Jars Left To Fill" count is kept hidden.
     document.getElementById(
         "allocate-stat-label"
-    ).classList.toggle(
-        "hidden",
-        isReady
-    );
+    ).classList.add("hidden");
 
-    remainingMoney.classList.toggle(
-        "hidden",
-        isReady
-    );
+    remainingMoney.classList.add("hidden");
 
-    startMonthLabel.classList.toggle(
-        "hidden",
-        !isReady
-    );
+    startMonthLabel.classList.remove("hidden");
 
 }
 
@@ -5827,9 +5977,12 @@ function updateSavingsCarryover() {
         );
 
 
+    // Round 42: this row is now last round's transfer into Savings
+    // ("+$X", green), not the running Savings total -- that's on the
+    // phone's Savings slide.
     if (
         currentStage > 1 &&
-        carriedSavings > 0
+        lastSavingsTransfer.amount > 0
     ) {
 
         section.classList.remove(
@@ -5838,7 +5991,15 @@ function updateSavingsCarryover() {
 
 
         amount.textContent =
-            `$${carriedSavings}`;
+            `+$${lastSavingsTransfer.amount.toLocaleString()}`;
+
+        const sub = section.querySelector(".carryover-text p");
+
+        if (sub) {
+            sub.textContent = lastSavingsTransfer.stageName
+                ? `From Checking · ${lastSavingsTransfer.stageName}`
+                : "From Checking";
+        }
 
     }
 
@@ -5900,7 +6061,7 @@ function updateBillCarryover() {
                 .join(" + ");
 
         amount.textContent =
-            `$${carriedBillsThisStage}`;
+            `-$${carriedBillsThisStage}`;
 
     }
 
@@ -5925,6 +6086,313 @@ startButton.addEventListener(
 );
 
 
+// ============================================
+// PHONE: ACCOUNTS CAROUSEL + ACTIVITY (round 35)
+// Swipe left/right (or tap a dot) to flip between
+// the Checking and Savings slides. The Savings slide
+// shows buckets.savings live. Recent Activity lists
+// past paychecks and money surprises from earlier
+// stages, newest first, under this stage's rows; the
+// list scrolls when it overflows.
+// ============================================
+
+let phoneAccountIndex = 0;
+
+function setPhoneAccount(index, animate = true) {
+
+    const wrap = document.getElementById("phone-accounts");
+    if (!wrap) return;
+
+    const track = wrap.querySelector(".phone-accounts-track");
+    const count = wrap.querySelectorAll(".phone-account").length;
+
+    phoneAccountIndex = Math.max(0, Math.min(count - 1, index));
+
+    track.style.transition = animate ? "" : "none";
+    track.style.transform = `translateX(${-100 * phoneAccountIndex}%)`;
+
+    wrap.querySelectorAll(".phone-dot").forEach((dot, i) => {
+        dot.classList.toggle("active", i === phoneAccountIndex);
+    });
+
+    // Round 43: pill tabs + the sliding white indicator.
+    wrap.querySelectorAll(".phone-tab").forEach((tab, i) => {
+        tab.classList.toggle("active", i === phoneAccountIndex);
+        tab.setAttribute("aria-selected", i === phoneAccountIndex ? "true" : "false");
+    });
+
+    const indicator = wrap.querySelector(".phone-tab-indicator");
+    if (indicator) {
+        indicator.style.transition = animate ? "" : "none";
+        indicator.style.transform = `translateX(${100 * phoneAccountIndex}%)`;
+    }
+
+
+}
+
+// Round 41: the Checking balance on the phone drops with every
+// tier pick -- it shows what's still unspent this stage. When
+// Start moves the leftover into Savings, it counts down to $0.
+function updatePhoneChecking(value) {
+
+    const el = document.getElementById("paycheck-amount");
+    if (!el) return;
+
+    const amount =
+        typeof value === "number"
+            ? value
+            : (savingsFilledThisStage ? 0 : (pendingSavingsLeftover || 0));
+
+    el.textContent = `$${Math.max(0, amount).toLocaleString()}`;
+
+}
+
+// Round 44b: the Savings tab's half-circle gauge isn't tied to a
+// dollar goal -- it fills one equal slice per completed round (a
+// quarter each with 4 stages), growing during that round's Start
+// fill. `progress` (0-1) is how far into the current round's slice
+// we are; omitted = 1 if this round's fill is done, else 0.
+function updateSavingsGauge(progress) {
+
+    const fill = document.getElementById("savings-gauge-fill");
+    if (!fill) return;
+
+    const totalRounds = Math.max(1, Object.keys(stages).length);
+
+    const within =
+        typeof progress === "number"
+            ? progress
+            : (savingsFilledThisStage ? 1 : 0);
+
+    const pct = Math.max(0, Math.min(1,
+        ((currentStage - 1) + within) / totalRounds
+    ));
+
+    fill.style.strokeDashoffset = `${100 - pct * 100}`;
+    fill.style.opacity = pct > 0 ? "1" : "0";
+
+}
+
+function updatePhoneSavings(value) {
+
+    const el = document.getElementById("phone-savings-amount");
+    if (!el) return;
+
+    const amount =
+        typeof value === "number" ? value : (buckets.savings || 0);
+
+    el.textContent = `$${amount.toLocaleString()}`;
+
+    // During the Start fill the gauge is driven by fillSavingsJar.
+    if (!savingsFillInProgress) {
+        updateSavingsGauge();
+    }
+
+}
+
+(function setupPhoneAccountsSwipe() {
+
+    const wrap = document.getElementById("phone-accounts");
+    if (!wrap) return;
+
+    const track = wrap.querySelector(".phone-accounts-track");
+    const SWIPE_MIN = 40;
+
+    let startX = null;
+    let startY = null;
+    let dragging = false;
+
+    wrap.addEventListener("pointerdown", (e) => {
+        if (e.target.closest(".phone-dot, .phone-tabs")) return;
+        startX = e.clientX;
+        startY = e.clientY;
+        dragging = true;
+        track.style.transition = "none";
+        try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+
+    wrap.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startX;
+        const width = wrap.getBoundingClientRect().width || 1;
+        const pct = -100 * phoneAccountIndex + (dx / width) * 100;
+        track.style.transform = `translateX(${pct}%)`;
+    });
+
+    const endDrag = (e) => {
+        if (!dragging) return;
+        dragging = false;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        let next = phoneAccountIndex;
+        if (Math.abs(dx) > SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) {
+            next += dx < 0 ? 1 : -1;
+        }
+        setPhoneAccount(next, true);
+    };
+
+    wrap.addEventListener("pointerup", endDrag);
+    wrap.addEventListener("pointercancel", endDrag);
+
+    wrap.querySelectorAll(".phone-dot, .phone-tab").forEach((dot) => {
+        dot.addEventListener("click", () => {
+            setPhoneAccount(Number(dot.dataset.index), true);
+        });
+    });
+
+})();
+
+function renderActivityHistory() {
+
+    const list = document.getElementById("activity-history");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    [...activityHistory].reverse().forEach((item) => {
+
+        const row = document.createElement("div");
+        row.className = `savings-carryover txn-row txn-${item.kind}`;
+
+        const icon = document.createElement("div");
+        icon.className = "carryover-icon";
+        icon.innerHTML = iconMarkup(item.kind === "out" ? "emergency" : "dollar");
+
+        const text = document.createElement("div");
+        text.className = "carryover-text";
+
+        const title = document.createElement("strong");
+        title.textContent = item.title;
+
+        const sub = document.createElement("p");
+        sub.textContent =
+            item.stageName ? `${item.subtitle} · ${item.stageName}` : item.subtitle;
+
+        text.append(title, sub);
+
+        const amt = document.createElement("strong");
+        amt.className = "carryover-amount";
+        const abs = Math.abs(item.amount).toLocaleString();
+        amt.textContent = item.amount < 0 ? `-$${abs}` : `+$${abs}`;
+
+        row.append(icon, text, amt);
+        list.appendChild(row);
+
+    });
+
+}
+
+
+// ============================================
+// FILL SAVINGS (round 32)
+// Plays when Start is pressed: the leftover paycheck
+// moves from checking into the Savings jar. The jar
+// glows, a "+$X" tag floats up, coins drop in, and the
+// amount counts up while the jar art steps up through
+// its coin levels. Then `done` runs (startMonth again,
+// which now goes on to the "Life happens" card).
+// ============================================
+
+const SAVINGS_FILL_MS = 1400;
+const SAVINGS_FILL_HOLD_MS = 650;
+
+function fillSavingsJar(done) {
+
+    // Round 36: there's no Savings jar in the grid anymore, so the
+    // fill plays on the phone: it flips to the Savings slide, a
+    // "+$X" tag floats up, coins drop onto the card, and the
+    // savings amount counts up. Then `done` runs.
+    const from = buckets.savings || 0;
+    const leftover = pendingSavingsLeftover;
+    const to = from + leftover;
+
+    const finish = () => {
+        buckets.savings = to;
+        lastSavingsTransfer = {
+            amount: leftover,
+            stageName: stages[currentStage] ? stages[currentStage].name : ""
+        };
+        savingsFilledThisStage = true;
+        savingsFillInProgress = false;
+        updateWellnessMeters();
+        done();
+    };
+
+    const slide =
+        document.querySelector('.phone-account[data-account="savings"]');
+    const card = slide ? slide.querySelector(".paycheck-card") : null;
+
+    const reduceMotion =
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!card || leftover <= 0 || reduceMotion) {
+        buckets.savings = to;
+        updatePhoneSavings(to);
+        finish();
+        return;
+    }
+
+    savingsFillInProgress = true;
+
+    if (startButton) startButton.disabled = true;
+
+    setPhoneAccount(1, true);
+
+    const FLIP_MS = 380;
+
+    setTimeout(() => {
+
+        card.classList.add("savings-filling");
+
+        const tag = document.createElement("span");
+        tag.className = "savings-fill-tag";
+        tag.textContent = `+$${leftover.toLocaleString()}`;
+        card.appendChild(tag);
+
+        const coins = [];
+        for (let i = 0; i < 6; i++) {
+            const coin = document.createElement("span");
+            coin.className = "savings-fill-coin";
+            coin.style.left = `${30 + Math.random() * 40}%`;
+            coin.style.animationDelay = `${i * 0.16}s`;
+            card.appendChild(coin);
+            coins.push(coin);
+        }
+
+        const startTime = performance.now();
+
+        const step = (now) => {
+
+            const t = Math.min(1, (now - startTime) / SAVINGS_FILL_MS);
+            const eased = 1 - Math.pow(1 - t, 3);
+            const value = Math.round(from + leftover * eased);
+
+            updatePhoneSavings(value);
+            updatePhoneChecking(leftover - (value - from));
+            updateSavingsGauge(eased);
+
+            if (t < 1) {
+                requestAnimationFrame(step);
+                return;
+            }
+
+            setTimeout(() => {
+                card.classList.remove("savings-filling");
+                tag.remove();
+                coins.forEach(c => c.remove());
+                finish();
+            }, SAVINGS_FILL_HOLD_MS);
+
+        };
+
+        requestAnimationFrame(step);
+
+    }, FLIP_MS);
+
+}
+
+
 function startMonth() {
 
     const stage =
@@ -5939,6 +6407,18 @@ function startMonth() {
     // stays visible behind it, same convention as the other
     // modals and the end screen.
     if (stage.tieredNeeds) {
+
+        // Round 32: first move the leftover paycheck into the
+        // Savings jar with a short animation, then carry on.
+        if (!savingsFilledThisStage) {
+
+            if (!savingsFillInProgress) {
+                fillSavingsJar(startMonth);
+            }
+
+            return;
+
+        }
 
         narrativeQueue =
             buildNarrativeQueue();
@@ -7422,7 +7902,13 @@ if (playAgainButton) {
         "click",
         () => {
 
-            reloadFromStart();
+            // Round 31: the capstone's button is now "Continue" --
+            // it opens the "Try It for Real" Student Checking popup,
+            // which has the real Play Again. Falls back to a plain
+            // reset if that popup is ever removed from index.html.
+            if (!showRealLifeScreen()) {
+                reloadFromStart();
+            }
 
         }
     );
@@ -8013,6 +8499,46 @@ window.addEventListener(
 
     }
 );
+
+
+// ============================================
+// "TRY IT FOR REAL" -- Student Checking tie-in
+// (round 31). Shown after the capstone recap.
+// Returns false if the popup isn't in the page.
+// ============================================
+
+const realLifeScreen =
+    document.getElementById("real-life-screen");
+
+const realLifePlayAgainButton =
+    document.getElementById("real-life-play-again-btn");
+
+function showRealLifeScreen() {
+
+    if (!realLifeScreen) {
+        return false;
+    }
+
+    endScreen.classList.add("hidden");
+
+    realLifeScreen.classList.remove("hidden");
+
+    return true;
+
+}
+
+if (realLifePlayAgainButton) {
+
+    realLifePlayAgainButton.addEventListener(
+        "click",
+        () => {
+
+            reloadFromStart();
+
+        }
+    );
+
+}
 
 
 // Restart / Play Again should always go back to the real start,

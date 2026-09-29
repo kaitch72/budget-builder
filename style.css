@@ -901,7 +901,7 @@ header p {
 
     cursor: pointer;
 
-    box-shadow: 0 6px 0 var(--sky-blue);
+    box-shadow: 0 6px 0 var(--hawkes-blue);
 
     transition:
         transform 0.12s ease,
@@ -913,7 +913,7 @@ header p {
 
     transform: translateY(-2px);
 
-    box-shadow: 0 8px 0 var(--sky-blue);
+    box-shadow: 0 8px 0 var(--hawkes-blue);
 }
 
 
@@ -921,7 +921,7 @@ header p {
 
     transform: translateY(3px);
 
-    box-shadow: 0 3px 0 var(--sky-blue);
+    box-shadow: 0 3px 0 var(--hawkes-blue);
 }
 
 
@@ -4449,4 +4449,1104 @@ header h1 {
    Card size unchanged. */
 #start-box .start-message {
     max-width: 520px;
+}
+
+
+/* ==========================================
+   "TRY IT FOR REAL" -- Student Checking tie-in
+   (round 31). #real-life-screen, shown after the
+   capstone recap by showRealLifeScreen() in
+   game.js. White card (a different moment from
+   the blue finale), content on the left, a blue
+   panel on the right holding the QR placeholder.
+========================================== */
+
+#real-life-screen {
+
+    position: absolute;
+    inset: 0;
+    z-index: 110;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    /* Same top padding as #end-screen, so the card sits below
+       the wellness meters. */
+    padding: 196px 20px 24px;
+    background: rgba(10, 23, 36, 0.35);
+}
+
+
+.real-life-card {
+
+    display: flex;
+    width: 1180px;
+    max-width: 90vw;
+    max-height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 32px;
+    box-shadow: 0 24px 60px rgba(10,23,36,0.35);
+    text-align: left;
+    animation: real-life-in 0.45s ease both;
+}
+
+
+@keyframes real-life-in {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+
+.real-life-main {
+
+    flex: 1;
+    min-width: 0;
+    padding: 36px 48px 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+
+.real-life-logo {
+
+    height: 34px;
+    width: auto;
+    margin-bottom: 18px;
+}
+
+
+.real-life-eyebrow {
+
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue-bird);
+}
+
+
+.real-life-title {
+
+    margin: 2px 0 6px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--persian-blue);
+}
+
+
+.real-life-lede {
+
+    margin: 0 0 22px;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: rgba(10,23,36,0.7);
+}
+
+
+/* In the game -> In real life rows */
+.real-life-pairs {
+
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+
+.real-life-pairs-head,
+.real-life-pair {
+
+    display: grid;
+    grid-template-columns: 1fr 36px 1fr;
+    align-items: center;
+    column-gap: 12px;
+}
+
+
+.real-life-pairs-head span {
+
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(10,23,36,0.45);
+}
+
+
+.real-life-pair {
+
+    padding: 12px 18px;
+    border-radius: 18px;
+    background: var(--magnolia);
+    border: 1px solid var(--hawkes-blue);
+}
+
+
+.real-life-game {
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--blue-black);
+}
+
+
+.real-life-icon {
+
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--hawkes-blue);
+}
+
+
+.real-life-icon svg {
+
+    width: 22px;
+    height: 22px;
+    fill: var(--persian-blue);
+}
+
+
+.real-life-arrow {
+
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+    color: var(--blue-bird);
+}
+
+
+.real-life-real {
+
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--persian-blue);
+}
+
+
+.real-life-fine-print {
+
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: rgba(10,23,36,0.55);
+}
+
+
+/* Same look as the story popup's "Let's Go" button. */
+#real-life-play-again-btn {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 48px;
+    border: none;
+    border-radius: 20px;
+    background: var(--persian-blue);
+    color: #ffffff;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--hawkes-blue);
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+}
+
+
+#real-life-play-again-btn:hover {
+
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 var(--hawkes-blue);
+}
+
+
+#real-life-play-again-btn:active {
+
+    transform: translateY(3px);
+    box-shadow: 0 3px 0 var(--hawkes-blue);
+}
+
+
+/* Right-hand blue panel: QR + quick facts */
+.real-life-side {
+
+    position: relative;
+    flex-shrink: 0;
+    width: 340px;
+    box-sizing: border-box;
+    padding: 36px 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background:
+        linear-gradient(
+            160deg,
+            var(--blue-black) 0%,
+            var(--persian-blue) 100%
+        );
+}
+
+
+.real-life-side::before {
+
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("images/brand-arrow-tile.png");
+    background-repeat: repeat;
+    background-size: 120px 120px;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+
+.real-life-side > * {
+
+    position: relative;
+}
+
+
+.real-life-scan {
+
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sky-blue);
+}
+
+
+/* Placeholder until the real QR image is dropped in. When it is,
+   an <img> with this same class keeps the size and white frame. */
+.real-life-qr-placeholder {
+
+    box-sizing: border-box;
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    border-radius: 20px;
+    background: #ffffff;
+    outline: 3px dashed rgba(25,67,220,0.35);
+    outline-offset: -14px;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(10,23,36,0.35);
+}
+
+
+.real-life-chips {
+
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+.real-life-chips li {
+
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    color: #ffffff;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .real-life-card {
+        animation: none;
+    }
+}
+
+
+/* ==========================================
+   DEBIT CARD PAYCHECK (round 32)
+   The sidebar's white paycheck box is now the
+   Securityplus debit card art with the amount
+   under it. Scoped to .paycheck-card so the other
+   .paycheck-callout boxes are untouched.
+========================================== */
+
+.paycheck-callout.paycheck-card {
+
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+
+.debit-card-img {
+
+    display: block;
+    /* Round 32b: 80% of the column (was 100%, too big). */
+    width: 80%;
+    margin: 0 auto;
+    height: auto;
+    /* Matches the card art's own corner radius at this width. */
+    border-radius: 11px;
+    box-shadow:
+        0 10px 24px rgba(10,23,36,0.22),
+        0 2px 6px rgba(10,23,36,0.12);
+}
+
+
+.paycheck-callout.paycheck-card strong {
+
+    display: block;
+    margin-top: 16px;
+    font-size: 46px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--blue-black);
+}
+
+
+/* ==========================================
+   SAVINGS FILL (round 32)
+   Plays on Start: fillSavingsJar() in game.js adds
+   .savings-filling to the Savings tile plus a
+   floating "+$X" tag and a few falling coins.
+========================================== */
+
+.bucket-savings .jar-visual {
+
+    position: relative;
+}
+
+
+.bucket-savings.savings-filling .jar-visual {
+
+    animation: savings-fill-pop 0.5s ease 2;
+}
+
+
+.bucket-savings.savings-filling .jar-img {
+
+    filter: drop-shadow(0 0 22px rgba(22,163,74,0.55));
+}
+
+
+@keyframes savings-fill-pop {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.05); }
+}
+
+
+.savings-fill-tag {
+
+    position: absolute;
+    left: 50%;
+    top: 4%;
+    z-index: 3;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: #16a34a;
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 900;
+    white-space: nowrap;
+    box-shadow: 0 6px 16px rgba(22,163,74,0.35);
+    pointer-events: none;
+    animation: savings-fill-tag 2s ease-out forwards;
+}
+
+
+@keyframes savings-fill-tag {
+    0%   { opacity: 0; transform: translate(-50%, 30px) scale(0.8); }
+    18%  { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+    30%  { transform: translate(-50%, -6px) scale(1); }
+    80%  { opacity: 1; transform: translate(-50%, -26px); }
+    100% { opacity: 0; transform: translate(-50%, -40px); }
+}
+
+
+.savings-fill-coin {
+
+    position: absolute;
+    top: 8%;
+    z-index: 2;
+    width: 26px;
+    height: 26px;
+    margin-left: -13px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFF3A0 0%, #F5C518 55%, #D9A400 100%);
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.12);
+    opacity: 0;
+    pointer-events: none;
+    animation: savings-fill-coin 0.7s ease-in forwards;
+}
+
+
+@keyframes savings-fill-coin {
+    0%   { opacity: 0; transform: translateY(-40px) scale(0.9); }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(160px) scale(0.8); }
+}
+
+
+/* Every stage uses the Stage 1 layout and size: card above, amount
+   below (round 32d). Room on Stage 2+ comes from dropping the
+   sidebar description paragraph instead of shrinking the card. */
+
+
+
+
+
+
+
+/* ==========================================
+   PHONE SIDEBAR (round 34)
+   The left column is a phone (phone-card.svg)
+   with a banking-app screen inside: debit card,
+   balance, the Jars Left / Start button, then a
+   "Recent Activity" list. The list rows reuse the
+   old carryover cards (#deposit-row,
+   #bill-carryover, #savings-carryover).
+========================================== */
+
+.setup-sidebar.phone-sidebar {
+
+    gap: 0;
+}
+
+
+.phone-frame {
+
+    position: relative;
+    width: 390px;
+    margin: 0 auto;
+    aspect-ratio: 403.974 / 761.113;
+}
+
+
+.phone-frame-img {
+
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+
+/* Inside the phone's bezel, below the notch. */
+.phone-screen {
+
+    position: absolute;
+    left: 7%;
+    right: 6%;
+    top: 8.5%;
+    bottom: 4%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* A little room so the card's top corners and shadow aren't
+       clipped by overflow: hidden. */
+    padding-top: 6px;
+    overflow: hidden;
+}
+
+
+.phone-sidebar .level-banner {
+
+    background: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+
+.phone-sidebar #month-title {
+
+    display: none;
+}
+
+
+.phone-sidebar .paycheck-callout.paycheck-card {
+
+    margin-top: 0;
+}
+
+
+/* ---- Accounts carousel (round 35) ---- */
+
+.phone-accounts {
+
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+}
+
+
+.phone-accounts:active {
+
+    cursor: grabbing;
+}
+
+
+.phone-accounts-track {
+
+    display: flex;
+    transition: transform 0.35s ease;
+}
+
+
+.phone-account {
+
+    flex: 0 0 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.phone-account .phone-account-title {
+
+    margin: 0 0 10px;
+    font-family: 'Inter', Arial, sans-serif;
+    /* Smaller than the 46px amount so it doesn't compete (35d). */
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--blue-black);
+}
+
+
+.phone-account .paycheck-card {
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    text-align: center;
+}
+
+
+/* Smaller than the screen so it has breathing room from the
+   phone's edges. */
+.phone-sidebar .debit-card-img {
+
+    /* ~25% smaller than round 35's 82% (round 35d). */
+    width: 62%;
+    margin: 0 auto;
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+
+.phone-account .paycheck-card strong {
+
+    display: block;
+    margin-top: 10px;
+    font-size: 46px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--blue-black);
+}
+
+
+.phone-dots {
+
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+
+.phone-dot {
+
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(10,23,36,0.22);
+    cursor: pointer;
+    transition: background 0.2s ease, width 0.2s ease;
+}
+
+
+.phone-dot.active {
+
+    width: 22px;
+    border-radius: 5px;
+    background: var(--persian-blue);
+}
+
+
+/* Jars Left / Start button: white on the blue screen. */
+.phone-sidebar .sidebar-summary .allocate-stat {
+
+    /* All white, no stroke, and one fixed height so it doesn't
+       shrink when it flips to the Start button (round 35d). */
+    background: white;
+    border: none;
+    padding: 0 20px;
+    height: 88px;
+    min-height: 88px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.phone-sidebar #start-month-btn.ready {
+
+    background: var(--persian-blue);
+}
+
+
+/* Transaction list */
+.phone-txns {
+
+    /* Only as tall as its rows (round 35b); shrinks to the space
+       left in the phone once the list is long, then scrolls. */
+    flex: 0 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 18px 4px;
+    border-radius: 18px;
+    background: white;
+}
+
+
+/* Scrolls up/down when there are more rows than fit (round 35). */
+.phone-txns-list {
+
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sky-blue) transparent;
+    margin-right: -8px;
+    padding-right: 8px;
+}
+
+
+.phone-txns-list::-webkit-scrollbar {
+
+    width: 5px;
+}
+
+
+.phone-txns-list::-webkit-scrollbar-thumb {
+
+    border-radius: 3px;
+    background: var(--sky-blue);
+}
+
+
+.phone-txns .txn-out .carryover-icon {
+
+    background: #fde2e2;
+}
+
+
+.phone-txns .txn-out .carryover-icon svg {
+
+    fill: #dc2626;
+}
+
+
+.phone-txns .savings-carryover.txn-out .carryover-amount {
+
+    color: #dc2626;
+}
+
+
+.phone-txns .savings-carryover.txn-in .carryover-amount,
+.phone-txns .savings-carryover.txn-deposit .carryover-amount {
+
+    color: #16a34a;
+}
+
+
+.phone-txns-title {
+
+    margin-bottom: 4px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(10,23,36,0.5);
+}
+
+
+.phone-txns .savings-carryover {
+
+    gap: 12px;
+    padding: 12px 0;
+    border: none;
+    border-top: 1px solid var(--mystic);
+    border-radius: 0;
+    background: none;
+}
+
+
+/* The deposit row is always first, so it gets no divider above. */
+.phone-txns .deposit-row {
+
+    border-top: none;
+}
+
+
+.phone-txns .carryover-icon {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 7px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: var(--hawkes-blue);
+}
+
+
+.phone-txns .carryover-icon svg {
+
+    width: 100%;
+    height: 100%;
+    fill: var(--persian-blue);
+}
+
+
+.phone-txns .bill-carryover .carryover-icon {
+
+    background: #fde2e2;
+}
+
+
+.phone-txns .bill-carryover .carryover-icon svg {
+
+    fill: #dc2626;
+}
+
+
+.phone-txns .savings-carryover strong {
+
+    font-size: 15px;
+}
+
+
+.phone-txns .savings-carryover p {
+
+    margin-top: 2px;
+    font-size: 13px;
+}
+
+
+.phone-txns .savings-carryover .carryover-amount {
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+
+.phone-txns .savings-carryover.deposit-row .carryover-amount {
+
+    color: #16a34a;
+}
+
+
+/* ==========================================
+   START BUTTON ON THE PHONE (round 36)
+   Always reads "Start <stage>". Grey while any
+   jar still needs a tier (disabled), blue once
+   ready. Same 88px height either way.
+========================================== */
+
+.phone-sidebar #start-month-btn:disabled {
+
+    background: var(--mystic);
+    box-shadow: none;
+}
+
+
+.phone-sidebar #start-month-btn:disabled #start-month-label {
+
+    color: rgba(10,23,36,0.38);
+}
+
+
+.phone-sidebar #start-month-label {
+
+    font-size: 24px;
+    font-weight: 800;
+}
+
+
+/* Savings fill now plays on the phone's Savings slide. */
+.phone-account .paycheck-card {
+
+    position: relative;
+}
+
+
+.phone-account .paycheck-card.savings-filling .debit-card-img {
+
+    filter: drop-shadow(0 0 18px rgba(22,163,74,0.55));
+}
+
+
+.phone-account .paycheck-card.savings-filling strong {
+
+    color: #16a34a;
+}
+
+
+.phone-account .paycheck-card .savings-fill-tag {
+
+    /* Over the middle of the card, clear of the "Savings" title. */
+    top: 22%;
+    font-size: 22px;
+}
+
+
+/* ==========================================
+   START BUTTON, PINNED TO THE BOTTOM (round 37)
+   Sits under Recent Activity at the bottom of
+   the phone screen, sized and styled like the
+   welcome popup's #start-button (192x70, 30px
+   800, 18px radius, hawkes-blue lip). Grey while
+   disabled, blue when ready.
+========================================== */
+
+.phone-sidebar .sidebar-summary {
+
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 14px;
+}
+
+
+.phone-sidebar .sidebar-summary #start-month-btn {
+
+    box-sizing: border-box;
+    width: 192px;
+    height: 70px;
+    min-height: 70px;
+    padding: 0;
+    border: none;
+    border-radius: 18px;
+    background: var(--persian-blue);
+    box-shadow: 0 5px 0 var(--hawkes-blue);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+}
+
+
+.phone-sidebar .sidebar-summary #start-month-btn.ready:hover {
+
+    transform: translateY(-2px);
+}
+
+
+.phone-sidebar .sidebar-summary #start-month-btn.ready:active {
+
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 var(--hawkes-blue);
+}
+
+
+.phone-sidebar .sidebar-summary #start-month-btn:disabled {
+
+    background: #c9d1d9;
+    box-shadow: 0 5px 0 rgba(10,23,36,0.12);
+}
+
+
+.phone-sidebar .sidebar-summary #start-month-label {
+
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+
+.phone-sidebar .sidebar-summary #start-month-btn:disabled #start-month-label {
+
+    color: #ffffff;
+}
+
+
+/* Round 42: "Moved to Savings" row shows last round's +$ transfer
+   in green, like the other money-in rows. */
+.phone-txns .savings-carryover#savings-carryover .carryover-amount {
+
+    color: #16a34a;
+}
+
+
+/* ==========================================
+   CHECKING / SAVINGS PILL TABS (round 43)
+   A segmented toggle at the top of the phone,
+   like a banking app: a soft blue track with a
+   white pill that slides under the active tab.
+   Replaces the per-slide titles and the dots.
+========================================== */
+
+.phone-accounts .phone-account-title,
+.phone-accounts .phone-dots {
+
+    display: none;
+}
+
+
+.phone-tabs {
+
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Round 43b: much smaller (Kayla). */
+    margin: 0 auto 14px;
+    padding: 3px;
+    width: 64%;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: rgba(25, 67, 220, 0.12);
+}
+
+
+.phone-tab-indicator {
+
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(10, 23, 36, 0.15);
+    transition: transform 0.35s ease;
+}
+
+
+.phone-tab {
+
+    position: relative;
+    z-index: 1;
+    padding: 5px 0;
+    border: none;
+    background: none;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: rgba(10, 23, 36, 0.5);
+    cursor: pointer;
+    transition: color 0.25s ease;
+}
+
+
+.phone-tab.active {
+
+    color: var(--blue-black);
+}
+
+
+/* ==========================================
+   SAVINGS GAUGE (round 44)
+   Half-circle progress bar on the phone's
+   Savings tab: white track, persian-blue fill
+   (same blue as the jar icons). The amount sits
+   underneath. Fill is set by updatePhoneSavings().
+========================================== */
+
+.savings-card .savings-gauge {
+
+    display: block;
+    width: 78%;
+    height: auto;
+    margin: 6px auto 0;
+    overflow: visible;
+}
+
+
+.savings-gauge path {
+
+    fill: none;
+    stroke-width: 20;
+    stroke-linecap: round;
+}
+
+
+.savings-gauge-track {
+
+    stroke: #ffffff;
+}
+
+
+.savings-gauge-fill {
+
+    stroke: var(--persian-blue);
+    stroke-dasharray: 100 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset 0.35s ease, opacity 0.2s ease;
+}
+
+
+/* Amount tucks up into the bowl of the arc a little. */
+.phone-account .savings-card strong {
+
+    margin-top: -14px;
+}
+
+
+/* Glow during the Start fill, now that there's no card image. */
+.phone-account .paycheck-card.savings-filling .savings-gauge {
+
+    filter: drop-shadow(0 0 12px rgba(25, 67, 220, 0.45));
+}
+
+
+/* Round 46: Checking card lines up with the Savings gauge -- its top
+   sits level with the top of the arc (18px down), and it's small
+   enough that the amount lands at the same height on both tabs. */
+.phone-account[data-account="checking"] .debit-card-img {
+
+    width: 54%;
+    margin-top: 18px;
 }
