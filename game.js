@@ -366,24 +366,24 @@ const stages = {
                 tiers: [
                     {
                         id: "family",
-                        label: "Shared Family Line",
+                        label: "Shared Family Plan",
                         amount: 15,
-                        wellbeing: -3,
-                        note: "You're always fighting your family for data."
+                        wellbeing: -5,
+                        note: "You're on your family's plan, always fighting over data."
                     },
                     {
                         id: "basic",
-                        label: "Basic Prepaid Plan",
+                        label: "Basic Prepaid",
                         amount: 30,
-                        wellbeing: 0,
-                        note: "Covers what you need, nothing fancy."
+                        wellbeing: -2,
+                        note: "Calls and texts covered, but data runs low by the end of the month."
                     },
                     {
-                        id: "unlimited",
-                        label: "Unlimited Plan",
+                        id: "standard",
+                        label: "Standard Plan",
                         amount: 55,
-                        wellbeing: 3,
-                        note: "Never think about data again."
+                        wellbeing: 0,
+                        note: "Enough data for most of the month."
                     }
                 ]
             },
@@ -396,22 +396,22 @@ const stages = {
                     {
                         id: "ramen",
                         label: "Packed Lunches",
-                        amount: 45,
-                        wellbeing: -4,
+                        amount: 50,
+                        wellbeing: -5,
                         note: "Cheap, but the same sandwich gets old."
                     },
                     {
                         id: "groceries",
                         label: "Lunch Money + a Treat",
-                        amount: 85,
-                        wellbeing: 1,
+                        amount: 95,
+                        wellbeing: 0,
                         note: "Lunch covered, plus a snack run now and then."
                     },
                     {
                         id: "eatingout",
                         label: "Lunch + Takeout With Friends",
-                        amount: 140,
-                        wellbeing: 6,
+                        amount: 160,
+                        wellbeing: 3,
                         note: "Well-fed and social."
                     }
                 ]
@@ -426,20 +426,20 @@ const stages = {
                         id: "walk",
                         label: "Walk/Bike Everywhere",
                         amount: 0,
-                        wellbeing: -2,
+                        wellbeing: -5,
                         note: "Exhausting, but free."
                     },
                     {
                         id: "gas",
                         label: "Gas Money for Rides",
-                        amount: 35,
+                        amount: 40,
                         wellbeing: 0,
                         note: "Gets you where you need to go."
                     },
                     {
                         id: "own",
                         label: "Own Gas + Insurance Contribution",
-                        amount: 75,
+                        amount: 95,
                         wellbeing: 3,
                         note: "Real independence."
                     }
@@ -458,22 +458,22 @@ const stages = {
                     {
                         id: "small",
                         label: "A Small Treat",
-                        amount: 10,
-                        wellbeing: 1,
+                        amount: 15,
+                        wellbeing: 0,
                         note: "Just something little for yourself."
                     },
                     {
                         id: "thrift",
                         label: "Thrift Finds",
-                        amount: 30,
-                        wellbeing: 2,
+                        amount: 35,
+                        wellbeing: 1,
                         note: "A few new-to-you pieces."
                     },
                     {
                         id: "new",
                         label: "New Outfit",
-                        amount: 65,
-                        wellbeing: 5,
+                        amount: 80,
+                        wellbeing: 3,
                         note: "Something you picked out fresh."
                     }
                 ]
@@ -487,22 +487,22 @@ const stages = {
                     {
                         id: "small",
                         label: "A Quiet Night In",
-                        amount: 8,
-                        wellbeing: 1,
+                        amount: 10,
+                        wellbeing: 0,
                         note: "Just enough for a low-key night."
                     },
                     {
                         id: "occasional",
                         label: "Occasional Hangout",
-                        amount: 20,
-                        wellbeing: 2,
+                        amount: 25,
+                        wellbeing: 1,
                         note: "A movie night here and there."
                     },
                     {
                         id: "regular",
                         label: "Regular Movie Nights & Outings",
-                        amount: 50,
-                        wellbeing: 5,
+                        amount: 65,
+                        wellbeing: 3,
                         note: "Out with friends often."
                     }
                 ]
@@ -672,7 +672,6 @@ const stages = {
 
 
             phone: {
-
                 family: [
                     {
                         icon: "phone",
@@ -687,7 +686,6 @@ const stages = {
                         bonus: 8
                     }
                 ],
-
                 basic: [
                     {
                         icon: "phone",
@@ -696,32 +694,26 @@ const stages = {
                         penalty: 10
                     },
                     {
-                        icon: "phone",
+                        icon: "dollar",
                         title: "Referral Bonus",
                         text: "Your prepaid carrier gave you a credit for referring a friend.",
                         bonus: 10
                     }
                 ],
-
-                unlimited: [
-                    {
-                        icon: "tools",
-                        title: "Cracked Screen",
-                        text: "You dropped your phone and cracked the screen. The repair bill is coming due next stage.",
-                        carryForwardBill: {
-                            title: "Phone Screen Repair",
-                            amount: 45,
-                            icon: "tools"
-                        }
-                    },
+                standard: [
                     {
                         icon: "phone",
-                        title: "Trade-In Credit",
-                        text: "Your carrier ran a trade-in promotion and gave you an unexpected credit.",
-                        bonus: 20
+                        title: "Overage Charges",
+                        text: "You went way over your data limit, and the overage charges land on next stage's bill.",
+                        carryForwardBill: { title: "Phone Overage Bill", amount: 30, icon: "phone" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Loyalty Discount",
+                        text: "Your carrier knocked a little off your bill for being a longtime customer.",
+                        bonus: 12
                     }
                 ]
-
             },
 
 
@@ -868,15 +860,23 @@ const stages = {
                 type: "need",
                 name: "Food",
                 icon: "food",
-                description: "Groceries & meal plan gaps"
+                description: "Meal plan & groceries"
             },
 
             {
-                id: "personalCare",
+                id: "phone",
                 type: "need",
-                name: "Basics",
-                icon: "dollar",
-                description: "Toiletries & basics"
+                name: "Phone",
+                icon: "phone",
+                description: "Your phone plan"
+            },
+
+            {
+                id: "transportation",
+                type: "need",
+                name: "Transportation",
+                icon: "car",
+                description: "Getting around"
             },
 
             {
@@ -906,9 +906,9 @@ const stages = {
             {
                 id: "bills",
                 type: "bill",
-                name: "Bills",
+                name: "Housing",
                 icon: "wallet",
-                description: "Bills you can't skip"
+                description: "Your dorm or apartment"
             },
 
             {
@@ -1040,28 +1040,28 @@ const stages = {
 
             {
                 id: "bills",
-                name: "Bills",
+                name: "Housing",
                 icon: "wallet",
                 tiers: [
                     {
                         id: "roommates",
-                        label: "Roommates + Basic Phone Plan",
-                        amount: 220,
-                        wellbeing: -3,
+                        label: "Shared Room With Roommates",
+                        amount: 190,
+                        wellbeing: -5,
                         note: "Crowded, but it's cheap."
                     },
                     {
                         id: "own",
-                        label: "Own Room + Standard Phone Plan",
-                        amount: 280,
+                        label: "Own Room",
+                        amount: 230,
                         wellbeing: 0,
                         note: "Comfortable enough."
                     },
                     {
                         id: "solo",
-                        label: "Private Apartment + Unlimited Plan",
-                        amount: 370,
-                        wellbeing: 4,
+                        label: "Private Apartment",
+                        amount: 300,
+                        wellbeing: 3,
                         note: "Space and freedom, at a price."
                     }
                 ]
@@ -1076,7 +1076,7 @@ const stages = {
                         id: "mealplanonly",
                         label: "Meal Plan Only",
                         amount: 60,
-                        wellbeing: -3,
+                        wellbeing: -5,
                         note: "Cafeteria food, every meal."
                     },
                     {
@@ -1088,39 +1088,68 @@ const stages = {
                     },
                     {
                         id: "eatingout",
-                        label: "Meal Plan + Groceries + Eating Out",
+                        label: "Meal Plan + Full Grocery Runs",
                         amount: 150,
-                        wellbeing: 4,
-                        note: "Never stuck with just cafeteria food."
+                        wellbeing: 3,
+                        note: "Your own snacks and meals, stocked right in the dorm."
                     }
                 ]
             },
 
             {
-                id: "personalCare",
-                name: "Basics",
-                icon: "dollar",
+                id: "phone",
+                name: "Phone",
+                icon: "phone",
                 tiers: [
                     {
-                        id: "minimum",
-                        label: "Bare Minimum",
+                        id: "family",
+                        label: "Shared Family Plan",
                         amount: 15,
-                        wellbeing: -2,
-                        note: "Just the essentials, nothing extra."
+                        wellbeing: -5,
+                        note: "You're on your family's plan, always fighting over data."
                     },
                     {
-                        id: "stocked",
-                        label: "Well-Stocked",
+                        id: "basic",
+                        label: "Basic Prepaid",
+                        amount: 30,
+                        wellbeing: -2,
+                        note: "Calls and texts covered, but data runs low by the end of the month."
+                    },
+                    {
+                        id: "standard",
+                        label: "Standard Plan",
+                        amount: 55,
+                        wellbeing: 0,
+                        note: "Enough data for most of the month."
+                    }
+                ]
+            },
+
+            {
+                id: "transportation",
+                name: "Transportation",
+                icon: "car",
+                tiers: [
+                    {
+                        id: "walk",
+                        label: "Walk or Bike",
+                        amount: 10,
+                        wellbeing: -5,
+                        note: "Almost free, but rainy days are rough."
+                    },
+                    {
+                        id: "transit",
+                        label: "Public Transit Card",
                         amount: 35,
                         wellbeing: 0,
-                        note: "Toiletries and basics covered comfortably."
+                        note: "The bus gets you there, mostly on time."
                     },
                     {
-                        id: "selfcare",
-                        label: "Self-Care Upgrade",
-                        amount: 60,
+                        id: "car",
+                        label: "Your Own Car",
+                        amount: 120,
                         wellbeing: 3,
-                        note: "The extras that make you feel good."
+                        note: "Go wherever, whenever, but gas and insurance add up."
                     }
                 ]
             }
@@ -1138,21 +1167,21 @@ const stages = {
                         id: "rare",
                         label: "Rare Treat",
                         amount: 10,
-                        wellbeing: 1,
+                        wellbeing: 0,
                         note: "Coffee once in a while."
                     },
                     {
                         id: "regular",
                         label: "Regular Coffee Runs",
                         amount: 30,
-                        wellbeing: 2,
+                        wellbeing: 1,
                         note: "Coffee between classes, a few times a week."
                     },
                     {
                         id: "frequent",
                         label: "Coffee + Frequent Takeout",
                         amount: 60,
-                        wellbeing: 4,
+                        wellbeing: 3,
                         note: "Barely cook for yourself."
                     }
                 ]
@@ -1167,21 +1196,21 @@ const stages = {
                         id: "minimal",
                         label: "Only If Necessary",
                         amount: 15,
-                        wellbeing: 1,
+                        wellbeing: 0,
                         note: "Replace something only when it wears out."
                     },
                     {
                         id: "occasional",
                         label: "A Few New Pieces",
                         amount: 40,
-                        wellbeing: 2,
+                        wellbeing: 1,
                         note: "Refresh your wardrobe here and there."
                     },
                     {
                         id: "frequent",
                         label: "Regular Shopping Trips",
                         amount: 80,
-                        wellbeing: 5,
+                        wellbeing: 3,
                         note: "Always something new."
                     }
                 ]
@@ -1196,21 +1225,21 @@ const stages = {
                         id: "streaming",
                         label: "Streaming Only",
                         amount: 12,
-                        wellbeing: -1,
+                        wellbeing: 0,
                         note: "Nights in, at home."
                     },
                     {
                         id: "goingout",
                         label: "Streaming + Going Out",
                         amount: 40,
-                        wellbeing: 3,
+                        wellbeing: 1,
                         note: "A mix of nights in and nights out."
                     },
                     {
                         id: "fullsocial",
                         label: "Streaming + Going Out + Weekend Trips",
                         amount: 75,
-                        wellbeing: 5,
+                        wellbeing: 3,
                         note: "Rarely turning down plans."
                     }
                 ]
@@ -1247,15 +1276,15 @@ const stages = {
                 ],
                 own: [
                     {
-                        icon: "phone",
-                        title: "Plan Overage",
-                        text: "You went over your data limit this month and got hit with an overage fee.",
+                        icon: "emergency",
+                        title: "Room Inspection Fine",
+                        text: "Room inspection found a scuffed wall, and you got charged to fix it.",
                         penalty: 10
                     },
                     {
                         icon: "dollar",
-                        title: "Referral Credit",
-                        text: "You referred a friend to your phone plan and got a bill credit.",
+                        title: "Housing Refund",
+                        text: "The housing office refunded part of a fee they overcharged you.",
                         bonus: 10
                     }
                 ],
@@ -1307,59 +1336,104 @@ const stages = {
                 eatingout: [
                     {
                         icon: "wallet",
-                        title: "Food Delivery Adds Up",
-                        text: "Delivery fees and tips quietly piled up this month. The bill catches up with you next stage.",
-                        carryForwardBill: { title: "Food Delivery App Bill", amount: 35, icon: "wallet" }
+                        title: "Grocery Delivery Adds Up",
+                        text: "You started getting groceries delivered, and the fees and tips went on a card. The bill catches up with you next stage.",
+                        carryForwardBill: { title: "Grocery Delivery Bill", amount: 35, icon: "wallet" }
                     },
                     {
                         icon: "dollar",
-                        title: "Restaurant Gift Card",
-                        text: "A friend's birthday dinner came with a surprise gift card for you too.",
+                        title: "Care Package",
+                        text: "Your family mailed a care package full of snacks, so you spent less on groceries.",
                         bonus: 20
                     }
                 ]
             },
 
-            personalCare: {
-                minimum: [
+            phone: {
+                family: [
                     {
-                        icon: "dollar",
-                        title: "Ran Out Of Basics",
-                        text: "You ran out of a few essentials and had to make do without them for a while.",
-                        penalty: 6
+                        icon: "phone",
+                        title: "Ran Out of Data",
+                        text: "You blew through your shared data early and had to pay an overage fee.",
+                        penalty: 8
                     },
                     {
-                        icon: "dollar",
-                        title: "Sample Sale",
-                        text: "You scored a bunch of basics for cheap at a campus sample sale.",
-                        bonus: 6
+                        icon: "phone",
+                        title: "Sibling Paid You Back",
+                        text: "Your sibling used more than their share of the family plan and paid you back for it.",
+                        bonus: 8
                     }
                 ],
-                stocked: [
+                basic: [
                     {
-                        icon: "dollar",
-                        title: "Lost Your Bag",
-                        text: "You left a bag of toiletries at the gym and had to replace everything.",
+                        icon: "phone",
+                        title: "Needed a Top-Up",
+                        text: "Your prepaid data ran out before the month was over, so you had to buy a refill early.",
                         penalty: 10
                     },
                     {
                         icon: "dollar",
-                        title: "Store Credit",
-                        text: "A return you'd forgotten about came back as store credit.",
+                        title: "Referral Bonus",
+                        text: "Your prepaid carrier gave you a credit for referring a friend.",
                         bonus: 10
                     }
                 ],
-                selfcare: [
+                standard: [
                     {
-                        icon: "tools",
-                        title: "Salon Mishap",
-                        text: "A salon appointment didn't go as planned and you're paying to get it fixed next stage.",
-                        carryForwardBill: { title: "Salon Mishap Bill", amount: 30, icon: "tools" }
+                        icon: "phone",
+                        title: "Overage Charges",
+                        text: "You went way over your data limit, and the overage charges land on next stage's bill.",
+                        carryForwardBill: { title: "Phone Overage Bill", amount: 30, icon: "phone" }
                     },
                     {
                         icon: "dollar",
-                        title: "Referral Discount",
-                        text: "You referred a friend to your favorite self-care spot and got a discount back.",
+                        title: "Loyalty Discount",
+                        text: "Your carrier knocked a little off your bill for being a longtime customer.",
+                        bonus: 12
+                    }
+                ]
+            },
+
+            transportation: {
+                walk: [
+                    {
+                        icon: "tools",
+                        title: "Flat Tire",
+                        text: "Your bike got a flat and you had to buy a new tube.",
+                        penalty: 8
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Bike Share Credit",
+                        text: "The campus bike share program gave you free ride credits this month.",
+                        bonus: 8
+                    }
+                ],
+                transit: [
+                    {
+                        icon: "car",
+                        title: "Missed The Last Bus",
+                        text: "You missed the last bus home and had to pay for a rideshare.",
+                        penalty: 12
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Student Transit Discount",
+                        text: "Your school started covering part of your transit pass.",
+                        bonus: 12
+                    }
+                ],
+                car: [
+                    {
+                        icon: "car",
+                        title: "Parking Ticket",
+                        text: "You got a campus parking ticket, and the fine is due next stage.",
+                        carryForwardBill: { title: "Parking Ticket", amount: 40, icon: "car" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Gas Money From Friends",
+                        text: "Your friends chipped in for gas on a weekend road trip.",
                         bonus: 20
                     }
                 ]
@@ -1540,19 +1614,19 @@ const stages = {
             },
 
             {
-                id: "gas",
+                id: "phone",
                 type: "need",
-                name: "Gas",
-                icon: "car",
-                description: "Fuel for your car"
+                name: "Phone",
+                icon: "phone",
+                description: "Your phone plan"
             },
 
             {
-                id: "personalCare",
+                id: "car",
                 type: "need",
-                name: "Basics",
-                icon: "dollar",
-                description: "Toiletries & basics"
+                name: "Transportation",
+                icon: "car",
+                description: "Car payment, insurance & gas"
             },
 
             {
@@ -1582,9 +1656,9 @@ const stages = {
             {
                 id: "bills",
                 type: "bill",
-                name: "Bills",
+                name: "Housing",
                 icon: "wallet",
-                description: "Bills you can't skip"
+                description: "Rent & utilities"
             },
 
             {
@@ -1726,12 +1800,12 @@ const stages = {
 
             {
                 id: "bills",
-                name: "Bills",
+                name: "Housing",
                 icon: "wallet",
                 tiers: [
-                    { id: "shared", label: "Shared Apartment + Older Car", amount: 850, wellbeing: -4, note: "Cheaper, but your roommate's loud and your car makes a new noise every week." },
-                    { id: "standard", label: "Own Apartment + Reliable Car", amount: 1090, wellbeing: 0, note: "Comfortable and dependable -- nothing fancy, nothing missing." },
-                    { id: "upgraded", label: "Nicer Apartment + Newer Car", amount: 1400, wellbeing: 4, note: "More space, a nicer ride, one less thing to worry about." }
+                    { id: "shared", label: "Shared Apartment", amount: 650, wellbeing: -5, note: "Cheaper, but your roommate's loud." },
+                    { id: "standard", label: "Own Apartment", amount: 800, wellbeing: 0, note: "Comfortable and dependable -- nothing fancy, nothing missing." },
+                    { id: "upgraded", label: "House Rental", amount: 1000, wellbeing: 3, note: "A whole house with room to spread out, and the landlord handles the big stuff." }
                 ]
             },
 
@@ -1740,31 +1814,49 @@ const stages = {
                 name: "Food",
                 icon: "food",
                 tiers: [
-                    { id: "basic", label: "Basic Groceries", amount: 100, wellbeing: -3, note: "Keeps you fed. Ramen has range, apparently." },
-                    { id: "groceries", label: "Groceries + Occasional Takeout", amount: 160, wellbeing: 0, note: "Solid meals, dependable, with a little variety." },
-                    { id: "eatingwell", label: "Groceries + Eating Out Often", amount: 240, wellbeing: 4, note: "Good food, whenever you want it." }
+                    { id: "basic", label: "Basic Groceries", amount: 100, wellbeing: -5, note: "Keeps you fed. Ramen has range, apparently." },
+                    { id: "groceries", label: "Stocked Kitchen", amount: 160, wellbeing: 0, note: "Solid home-cooked meals, with a little variety." },
+                    { id: "eatingwell", label: "Fresh & Premium Groceries", amount: 240, wellbeing: 3, note: "Fresh produce and name brands, whatever sounds good." }
                 ]
             },
 
             {
-                id: "gas",
-                name: "Gas",
+                id: "car",
+                name: "Transportation",
                 icon: "car",
                 tiers: [
-                    { id: "efficient", label: "Fuel-Efficient Commute", amount: 50, wellbeing: -1, note: "You watch every gallon." },
-                    { id: "standard", label: "Standard Commute", amount: 90, wellbeing: 0, note: "Fill up when you need to, no stress about it." },
-                    { id: "flexible", label: "Fill Up Whenever", amount: 140, wellbeing: 3, note: "Road trips, detours, never checking the gauge." }
+                    { id: "older", label: "Older Paid-Off Car", amount: 150, wellbeing: -5, note: "No car payment, but it makes a new noise every week." },
+                    { id: "used", label: "Reliable Used Car", amount: 280, wellbeing: 0, note: "A few years old, dependable, with a modest payment." },
+                    { id: "new", label: "Brand-New Car", amount: 450, wellbeing: 3, note: "That new-car smell, with a payment and insurance to match." }
                 ]
             },
 
             {
-                id: "personalCare",
-                name: "Basics",
-                icon: "dollar",
+                id: "phone",
+                name: "Phone",
+                icon: "phone",
                 tiers: [
-                    { id: "minimum", label: "Bare Minimum", amount: 25, wellbeing: -2, note: "Covers the basics. Barely." },
-                    { id: "stocked", label: "Well-Stocked", amount: 45, wellbeing: 0, note: "Toiletries and basics, always on hand." },
-                    { id: "selfcare", label: "Self-Care Routine", amount: 85, wellbeing: 4, note: "Skincare, haircuts, the extras that add up." }
+                    {
+                        id: "basic",
+                        label: "Basic Prepaid",
+                        amount: 30,
+                        wellbeing: -2,
+                        note: "Calls and texts covered, but data runs low by the end of the month."
+                    },
+                    {
+                        id: "standard",
+                        label: "Standard Plan",
+                        amount: 55,
+                        wellbeing: 0,
+                        note: "Enough data for most of the month."
+                    },
+                    {
+                        id: "unlimited",
+                        label: "Unlimited Plan",
+                        amount: 70,
+                        wellbeing: 3,
+                        note: "Never think about data again."
+                    }
                 ]
             }
 
@@ -1777,9 +1869,9 @@ const stages = {
                 name: "Takeout",
                 icon: "food",
                 tiers: [
-                    { id: "rare", label: "Rare Treat", amount: 25, wellbeing: 1, note: "Takeout once in a while." },
-                    { id: "regular", label: "Regular Takeout", amount: 60, wellbeing: 2, note: "A few nights a week you just don't cook." },
-                    { id: "frequent", label: "Frequent Takeout", amount: 110, wellbeing: 4, note: "You barely turn on your own stove." }
+                    { id: "rare", label: "Rare Treat", amount: 25, wellbeing: 0, note: "Takeout once in a while." },
+                    { id: "regular", label: "Regular Takeout", amount: 60, wellbeing: 1, note: "A few nights a week you just don't cook." },
+                    { id: "frequent", label: "Frequent Takeout", amount: 110, wellbeing: 3, note: "You barely turn on your own stove." }
                 ]
             },
 
@@ -1788,9 +1880,9 @@ const stages = {
                 name: "Shopping",
                 icon: "dollar",
                 tiers: [
-                    { id: "minimal", label: "Only When Necessary", amount: 30, wellbeing: 1, note: "Replace something only when it wears out." },
-                    { id: "occasional", label: "A Few New Things", amount: 75, wellbeing: 2, note: "Refresh things here and there." },
-                    { id: "frequent", label: "Regular Shopping Trips", amount: 140, wellbeing: 5, note: "Always something new on the way." }
+                    { id: "minimal", label: "Only When Necessary", amount: 30, wellbeing: 0, note: "Replace something only when it wears out." },
+                    { id: "occasional", label: "A Few New Things", amount: 75, wellbeing: 1, note: "Refresh things here and there." },
+                    { id: "frequent", label: "Regular Shopping Trips", amount: 140, wellbeing: 3, note: "Always something new on the way." }
                 ]
             },
 
@@ -1799,9 +1891,9 @@ const stages = {
                 name: "Entertainment",
                 icon: "movie",
                 tiers: [
-                    { id: "streaming", label: "Streaming Only", amount: 20, wellbeing: -1, note: "Nights in, at home." },
-                    { id: "goingout", label: "Streaming + Going Out", amount: 65, wellbeing: 3, note: "A mix of nights in and nights out." },
-                    { id: "fullsocial", label: "Streaming + Going Out + Weekend Trips", amount: 130, wellbeing: 5, note: "Rarely turning down plans." }
+                    { id: "streaming", label: "Streaming Only", amount: 20, wellbeing: 0, note: "Nights in, at home." },
+                    { id: "goingout", label: "Streaming + Going Out", amount: 65, wellbeing: 1, note: "A mix of nights in and nights out." },
+                    { id: "fullsocial", label: "Streaming + Going Out + Weekend Trips", amount: 130, wellbeing: 3, note: "Rarely turning down plans." }
                 ]
             }
 
@@ -1817,7 +1909,7 @@ const stages = {
 
             bills: {
                 shared: [
-                    { icon: "tools", title: "Car Trouble", text: "Your older car needed an unexpected repair this month.", penalty: 60 },
+                    { icon: "emergency", title: "Roommate Moved Out", text: "Your roommate moved out mid-month, and you covered their share until a new one moved in.", penalty: 60 },
                     { icon: "dollar", title: "Roommate Split", text: "Your roommate covered a little extra on a shared bill.", bonus: 40 }
                 ],
                 standard: [
@@ -1825,7 +1917,7 @@ const stages = {
                     { icon: "dollar", title: "Utility Refund", text: "Your utility company refunded an overcharge from last cycle.", bonus: 50 }
                 ],
                 upgraded: [
-                    { icon: "tools", title: "Big Repair Bill", text: "Something major went wrong at your nicer apartment, and repairs aren't cheap. It'll follow you into next stage.", carryForwardBill: { title: "Apartment Repair Bill", amount: 120, icon: "tools" } },
+                    { icon: "tools", title: "Big Repair Bill", text: "Something major went wrong at the house you're renting, and part of the repair is on you. It'll follow you into next stage.", carryForwardBill: { title: "Apartment Repair Bill", amount: 120, icon: "tools" } },
                     { icon: "dollar", title: "Landlord Credit", text: "Your landlord gave you a credit for a maintenance delay.", bonus: 70 }
                 ]
             },
@@ -1840,38 +1932,68 @@ const stages = {
                     { icon: "dollar", title: "Store Rewards", text: "Your grocery store's rewards program paid off this month.", bonus: 20 }
                 ],
                 eatingwell: [
-                    { icon: "wallet", title: "Dining Out Adds Up", text: "Between restaurants and delivery, the tabs added up more than you noticed this month -- the balance is due next stage.", carryForwardBill: { title: "Dining Tab Balance", amount: 60, icon: "wallet" } },
-                    { icon: "dollar", title: "Free Meal", text: "A friend treated you to a nice dinner out.", bonus: 35 }
+                    { icon: "wallet", title: "Pricey Cart", text: "Premium groceries every week added up, and you put some of it on a card -- the balance is due next stage.", carryForwardBill: { title: "Grocery Card Balance", amount: 60, icon: "wallet" } },
+                    { icon: "dollar", title: "Bulk Buy Savings", text: "You split a warehouse-club haul with a friend and saved on your usual groceries.", bonus: 35 }
                 ]
             },
 
-            gas: {
-                efficient: [
-                    { icon: "car", title: "Detour", text: "Road construction meant a longer route to work all month.", penalty: 10 },
+            car: {
+                older: [
+                    { icon: "tools", title: "Car Trouble", text: "Your older car needed an unexpected repair this month.", penalty: 60 },
                     { icon: "dollar", title: "Gas Prices Dropped", text: "Prices at the pump dipped for a few weeks.", bonus: 10 }
                 ],
-                standard: [
+                used: [
                     { icon: "car", title: "Price Spike", text: "Gas prices jumped right when you needed a fill-up.", penalty: 15 },
                     { icon: "dollar", title: "Carpool Savings", text: "You carpooled with a coworker a few times and split the cost.", bonus: 15 }
                 ],
-                flexible: [
-                    { icon: "car", title: "Heavy Traveling Month", text: "Between errands, trips, and detours, you filled up more than expected -- and put some of it on a card.", carryForwardBill: { title: "Auto Maintenance Bill", amount: 35, icon: "tools" } },
+                new: [
+                    { icon: "car", title: "Fender Bender", text: "Someone backed into your brand-new car in a parking lot. Your insurance deductible is due next stage.", carryForwardBill: { title: "Insurance Deductible", amount: 75, icon: "car" } },
                     { icon: "dollar", title: "Gas Rewards Card", text: "Your gas rewards card kicked back some cash this month.", bonus: 25 }
                 ]
             },
 
-            personalCare: {
-                minimum: [
-                    { icon: "dollar", title: "Ran Out Of Basics", text: "You ran out of a few essentials and had to make do.", penalty: 8 },
-                    { icon: "dollar", title: "Sample Sizes", text: "You picked up some free samples that covered you for a bit.", bonus: 8 }
+            phone: {
+                basic: [
+                    {
+                        icon: "phone",
+                        title: "Needed a Top-Up",
+                        text: "Your prepaid data ran out before the month was over, so you had to buy a refill early.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Referral Bonus",
+                        text: "Your prepaid carrier gave you a credit for referring a friend.",
+                        bonus: 10
+                    }
                 ],
-                stocked: [
-                    { icon: "dollar", title: "Lost Your Bag", text: "You left a bag of toiletries at the gym and had to replace everything.", penalty: 12 },
-                    { icon: "dollar", title: "Store Credit", text: "A forgotten return came back as store credit.", bonus: 12 }
+                standard: [
+                    {
+                        icon: "phone",
+                        title: "Plan Overage",
+                        text: "You went over your data limit this month and got hit with an overage fee.",
+                        penalty: 12
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Loyalty Discount",
+                        text: "Your carrier knocked a little off your bill for being a longtime customer.",
+                        bonus: 12
+                    }
                 ],
-                selfcare: [
-                    { icon: "tools", title: "Appointment Mishap", text: "A haircut appointment didn't go as planned and you're paying to get it fixed next stage.", carryForwardBill: { title: "Salon Touch-Up Bill", amount: 30, icon: "tools" } },
-                    { icon: "dollar", title: "Referral Discount", text: "You referred a friend to your favorite spot and got a discount back.", bonus: 22 }
+                unlimited: [
+                    {
+                        icon: "tools",
+                        title: "Cracked Screen",
+                        text: "You dropped your phone and cracked the screen. The repair bill is due next stage.",
+                        carryForwardBill: { title: "Phone Screen Repair", amount: 45, icon: "tools" }
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Trade-In Credit",
+                        text: "Your carrier ran a trade-in promotion and gave you an unexpected credit.",
+                        bonus: 20
+                    }
                 ]
             },
 
@@ -1931,20 +2053,14 @@ const stages = {
     // career, a big promotion, and a much bigger
     // paycheck to go with it. Same tiered/narrative/
     // auto-savings system as every other stage, same
-    // bucket ids as Career (food/gas/personalCare/
+    // bucket ids as Career (food/car/phone/
     // takeout/shopping/entertainment/bills/savings --
     // no new bucket added, to keep the Needs row at
-    // its proven 5-wide layout) -- "more bills and
-    // whatnot" is folded into the Bills jar itself:
-    // its three tiers now bundle a housing + car
-    // payment (like Career's Bills jar already did)
-    // with an old-debt payoff pace on top (minimum-
-    // only at the cheap end, aggressive payoff at the
-    // expensive end), instead of adding a standalone
-    // Debt jar that would've pushed the Needs row to
-    // 6-wide and risked overflowing the stage width
-    // (see setRowColumns's jarSize clamp -- 6 columns
-    // computes below the 220px floor).
+    // its proven 5-wide layout; 6 columns computes
+    // below setRowColumns's 220px jarSize floor).
+    // The Bills jar bundles housing + car, like
+    // Career's. (Round 48: the old debt-payoff pace
+    // that used to ride on top was removed.)
     //
     // This is now the CAPSTONE stage (no Stage 5) --
     // Career's old "riskiest tier = bigger flat
@@ -1963,15 +2079,15 @@ const stages = {
         title: "The Big Promotion",
 
         description:
-            "Years of hard work paid off — a big promotion means a much bigger paycheck. But bigger responsibilities came with it: a mortgage instead of rent, a nicer car payment, and the old debt that's still hanging around. Let's see how you handle the next level.",
+            "Years of hard work paid off — a big promotion means a much bigger paycheck. But bigger responsibilities came with it: a home and a car of your own to pay for. Let's see how you handle the next level.",
 
         // See Stage 1's storyIntro above for how this field works.
         storyIntro: {
             title: "Phase 4: Advancing Career",
             body:
                 "The promotion came through: {income} to work with. " +
-                "You also have a mortgage, a car payment and old " +
-                "debt. Let's make it count!"
+                "You also have a home and a car to pay for. " +
+                "Let's make it count!"
         },
 
         buckets: [
@@ -1985,19 +2101,19 @@ const stages = {
             },
 
             {
-                id: "gas",
+                id: "phone",
                 type: "need",
-                name: "Gas",
-                icon: "car",
-                description: "Fuel for your car"
+                name: "Phone",
+                icon: "phone",
+                description: "Your phone plan"
             },
 
             {
-                id: "personalCare",
+                id: "car",
                 type: "need",
-                name: "Basics",
-                icon: "dollar",
-                description: "Toiletries & basics"
+                name: "Transportation",
+                icon: "car",
+                description: "Car payment, insurance & gas"
             },
 
             {
@@ -2027,9 +2143,9 @@ const stages = {
             {
                 id: "bills",
                 type: "bill",
-                name: "Bills",
+                name: "Housing",
                 icon: "wallet",
-                description: "Bills you can't skip"
+                description: "Rent or mortgage & utilities"
             },
 
             {
@@ -2057,21 +2173,20 @@ const stages = {
         // Same tier-picker + narrative system as every
         // other stage. Dollar amounts roughly double
         // Career's to match the bigger $4,000 paycheck;
-        // Bills scales up more than that since it now
-        // bundles a debt-payoff pace on top of housing
-        // + car (see the stage-level note above).
+        // Bills is housing only (Round 49); the car
+        // lives in its own Car jar, which replaced Gas.
         // ==========================================
 
         tieredNeeds: [
 
             {
                 id: "bills",
-                name: "Bills",
+                name: "Housing",
                 icon: "wallet",
                 tiers: [
-                    { id: "modest", label: "Starter Home + Reliable Car + Minimum Debt Payments", amount: 2000, wellbeing: -3, note: "A smaller mortgage, a car that gets the job done, and every loan at its minimum -- the balances aren't moving much." },
-                    { id: "comfortable", label: "Upgraded Home + Newer Car + Steady Debt Payoff", amount: 2500, wellbeing: 0, note: "More space, a smoother commute, and steadily chipping away at what you owe." },
-                    { id: "upgraded", label: "Dream Home + Luxury Car + Aggressive Debt Payoff", amount: 3000, wellbeing: 4, note: "The house and car you always pictured, plus throwing extra at your old debt every month." }
+                    { id: "rent", label: "Renting a House", amount: 1500, wellbeing: -5, note: "Someone else handles the repairs, but the rent can go up." },
+                    { id: "starter", label: "Starter Home", amount: 1800, wellbeing: 0, note: "Your first place of your own, with a mortgage to match." },
+                    { id: "upgraded", label: "Upgraded Home", amount: 2200, wellbeing: 3, note: "More space and room to grow." }
                 ]
             },
 
@@ -2080,31 +2195,49 @@ const stages = {
                 name: "Food",
                 icon: "food",
                 tiers: [
-                    { id: "basic", label: "Basic Groceries", amount: 220, wellbeing: -3, note: "Keeps you fed. Nothing more." },
-                    { id: "groceries", label: "Groceries + Occasional Takeout", amount: 340, wellbeing: 0, note: "Solid meals, dependable, with a little variety." },
-                    { id: "eatingwell", label: "Groceries + Eating Out Often", amount: 480, wellbeing: 4, note: "Whatever sounds good, whenever you want it." }
+                    { id: "basic", label: "Basic Groceries", amount: 220, wellbeing: -5, note: "Keeps you fed. Nothing more." },
+                    { id: "groceries", label: "Stocked Kitchen", amount: 340, wellbeing: 0, note: "Solid home-cooked meals, with a little variety." },
+                    { id: "eatingwell", label: "Fresh & Premium Groceries", amount: 480, wellbeing: 3, note: "Fresh produce and name brands, whatever sounds good." }
                 ]
             },
 
             {
-                id: "gas",
-                name: "Gas",
+                id: "car",
+                name: "Transportation",
                 icon: "car",
                 tiers: [
-                    { id: "efficient", label: "Fuel-Efficient Commute", amount: 100, wellbeing: -1, note: "You plan your trips around the tank." },
-                    { id: "standard", label: "Standard Commute", amount: 160, wellbeing: 0, note: "Fill up when you need to, no stress about it." },
-                    { id: "flexible", label: "Fill Up Whenever", amount: 260, wellbeing: 3, note: "Never checking the gauge." }
+                    { id: "older", label: "Older Paid-Off Car", amount: 250, wellbeing: -5, note: "No car payment, but it's showing its age." },
+                    { id: "used", label: "Reliable Used Car", amount: 450, wellbeing: 0, note: "A few years old, dependable, with a modest payment." },
+                    { id: "new", label: "Brand-New Car", amount: 700, wellbeing: 3, note: "That new-car smell, with a payment and insurance to match." }
                 ]
             },
 
             {
-                id: "personalCare",
-                name: "Basics",
-                icon: "dollar",
+                id: "phone",
+                name: "Phone",
+                icon: "phone",
                 tiers: [
-                    { id: "minimum", label: "Bare Minimum", amount: 50, wellbeing: -2, note: "Covers the basics. Barely." },
-                    { id: "stocked", label: "Well-Stocked", amount: 90, wellbeing: 0, note: "Toiletries and basics, always on hand." },
-                    { id: "selfcare", label: "Self-Care Routine", amount: 160, wellbeing: 4, note: "Skincare, haircuts, the extras that make life easier." }
+                    {
+                        id: "basic",
+                        label: "Basic Prepaid",
+                        amount: 30,
+                        wellbeing: -2,
+                        note: "Calls and texts covered, but data runs low by the end of the month."
+                    },
+                    {
+                        id: "standard",
+                        label: "Standard Plan",
+                        amount: 55,
+                        wellbeing: 0,
+                        note: "Enough data for most of the month."
+                    },
+                    {
+                        id: "unlimited",
+                        label: "Unlimited Plan",
+                        amount: 70,
+                        wellbeing: 3,
+                        note: "Never think about data again."
+                    }
                 ]
             }
 
@@ -2117,9 +2250,9 @@ const stages = {
                 name: "Takeout",
                 icon: "food",
                 tiers: [
-                    { id: "rare", label: "Rare Treat", amount: 50, wellbeing: 1, note: "Takeout once in a while." },
-                    { id: "regular", label: "Regular Takeout", amount: 120, wellbeing: 2, note: "A few nights a week you just don't cook." },
-                    { id: "frequent", label: "Frequent Takeout", amount: 220, wellbeing: 4, note: "You barely turn on your own stove." }
+                    { id: "rare", label: "Rare Treat", amount: 50, wellbeing: 0, note: "Takeout once in a while." },
+                    { id: "regular", label: "Regular Takeout", amount: 120, wellbeing: 1, note: "A few nights a week you just don't cook." },
+                    { id: "frequent", label: "Frequent Takeout", amount: 220, wellbeing: 3, note: "You barely turn on your own stove." }
                 ]
             },
 
@@ -2128,9 +2261,9 @@ const stages = {
                 name: "Shopping",
                 icon: "dollar",
                 tiers: [
-                    { id: "minimal", label: "Only When Necessary", amount: 60, wellbeing: 1, note: "Replace something only when it wears out." },
-                    { id: "occasional", label: "A Few New Things", amount: 150, wellbeing: 2, note: "Refresh things here and there." },
-                    { id: "frequent", label: "Regular Shopping Trips", amount: 280, wellbeing: 5, note: "Always something new on the way." }
+                    { id: "minimal", label: "Only When Necessary", amount: 60, wellbeing: 0, note: "Replace something only when it wears out." },
+                    { id: "occasional", label: "A Few New Things", amount: 150, wellbeing: 1, note: "Refresh things here and there." },
+                    { id: "frequent", label: "Regular Shopping Trips", amount: 280, wellbeing: 3, note: "Always something new on the way." }
                 ]
             },
 
@@ -2139,9 +2272,9 @@ const stages = {
                 name: "Entertainment",
                 icon: "movie",
                 tiers: [
-                    { id: "streaming", label: "Streaming Only", amount: 40, wellbeing: -1, note: "Nights in, at home." },
-                    { id: "goingout", label: "Streaming + Going Out", amount: 130, wellbeing: 3, note: "A mix of nights in and nights out." },
-                    { id: "fullsocial", label: "Streaming + Going Out + Weekend Trips", amount: 260, wellbeing: 5, note: "Rarely turning down plans." }
+                    { id: "streaming", label: "Streaming Only", amount: 40, wellbeing: 0, note: "Nights in, at home." },
+                    { id: "goingout", label: "Streaming + Going Out", amount: 130, wellbeing: 1, note: "A mix of nights in and nights out." },
+                    { id: "fullsocial", label: "Streaming + Going Out + Weekend Trips", amount: 260, wellbeing: 3, note: "Rarely turning down plans." }
                 ]
             }
 
@@ -2160,17 +2293,17 @@ const stages = {
         jarNarratives: {
 
             bills: {
-                modest: [
-                    { icon: "tools", title: "Furnace Repair", text: "Your starter home's furnace needed an emergency repair this month.", penalty: 120 },
-                    { icon: "dollar", title: "Refinance Savings", text: "You refinanced one of your loans at a slightly better rate and pocketed the difference.", bonus: 90 }
+                rent: [
+                    { icon: "emergency", title: "Rent Went Up", text: "Your landlord raised the rent when your lease renewed.", penalty: 100 },
+                    { icon: "dollar", title: "Rent Credit", text: "A repair took your landlord weeks to finish, so they knocked some money off your rent.", bonus: 80 }
                 ],
-                comfortable: [
-                    { icon: "emergency", title: "Property Taxes Went Up", text: "Your property tax assessment came in higher than expected.", penalty: 150 },
-                    { icon: "dollar", title: "Escrow Refund", text: "Your mortgage escrow account had a surplus refunded back to you.", bonus: 120 }
+                starter: [
+                    { icon: "tools", title: "Furnace Repair", text: "Your starter home's furnace needed an emergency repair this month.", penalty: 120 },
+                    { icon: "dollar", title: "Refinance Savings", text: "You refinanced your mortgage at a slightly better rate and pocketed the difference.", bonus: 90 }
                 ],
                 upgraded: [
-                    { icon: "tools", title: "Major Home Repair", text: "Something big broke at the dream house, and dream houses aren't cheap to fix.", penalty: 300 },
-                    { icon: "dollar", title: "Payoff Milestone Bonus", text: "You hit a debt payoff milestone this month and celebrated with a little breathing room.", bonus: 170 }
+                    { icon: "tools", title: "Major Home Repair", text: "Something big broke at your new place, and bigger homes cost more to fix.", penalty: 250 },
+                    { icon: "dollar", title: "Escrow Refund", text: "Your mortgage escrow account had a surplus refunded back to you.", bonus: 120 }
                 ]
             },
 
@@ -2184,38 +2317,68 @@ const stages = {
                     { icon: "dollar", title: "Store Rewards", text: "Your grocery store's rewards program paid off this month.", bonus: 35 }
                 ],
                 eatingwell: [
-                    { icon: "wallet", title: "Dining Out Adds Up", text: "Between restaurants and delivery, the tabs added up more than you noticed this month.", penalty: 90 },
-                    { icon: "dollar", title: "Client Dinner Reimbursed", text: "Work reimbursed you for a dinner you'd already paid for out of pocket.", bonus: 55 }
+                    { icon: "wallet", title: "Pricey Cart", text: "Premium groceries every week added up more than you noticed this month.", penalty: 90 },
+                    { icon: "dollar", title: "Bulk Buy Savings", text: "You split a warehouse-club haul with a friend and saved on your usual groceries.", bonus: 55 }
                 ]
             },
 
-            gas: {
-                efficient: [
-                    { icon: "car", title: "Detour", text: "Road construction meant a longer commute all month.", penalty: 18 },
-                    { icon: "dollar", title: "Gas Prices Dropped", text: "Prices at the pump dipped for a few weeks.", bonus: 18 }
+            car: {
+                older: [
+                    { icon: "car", title: "Breakdown", text: "Your old car broke down and needed a tow and a repair.", penalty: 120 },
+                    { icon: "dollar", title: "Gas Prices Dropped", text: "Prices at the pump dipped for a few weeks.", bonus: 25 }
+                ],
+                used: [
+                    { icon: "car", title: "Price Spike", text: "Gas prices jumped right when you needed a fill-up.", penalty: 30 },
+                    { icon: "dollar", title: "Carpool Savings", text: "You carpooled with a coworker a few times and split the cost.", bonus: 25 }
+                ],
+                new: [
+                    { icon: "car", title: "Parking Lot Dent", text: "Someone dinged your brand-new car, and the repair came out of your deductible.", penalty: 150 },
+                    { icon: "dollar", title: "Mileage Reimbursement", text: "Work reimbursed your mileage for a business trip.", bonus: 60 }
+                ]
+            },
+
+            phone: {
+                basic: [
+                    {
+                        icon: "phone",
+                        title: "Needed a Top-Up",
+                        text: "Your prepaid data ran out before the month was over, so you had to buy a refill early.",
+                        penalty: 10
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Referral Bonus",
+                        text: "Your prepaid carrier gave you a credit for referring a friend.",
+                        bonus: 10
+                    }
                 ],
                 standard: [
-                    { icon: "car", title: "Price Spike", text: "Gas prices jumped right when you needed a fill-up.", penalty: 25 },
-                    { icon: "dollar", title: "Carpool Savings", text: "You carpooled with a coworker a few times and split the cost.", bonus: 22 }
+                    {
+                        icon: "phone",
+                        title: "Plan Overage",
+                        text: "You went over your data limit this month and got hit with an overage fee.",
+                        penalty: 12
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Loyalty Discount",
+                        text: "Your carrier knocked a little off your bill for being a longtime customer.",
+                        bonus: 12
+                    }
                 ],
-                flexible: [
-                    { icon: "car", title: "Heavy Travel Month", text: "Between errands, trips, and a few work drives, you filled up more than expected.", penalty: 55 },
-                    { icon: "dollar", title: "Mileage Reimbursement", text: "Work reimbursed your mileage for a business trip.", bonus: 45 }
-                ]
-            },
-
-            personalCare: {
-                minimum: [
-                    { icon: "dollar", title: "Ran Out Of Basics", text: "You ran out of a few essentials and had to make do.", penalty: 14 },
-                    { icon: "dollar", title: "Sample Sizes", text: "You picked up some free samples that covered you for a bit.", bonus: 14 }
-                ],
-                stocked: [
-                    { icon: "dollar", title: "Lost Your Bag", text: "You left a bag of toiletries at the gym and had to replace everything.", penalty: 20 },
-                    { icon: "dollar", title: "Store Credit", text: "A forgotten return came back as store credit.", bonus: 20 }
-                ],
-                selfcare: [
-                    { icon: "tools", title: "Appointment Mishap", text: "An appointment didn't go as planned and you're paying to get it fixed.", penalty: 45 },
-                    { icon: "dollar", title: "Referral Discount", text: "You referred a friend to your favorite spot and got a discount back.", bonus: 35 }
+                unlimited: [
+                    {
+                        icon: "tools",
+                        title: "Cracked Screen",
+                        text: "You dropped your phone and cracked the screen, and the repair wasn't cheap.",
+                        penalty: 45
+                    },
+                    {
+                        icon: "dollar",
+                        title: "Trade-In Credit",
+                        text: "Your carrier ran a trade-in promotion and gave you an unexpected credit.",
+                        bonus: 20
+                    }
                 ]
             },
 
@@ -3959,6 +4122,22 @@ let personalWellnessTotal = 0;
 const NARRATIVE_WELLBEING_PENALTY = -2;
 const NARRATIVE_WELLBEING_BONUS = 1;
 
+// Round 64: consequence odds follow the choice. Chance that a jar's
+// card comes up BAD, by tier (cheap / middle / priciest). Skimping
+// on a NEED is risky (old car breaks down); splurging on a WANT is
+// risky (the card bill catches up). Middle tiers stay 50/50.
+// Round 65: end-of-game savings bonus. After the final stage, the
+// share of everything you earned that you still have saved, times
+// this many points, is added to BOTH meters (e.g. saving 25% of all
+// your paychecks = +8). Set in finishMonth() on the capstone.
+const FINAL_SAVINGS_BONUS_SCALE = 30;
+let finalSavingsBonus = 0;
+
+const BAD_CARD_ODDS = {
+    need: [0.7, 0.5, 0.3],
+    want: [0.3, 0.5, 0.7]
+};
+
 // Live estimate of the CURRENT (not-yet-banked) stage's
 // financial score, using the exact same formula finishMonth()
 // uses to bank the real one -- just evaluated against
@@ -3971,9 +4150,7 @@ function computeLiveFinancialScore() {
         stages[currentStage];
 
     if (!stage) {
-
         return null;
-
     }
 
     // Before Start, count the leftover that's about to go into
@@ -4007,9 +4184,7 @@ function computeLiveFinancialScore() {
         borrowedCrossCategory * 5;
 
     if (stageHadLoanCarriedIn) {
-
         score -= 10;
-
     }
 
     return Math.max(
@@ -4100,11 +4275,14 @@ function computeFinancialPercent() {
 
     }
 
-    return Math.round(
-        scoresForAverage.reduce(
-            (total, score) => total + score,
-            0
-        ) / scoresForAverage.length
+    return Math.min(
+        100,
+        Math.round(
+            scoresForAverage.reduce(
+                (total, score) => total + score,
+                0
+            ) / scoresForAverage.length
+        ) + finalSavingsBonus
     );
 
 }
@@ -4321,12 +4499,38 @@ function buildNarrativeQueue() {
                 const outcomes =
                     narrativeData[bucketId][tier.id];
 
+                // Round 64: bad-card odds depend on the tier picked
+                // and whether it's a Need or a Want (BAD_CARD_ODDS).
+                const isNeed =
+                    (stage.tieredNeeds || []).some(jar => jar.id === bucketId);
+
+                const jar =
+                    [...(stage.tieredNeeds || []), ...(stage.tieredWants || [])]
+                        .find(item => item.id === bucketId);
+
+                const tierIndex =
+                    jar ? jar.tiers.findIndex(item => item.id === tier.id) : 1;
+
+                const odds =
+                    BAD_CARD_ODDS[isNeed ? "need" : "want"];
+
+                const badChance =
+                    odds[Math.max(0, Math.min(odds.length - 1, tierIndex))];
+
+                const bad =
+                    outcomes.find(item => item.penalty || item.carryForwardBill);
+
+                const good =
+                    outcomes.find(item => item.bonus);
+
                 const outcome =
-                    outcomes[
-                        Math.floor(
-                            Math.random() * outcomes.length
-                        )
-                    ];
+                    bad && good
+                        ? (Math.random() < badChance ? bad : good)
+                        : outcomes[
+                              Math.floor(
+                                  Math.random() * outcomes.length
+                              )
+                          ];
 
                 // Tag which jar it came from, for the card's
                 // face-down side ("Your Food jar").
@@ -7529,38 +7733,26 @@ function finishMonth() {
             stage.income) * 100
         );
 
-
     stageScore -=
         missedNeeds * 15;
-
 
     stageScore -=
         borrowedSameCategory * 2;
 
-
     stageScore -=
         borrowedCrossCategory * 5;
 
-
     if (stageHadLoanCarriedIn) {
-
         stageScore -= 10;
-
     }
 
-
     if (stageScore > 100) {
-
         stageScore = 100;
-
     }
 
     if (stageScore < 0) {
-
         stageScore = 0;
-
     }
-
 
     stageScores.push(stageScore);
 
@@ -7580,6 +7772,32 @@ function finishMonth() {
     const isCapstone =
         !stages[currentStage + 1];
 
+    // Round 65: end-of-game savings bonus to both meters.
+    if (isCapstone && finalSavingsBonus === 0) {
+
+        const totalEarned =
+            Object.values(stages).reduce(
+                (total, item) => total + (item.income || 0),
+                0
+            );
+
+        finalSavingsBonus =
+            totalEarned > 0
+                ? Math.round(
+                      (Math.max(0, endingSavings) / totalEarned) *
+                          FINAL_SAVINGS_BONUS_SCALE
+                  )
+                : 0;
+
+        // Personal shows 50 + 2 x points, so half the bonus in
+        // points is the full bonus in percent.
+        personalWellnessTotal +=
+            finalSavingsBonus / 2;
+
+        updateWellnessMeters();
+
+    }
+
 
     // Which number the recap's Financial Wellness bar shows --
     // this stage's own score, or (on the capstone) the average
@@ -7591,7 +7809,7 @@ function finishMonth() {
     // its own.
     const displayScore =
         isCapstone
-            ? cumulativeScore
+            ? Math.min(100, cumulativeScore + finalSavingsBonus)
             : stageScore;
 
 
@@ -7769,6 +7987,7 @@ function applyFinaleLayout(isFinale, endingSavings, stage) {
                 <span class="finale-hero-label">You saved</span>
                 <strong class="finale-hero-amount" id="finale-hero-amount">$0</strong>
                 <p>You started with $0 and grew it one stage at a time. That's what saving a little every paycheck adds up to.</p>
+                ${finalSavingsBonus > 0 ? `<p class="finale-bonus"><span style="font-weight: 800; color: #16a34a;">Savings bonus: +${finalSavingsBonus}%</span> to both wellness meters for the cushion you built.</p>` : ""}
               `
             : `
                 <span class="finale-hero-label">You finished with</span>
