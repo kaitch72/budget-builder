@@ -5550,3 +5550,1583 @@ header h1 {
     width: 54%;
     margin-top: 18px;
 }
+
+
+/* ==========================================
+   SPLIT RECENT ACTIVITY (round 66, client feedback)
+   Each account slide has its own Recent Activity
+   under its card, so swiping (or tapping a tab)
+   changes the whole phone screen, not only the top.
+   The accounts area fills the space above Start;
+   each list still scrolls when it overflows.
+========================================== */
+
+.phone-sidebar .level-banner {
+
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.phone-sidebar .phone-accounts {
+
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.phone-sidebar .phone-accounts-track {
+
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+
+.phone-sidebar .phone-account {
+
+    min-height: 0;
+    gap: 16px;
+}
+
+
+.phone-sidebar .phone-account .phone-txns {
+
+    align-self: stretch;
+    cursor: auto;
+}
+
+
+/* The first visible row in each list has no divider above it
+   (set by refreshPhoneActivityLists()). */
+.phone-txns .savings-carryover.first-row {
+
+    border-top: none;
+}
+
+
+/* Checking side of the Start transfer: money moving between your
+   own accounts, so a neutral amount rather than red. */
+.phone-txns .savings-carryover.transfer-row .carryover-amount {
+
+    color: var(--blue-black);
+}
+
+
+.phone-txns p.phone-txns-empty {
+
+    /* Round 68 (Kayla): no body text, only some empty white space
+       under the header until rows arrive in later rounds. */
+    margin: 0;
+    padding: 0;
+    height: 44px;
+}
+
+
+/* Round 67: jars wait while last round's leftover moves to Savings
+   at the start of a round. */
+/* Round 88 (Kayla): jars are no longer locked during it. */
+
+
+/* ==========================================
+   SURPRISE CARD: MONEY FIRST (round 68, client feedback)
+   The dollar change is the big centered tile (the
+   size the % tiles used to be); the wellness meter
+   changes sit smaller underneath.
+========================================== */
+
+.narrative-money {
+
+    box-sizing: border-box;
+    width: 564px;
+    max-width: 100%;
+    margin-top: 24px;
+    padding: 18px 16px 18px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transform: scale(0.4);
+}
+
+
+.narrative-money.is-in {
+
+    animation: narrative-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+
+.narrative-money-value {
+
+    font-size: 92px;
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+
+.narrative-money-label {
+
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+
+.narrative-impacts {
+
+    gap: 14px;
+    margin-top: 14px;
+}
+
+
+.narrative-impact {
+
+    flex: 0 0 auto;
+    flex-direction: row;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 999px;
+}
+
+
+.narrative-impact-value {
+
+    font-size: 24px;
+}
+
+
+.narrative-impact-label {
+
+    font-size: 13px;
+}
+
+
+.narrative-no-change {
+
+    font-size: 15px;
+}
+
+
+/* Round 73: small tip line under a tutorial step's body. */
+.tutorial-note {
+
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--hawkes-blue);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--blue-black);
+}
+
+
+/* Round 73 (Kayla): tutorial Next / Let's Go matches the intro popup's
+   Start button -- persian blue, 18px corners, solid light-blue
+   (Hawkes Blue) 5px drop shadow, lift on hover, press on click --
+   sized down for the small tutorial card. */
+.tutorial-next-btn {
+
+    padding: 14px 34px;
+    border-radius: 18px;
+    font-size: 18px;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 5px 0 var(--hawkes-blue);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.tutorial-next-btn:hover {
+
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 var(--hawkes-blue);
+}
+
+
+.tutorial-next-btn:active {
+
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 var(--hawkes-blue);
+}
+
+
+/* Round 75: tip boxes stack with a small gap. */
+.tutorial-notes {
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+
+.tutorial-notes .tutorial-note {
+
+    margin: 0;
+}
+
+
+/* ==========================================
+   MONEY LESSON BANNER (round 78)
+   Slides down under the wellness meters with a
+   little bounce; the bulb glows and wiggles.
+========================================== */
+
+.lesson-banner {
+
+    position: absolute;
+    left: 50%;
+    top: 206px;
+    z-index: 40;
+    box-sizing: border-box;
+    width: 1180px;
+    max-width: calc(100% - 56px);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 18px 14px 16px;
+    border-radius: 20px;
+    background: #ffffff;
+    border-left: 8px solid var(--persian-blue);
+    box-shadow:
+        0 6px 0 var(--hawkes-blue),
+        0 14px 30px rgba(10, 23, 36, 0.18);
+    transform: translateX(-50%);
+}
+
+
+.lesson-banner.is-in {
+
+    animation: lesson-slide-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+
+.lesson-icon {
+
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #FFF6B8;
+    box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.6);
+}
+
+
+.lesson-banner.is-in .lesson-icon {
+
+    animation:
+        lesson-bulb-glow 1.4s ease-out 0.35s 2,
+        lesson-bulb-wiggle 0.9s ease-in-out 0.45s 1;
+}
+
+
+.lesson-icon svg {
+
+    width: 30px;
+    height: 30px;
+    fill: #FFD60A;
+    stroke: var(--blue-black);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+.lesson-copy {
+
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+
+.lesson-label {
+
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--persian-blue);
+}
+
+
+.lesson-text {
+
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--blue-black);
+}
+
+
+.lesson-close-btn {
+
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: var(--mystic);
+    color: rgba(10, 23, 36, 0.6);
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+
+.lesson-close-btn:hover {
+
+    background: var(--hawkes-blue);
+    transform: scale(1.08);
+}
+
+
+@keyframes lesson-slide-in {
+    0%   { opacity: 0; transform: translate(-50%, -40px) scale(0.92); }
+    100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes lesson-bulb-glow {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.65); }
+    100% { box-shadow: 0 0 0 16px rgba(255, 214, 10, 0); }
+}
+
+@keyframes lesson-bulb-wiggle {
+    0%, 100% { transform: rotate(0); }
+    25%      { transform: rotate(-14deg); }
+    50%      { transform: rotate(12deg); }
+    75%      { transform: rotate(-6deg); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .lesson-banner.is-in,
+    .lesson-banner.is-in .lesson-icon {
+        animation: none;
+    }
+}
+
+
+/* Round 78b: span only the jar area (clear of the phone) and stay
+   one line tall so it sits between the meters and the jar lids. */
+.lesson-banner {
+
+    left: 474px;
+    right: 28px;
+    top: 202px;
+    width: auto;
+    max-width: none;
+    padding: 10px 14px 10px 12px;
+    gap: 14px;
+    transform: none;
+}
+
+
+.lesson-icon {
+
+    width: 46px;
+    height: 46px;
+}
+
+
+.lesson-icon svg {
+
+    width: 26px;
+    height: 26px;
+}
+
+
+.lesson-text {
+
+    font-size: 17px;
+    line-height: 1.3;
+}
+
+
+.lesson-label {
+
+    font-size: 12px;
+}
+
+
+@keyframes lesson-slide-in {
+    0%   { opacity: 0; transform: translateY(-40px) scale(0.94); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+
+/* Round 78c (Kayla): the "every dollar" banner is gone, so the phone
+   and jars move down 40px to give the money lessons more room under
+   the meters. The empty message line takes no space now. */
+#setup-screen {
+
+    padding-top: 116px;
+}
+
+
+#budget-message:empty {
+
+    display: none;
+}
+
+
+.lesson-banner {
+
+    top: 210px;
+}
+
+
+.lesson-text {
+
+    font-size: 18px;
+}
+
+
+/* Round 79 (Kayla):
+   - jar rows shifted down 25px so the two rows are centered on the
+     phone (measured: phone center 690, jars were 665) on all stages;
+   - the tip bar is just the tip copy -- no bulb, no "Money Lesson"
+     label -- with the close X centered in its circle (an SVG X
+     instead of the text glyph). */
+#allocation-section {
+
+    padding-top: 25px;
+}
+
+
+.lesson-banner {
+
+    padding: 14px 14px 14px 26px;
+    gap: 16px;
+}
+
+
+.lesson-text {
+
+    flex: 1 1 auto;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 19px;
+}
+
+
+.lesson-close-btn {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 0;
+}
+
+
+.lesson-close-btn svg {
+
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+}
+
+
+/* Round 80 (Kayla): the tip bar is centered under the meters (same
+   left/right edges as the wellness bar), not over the jars, with
+   its copy centered too. Clear of the phone since round 78c moved
+   it down. The X stays on the right; a matching spacer on the left
+   keeps the text truly centered. */
+.lesson-banner {
+
+    left: 28px;
+    right: 28px;
+    padding: 14px 14px;
+}
+
+
+.lesson-banner::before {
+
+    content: "";
+    /* 36px X minus the 8px blue left edge, so the copy is centered
+       on the bar itself. */
+    flex: 0 0 28px;
+}
+
+
+.lesson-text {
+
+    text-align: center;
+}
+
+
+/* Round 81 (Kayla): the tip bar is 75% of the screen width and
+   centered under the meters (240px in from each side of the 1920
+   stage); Kayla's lightbulb sits on the left in the jar-icon blue,
+   with the copy left-justified beside it. */
+.lesson-banner {
+
+    left: 240px;
+    right: 240px;
+    padding: 14px 14px 14px 26px;
+    gap: 16px;
+}
+
+
+.lesson-banner::before {
+
+    content: none;
+}
+
+
+.lesson-bulb {
+
+    flex: 0 0 auto;
+    width: 26px;
+    height: 35px;
+    fill: var(--persian-blue);
+}
+
+
+.lesson-banner.is-in .lesson-bulb {
+
+    transform-origin: 50% 85%;
+    animation: lesson-bulb-wiggle 0.9s ease-in-out 0.45s 1;
+}
+
+
+.lesson-text {
+
+    text-align: left;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .lesson-banner.is-in .lesson-bulb {
+        animation: none;
+    }
+}
+
+
+/* ==========================================
+   SURPRISE LESSON ON THE RECAP (round 86)
+   Same look as the in-game tip bar: white, blue
+   left edge, Kayla's lightbulb in jar-icon blue.
+   Sits right under the "You saved..." box.
+========================================== */
+
+.surprise-lesson {
+
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: 700px;
+    margin: -6px auto 20px;
+    padding: 14px 22px 14px 20px;
+    border-radius: 18px;
+    border-left: 6px solid var(--persian-blue);
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(10, 23, 36, 0.15);
+    text-align: left;
+    animation: narrative-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+}
+
+
+.surprise-lesson-bulb {
+
+    flex: 0 0 auto;
+    width: 22px;
+    height: 30px;
+    fill: var(--persian-blue);
+}
+
+
+.surprise-lesson-text {
+
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--blue-black);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .surprise-lesson {
+        animation: none;
+    }
+}
+
+
+/* ==========================================
+   RECAP SAVINGS CARD (round 89)
+   One white card in the recap's left column,
+   where Starting Income / Total Spent used to be.
+   Same gauge + amount + floating "+$X" tag +
+   coins the phone's Savings tab used.
+========================================== */
+
+.recap-savings-card {
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 20px 22px;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(10, 23, 36, 0.15);
+}
+
+
+.recap-savings-label {
+
+    align-self: flex-start;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+
+.recap-savings-visual {
+
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+
+.recap-savings-gauge {
+
+    display: block;
+    width: 72%;
+    height: auto;
+    margin: 8px auto 0;
+    overflow: visible;
+}
+
+
+.recap-savings-gauge path {
+
+    fill: none;
+    stroke-width: 20;
+    stroke-linecap: round;
+}
+
+
+.recap-gauge-track {
+
+    stroke: var(--hawkes-blue);
+}
+
+
+.recap-gauge-fill {
+
+    stroke: var(--persian-blue);
+    stroke-dasharray: 100 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset 0.35s ease, opacity 0.2s ease;
+}
+
+
+#recap-savings-amount {
+
+    display: block;
+    margin-top: -14px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--blue-black);
+    transition: color 0.3s ease;
+}
+
+
+.recap-savings-card.savings-filling #recap-savings-amount {
+
+    color: #16a34a;
+}
+
+
+.recap-savings-card.savings-filling .recap-savings-gauge {
+
+    filter: drop-shadow(0 0 12px rgba(25, 67, 220, 0.45));
+}
+
+
+.recap-savings-card .savings-fill-tag {
+
+    top: 18%;
+    font-size: 20px;
+}
+
+
+.recap-savings-card .savings-fill-coin {
+
+    top: 0;
+}
+
+
+/* Round 90 (Kayla): on the between-round recap, the "You saved..."
+   bar and the surprise-lesson bar span the same width as the
+   Savings card + meters row below them (.end-columns, 840px). The
+   finale keeps its own layout. */
+.end-card:not(.is-finale) #readiness-outcome,
+.end-card:not(.is-finale) .surprise-lesson {
+
+    box-sizing: border-box;
+    width: 840px;
+    max-width: 100%;
+}
+
+
+/* ==========================================
+   BETWEEN-ROUND RECAP LAYOUT (round 91, Kayla)
+     sparkle / "X Complete!" / message   (unchanged)
+     tip bar                             (full width)
+     Financial meter | Personal meter    (side by side)
+     Savings card    | "You saved..." box
+                     | Start button
+   The tip bar spans exactly the two meters (both
+   columns). The Savings card spans both right-hand
+   rows, so its height matches the box + button.
+   Done with a grid on the card and display:contents
+   on the old column wrappers, so the HTML (and the
+   finale's layout) are untouched.
+========================================== */
+
+.end-card:not(.is-finale) {
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+    grid-template-areas:
+        "cel   cel"
+        "eye   eye"
+        "title title"
+        "msg   msg"
+        "tip   tip"
+        "over  over"
+        "fin   pers"
+        "save  ready"
+        "save  btn";
+    align-items: start;
+}
+
+
+.end-card:not(.is-finale) .end-columns,
+.end-card:not(.is-finale) .end-results-col,
+.end-card:not(.is-finale) .end-wellness-col {
+
+    display: contents;
+}
+
+
+.end-card:not(.is-finale) .celebration          { grid-area: cel; }
+.end-card:not(.is-finale) #end-eyebrow          { grid-area: eye; }
+.end-card:not(.is-finale) #end-title            { grid-area: title; }
+.end-card:not(.is-finale) #end-message          { grid-area: msg; }
+.end-card:not(.is-finale) #overfunding-callout  { grid-area: over; }
+
+
+.end-card:not(.is-finale) .surprise-lesson {
+
+    grid-area: tip;
+    width: auto;
+    max-width: none;
+    margin: 18px 0 24px;
+}
+
+
+.end-card:not(.is-finale) .end-wellness-col > .wellness:nth-child(1) { grid-area: fin; }
+.end-card:not(.is-finale) .end-wellness-col > .wellness:nth-child(2) { grid-area: pers; }
+
+.end-card:not(.is-finale) .end-wellness-col > .wellness {
+
+    width: auto;
+    max-width: none;
+    margin: 0 0 26px;
+    text-align: left;
+}
+
+
+.end-card:not(.is-finale) #recap-savings-card {
+
+    grid-area: save;
+    align-self: stretch;
+    justify-content: center;
+    margin: 0;
+}
+
+
+.end-card:not(.is-finale) #readiness-outcome {
+
+    grid-area: ready;
+    width: auto;
+    max-width: none;
+    margin: 0 0 16px;
+}
+
+
+.end-card:not(.is-finale) #next-month-btn,
+.end-card:not(.is-finale) #play-again-btn {
+
+    grid-area: btn;
+    width: 100%;
+    margin: 0;
+    align-self: end;
+}
+
+
+/* Round 91b: the "You saved" row is the flexible one, so the box
+   grows to meet the button and the right column (box + gap +
+   button) ends exactly where the Savings card does. Gauge trimmed
+   so the card isn't much taller than that stack. */
+.end-card:not(.is-finale) {
+
+    grid-template-rows: auto auto auto auto auto auto auto 1fr auto;
+}
+
+
+.end-card:not(.is-finale) #readiness-outcome {
+
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.end-card:not(.is-finale) #next-month-btn,
+.end-card:not(.is-finale) #play-again-btn {
+
+    align-self: stretch;
+}
+
+
+.end-card:not(.is-finale) #recap-savings-card {
+
+    padding: 14px 20px 18px;
+}
+
+
+.end-card:not(.is-finale) .recap-savings-gauge {
+
+    width: 58%;
+    margin-top: 2px;
+}
+
+
+.end-card:not(.is-finale) #recap-savings-amount {
+
+    font-size: 38px;
+    margin-top: -10px;
+}
+
+
+/* Round 92 (Kayla): Start button back to its natural width (label +
+   35px side padding), centered under the "You saved" box. Height
+   unchanged. */
+.end-card:not(.is-finale) #next-month-btn,
+.end-card:not(.is-finale) #play-again-btn {
+
+    width: auto;
+    justify-self: center;
+}
+
+
+/* Round 93 (Kayla): more breathing room at the top and bottom of the
+   between-round recap (was 44px / 40px). */
+.end-card:not(.is-finale) {
+
+    padding-top: 66px;
+    padding-bottom: 62px;
+}
+
+
+/* Round 94 (Kayla): one long translucent box behind both meters --
+   the same glassy panel that used to sit behind the old Starting
+   Income / Total Spent cards. It's the card's ::after, placed in the
+   meters' grid row across both columns; the meters sit on top with
+   inner padding. */
+.end-card:not(.is-finale)::after {
+
+    content: "";
+    grid-row: fin;
+    grid-column: 1 / -1;
+    align-self: stretch;
+    position: relative;
+    z-index: 0;
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    pointer-events: none;
+}
+
+
+.end-card:not(.is-finale) .end-wellness-col > .wellness {
+
+    position: relative;
+    z-index: 1;
+    margin-bottom: 24px;
+    padding: 20px 24px 24px;
+}
+
+
+.end-card:not(.is-finale) .end-wellness-col > .wellness:nth-child(1) {
+
+    padding-right: 12px;
+}
+
+
+.end-card:not(.is-finale) .end-wellness-col > .wellness:nth-child(2) {
+
+    padding-left: 12px;
+}
+
+
+/* ==========================================
+   ROUND 95 (Kayla): savings animation and meters
+   free-float on the blue recap -- no white card
+   behind the gauge, no glassy panel behind the
+   meters. Between-round recap only.
+========================================== */
+
+/* Meters: drop the round-94 glassy panel. */
+.end-card:not(.is-finale)::after {
+
+    content: none;
+}
+
+
+.end-card:not(.is-finale) .end-wellness-col > .wellness,
+.end-card:not(.is-finale) .end-wellness-col > .wellness:nth-child(1),
+.end-card:not(.is-finale) .end-wellness-col > .wellness:nth-child(2) {
+
+    padding: 0;
+    margin-bottom: 28px;
+}
+
+
+/* Savings: no card -- the gauge, amount, tag and coins sit straight
+   on the blue, centered beside the "You saved" box + Start button. */
+.end-card:not(.is-finale) #recap-savings-card {
+
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    justify-content: center;
+}
+
+
+.end-card:not(.is-finale) .recap-savings-label {
+
+    align-self: center;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+
+.end-card:not(.is-finale) .recap-savings-gauge {
+
+    width: 62%;
+}
+
+
+.end-card:not(.is-finale) .recap-gauge-track {
+
+    stroke: rgba(255, 255, 255, 0.18);
+}
+
+
+.end-card:not(.is-finale) .recap-gauge-fill {
+
+    stroke: #59D2FE;
+}
+
+
+.end-card:not(.is-finale) #recap-savings-amount {
+
+    color: #ffffff;
+    font-size: 44px;
+}
+
+
+.end-card:not(.is-finale) .recap-savings-card.savings-filling #recap-savings-amount {
+
+    color: #4ade80;
+}
+
+
+.end-card:not(.is-finale) .recap-savings-card.savings-filling .recap-savings-gauge {
+
+    filter: drop-shadow(0 0 14px rgba(89, 210, 254, 0.55));
+}
+
+
+/* Round 96 (Kayla): the glassy panel goes behind the savings
+   animation (not the meters -- those stay free-floating). Same look
+   as the old panel: faint white fill, faint white border, 20px
+   corners. Still exactly as tall as the "You saved" box + Start
+   button beside it. */
+.end-card:not(.is-finale) #recap-savings-card {
+
+    box-sizing: border-box;
+    padding: 16px 20px 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+}
+
+
+/* Round 97 (Kayla): "SAVINGS" label in plain white. */
+.end-card:not(.is-finale) .recap-savings-label {
+
+    color: #ffffff;
+}
+
+
+/* Round 98 (Kayla): real QR in the white frame (same 220px frame as
+   the old placeholder, no dashed outline), with the scan line under
+   it, wrapping and centered. */
+.real-life-qr {
+
+    box-sizing: border-box;
+    width: 220px;
+    height: 220px;
+    padding: 14px;
+    border-radius: 20px;
+    background: #ffffff;
+}
+
+
+.real-life-qr img {
+
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+
+.real-life-side .real-life-scan {
+
+    max-width: 240px;
+    text-align: center;
+    line-height: 1.45;
+}
+
+
+/* Round 101 (Kayla): small disclosure under the QR, on the blue panel
+   -- same size/weight family as the fine print on the left, in soft
+   white. */
+.real-life-side-disclosure {
+
+    /* Even line lengths, so no word is left alone on its own line. */
+    max-width: 272px;
+    text-wrap: balance;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+
+/* Round 106 (Kayla): "Try it for Real" fine print a couple points
+   bigger (was 14px). */
+.real-life-fine-print {
+
+    font-size: 16px;
+}
+
+
+/* ==========================================
+   FINALE SAVINGS ANIMATION (round 109, Kayla)
+   The last round's move into Savings plays in the
+   finale's white "You saved" box -- a big centered
+   gauge with the amount tucked into its arc, then
+   the body copy underneath. The finale has no tip.
+========================================== */
+
+.end-card.is-finale .surprise-lesson {
+
+    display: none !important;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual {
+
+    position: relative;
+    width: 100%;
+    margin: 4px auto 10px;
+    text-align: center;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-gauge {
+
+    display: block;
+    width: 340px;
+    max-width: 70%;
+    height: auto;
+    margin: 0 auto;
+    overflow: visible;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual .finale-hero-amount {
+
+    margin: -58px 0 0;
+}
+
+
+.readiness-outcome.finale-hero.savings-filling .finale-hero-gauge {
+
+    filter: drop-shadow(0 0 14px rgba(25, 67, 220, 0.4));
+}
+
+
+.readiness-outcome.finale-hero .savings-fill-tag {
+
+    top: 14%;
+    font-size: 24px;
+}
+
+
+.readiness-outcome.finale-hero .savings-fill-coin {
+
+    top: 0;
+}
+
+
+/* Round 109b: fit -- the amount sits inside the arc without touching
+   its ends, and the whole finale (incl. Continue) stays on screen. */
+.readiness-outcome.finale-hero .finale-hero-gauge {
+
+    width: 300px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual .finale-hero-amount {
+
+    font-size: 58px;
+    margin: -40px 0 0;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual {
+
+    margin: 2px auto 8px;
+}
+
+
+/* Round 109c: a touch tighter so the finale card doesn't need to
+   scroll and the amount clears the arc's ends. */
+.readiness-outcome.finale-hero {
+
+    padding-top: 18px;
+    padding-bottom: 20px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-gauge {
+
+    width: 280px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual .finale-hero-amount {
+
+    font-size: 52px;
+    margin-top: -34px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual {
+
+    margin: 0 auto 6px;
+}
+
+
+/* Round 110 (Kayla): finale tweaks.
+   - The "From your first paycheck..." line stays on one line (no
+     lone "built." underneath).
+   - Smaller gauge so the finale never needs a scrollbar. */
+.end-card.is-finale > #end-message {
+
+    max-width: none;
+    white-space: nowrap;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-gauge {
+
+    width: 210px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual .finale-hero-amount {
+
+    font-size: 44px;
+    margin-top: -28px;
+}
+
+
+/* Round 110b: with the smaller gauge the amount sits just under the
+   arc instead of inside it, so it never touches the arc's ends. */
+.readiness-outcome.finale-hero .finale-hero-gauge {
+
+    width: 220px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual .finale-hero-amount {
+
+    font-size: 48px;
+    margin-top: 4px;
+}
+
+
+/* ==========================================
+   METERS AWAY DURING CARDS + RESULTS (round 111)
+   After Start, the top wellness meters fade out
+   (same fade as their entrance) while the surprise
+   cards and results play; loadStage() brings them
+   back with the next phase's story popup. With the
+   meters gone, the results and "Try it for Real"
+   popups center on the whole screen instead of
+   sitting below the meters.
+========================================== */
+
+.top-wellness-bar.meters-away {
+
+    opacity: 0;
+    transform: translateY(-16px);
+    pointer-events: none;
+}
+
+
+#end-screen,
+#real-life-screen {
+
+    padding: 24px 20px;
+}
+
+
+/* ==========================================
+   FINALE "YOU SAVED" FREE-FLOATING (round 112, Kayla)
+   No white box -- label, gauge, amount and copy sit
+   right on the blue, in the same colors as the
+   between-round Savings animation. The half circle
+   is bigger again so the amount sits inside it.
+   (The savings-bonus explainer line was removed.)
+========================================== */
+
+.readiness-outcome.finale-hero {
+
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin-bottom: 18px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-label {
+
+    color: #ffffff;
+}
+
+
+.readiness-outcome.finale-hero .recap-gauge-track {
+
+    stroke: rgba(255, 255, 255, 0.18);
+}
+
+
+.readiness-outcome.finale-hero .recap-gauge-fill {
+
+    stroke: #59D2FE;
+}
+
+
+.readiness-outcome.finale-hero.savings-filling .finale-hero-gauge {
+
+    filter: drop-shadow(0 0 16px rgba(89, 210, 254, 0.55));
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-gauge {
+
+    width: 340px;
+}
+
+
+.readiness-outcome.finale-hero .finale-hero-visual .finale-hero-amount {
+
+    font-size: 56px;
+    margin-top: -64px;
+    color: #4ade80;
+}
+
+
+.readiness-outcome.finale-hero p {
+
+    color: var(--hawkes-blue);
+}
+
+
+/* Round 112b: a little air between the arc and the body copy. */
+.readiness-outcome.finale-hero .finale-hero-visual {
+
+    margin-bottom: 14px;
+}
+
+
+/* Round 113 (Kayla): each finale sentence on its own line -- the copy
+   has a <br> between them, and the paragraph can now run wide
+   enough that neither sentence wraps. */
+.readiness-outcome.finale-hero p {
+
+    max-width: none;
+    white-space: nowrap;
+}
+
+
+/* ==========================================
+   "TRY IT FOR REAL" ANIMATION (round 114, Kayla)
+   Plays as soon as the screen opens (it starts
+   display:none, so every opening restarts it):
+   - the three game -> real-life bars slide in one
+     after another, then a light shine sweeps across
+     each bar in turn, every few seconds;
+   - each arrow gives a small nudge to the right;
+   - the QR gently pulses (about 4% -- stays easily
+     scannable) with a soft sky-blue glow.
+========================================== */
+
+.real-life-pair {
+
+    position: relative;
+    overflow: hidden;
+    animation: real-life-pair-in 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+
+.real-life-pair:nth-child(2) { animation-delay: 0.25s; }
+.real-life-pair:nth-child(3) { animation-delay: 0.4s; }
+.real-life-pair:nth-child(4) { animation-delay: 0.55s; }
+
+
+/* The shine: a soft white band that slides left to right. */
+.real-life-pair::after {
+
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 40%;
+    background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.85) 50%,
+        transparent 100%
+    );
+    transform: translateX(-120%) skewX(-18deg);
+    pointer-events: none;
+    animation: real-life-shine 4.5s ease-in-out infinite;
+    animation-delay: 1.2s;
+}
+
+
+.real-life-pair:nth-child(3)::after { animation-delay: 1.5s; }
+.real-life-pair:nth-child(4)::after { animation-delay: 1.8s; }
+
+
+.real-life-pair > * {
+
+    position: relative;
+    z-index: 1;
+}
+
+
+.real-life-arrow {
+
+    display: inline-block;
+    animation: real-life-arrow-nudge 2.2s ease-in-out 1s infinite;
+}
+
+
+.real-life-qr {
+
+    animation: real-life-qr-pulse 2.6s ease-in-out 0.8s infinite;
+}
+
+
+@keyframes real-life-pair-in {
+    from { opacity: 0; transform: translateX(-28px); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes real-life-shine {
+    0%        { transform: translateX(-120%) skewX(-18deg); }
+    30%, 100% { transform: translateX(320%) skewX(-18deg); }
+}
+
+@keyframes real-life-arrow-nudge {
+    0%, 60%, 100% { transform: translateX(0); }
+    75%           { transform: translateX(6px); }
+}
+
+@keyframes real-life-qr-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(89, 210, 254, 0);
+    }
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 0 0 10px rgba(89, 210, 254, 0.28);
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .real-life-pair,
+    .real-life-pair::after,
+    .real-life-arrow,
+    .real-life-qr {
+        animation: none;
+    }
+}
+
+
+/* Round 114b: white barely shows on the pale bars -- use a soft
+   sky-blue sheen so the swipe actually reads. */
+.real-life-pair::after {
+
+    width: 45%;
+    background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(139, 209, 255, 0.55) 45%,
+        rgba(255, 255, 255, 0.7) 50%,
+        rgba(139, 209, 255, 0.55) 55%,
+        transparent 100%
+    );
+}
+
+
+/* ==========================================
+   "TRY IT FOR REAL" ANIMATION, TAKE 2 (round 115, Kayla)
+   - the light swipe is gone;
+   - friendlier arrows: rounded SVG strokes, sitting
+     between the left and right text (fixed left
+     column) instead of hugging the right text;
+   - the left icons pop, one row after another;
+   - "Student Checking Account" waves: each letter
+     hops in turn, then rests, every few seconds.
+   QR pulse and bar slide-in from round 114 stay.
+========================================== */
+
+.real-life-pair::after {
+
+    content: none;
+}
+
+
+.real-life-pairs-head,
+.real-life-pair {
+
+    grid-template-columns: 270px 64px 1fr;
+}
+
+
+.real-life-arrow {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.real-life-arrow svg {
+
+    width: 30px;
+    height: 30px;
+    fill: none;
+    stroke: var(--blue-bird);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* Icon pop: a quick bouncy scale, row by row, repeating. */
+.real-life-icon {
+
+    animation: real-life-icon-pop 4s ease-in-out infinite;
+    animation-delay: 0.9s;
+}
+
+
+.real-life-pair:nth-child(3) .real-life-icon { animation-delay: 1.15s; }
+.real-life-pair:nth-child(4) .real-life-icon { animation-delay: 1.4s; }
+
+
+@keyframes real-life-icon-pop {
+    0%, 22%, 100% { transform: scale(1); }
+    8%            { transform: scale(1.22); }
+    15%           { transform: scale(0.94); }
+}
+
+
+/* Title wave. Each letter's hop is the first ~8% of a 4.2s loop;
+   --i staggers them so the hop travels left to right. */
+.real-life-title .wave-letter {
+
+    display: inline-block;
+    animation: real-life-wave 4.2s ease-in-out infinite;
+    animation-delay: calc(0.6s + var(--i) * 0.045s);
+}
+
+
+@keyframes real-life-wave {
+    0%, 12%, 100% { transform: translateY(0); }
+    5%            { transform: translateY(-10px); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .real-life-icon,
+    .real-life-title .wave-letter {
+        animation: none;
+    }
+}

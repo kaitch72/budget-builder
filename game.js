@@ -2475,10 +2475,24 @@ let savingsAtStageStart = 0;
 // recomputeAutoSavings().
 let savingsFilledThisStage = false;
 
+// Round 69: never cleared now -- the whole game's activity.
 // Round 35: phone "Recent Activity" history -- past paychecks plus
 // the money-in/money-out surprises, oldest first. Not reset between
 // stages (a page reload starts fresh).
 let activityHistory = [];
+
+// Round 111: fades the top wellness meters out (true) or back in.
+function setMetersAway(away) {
+
+    const bar = document.getElementById("wellness-bar");
+
+    if (bar) bar.classList.toggle("meters-away", away);
+
+}
+
+// Round 86: this round's surprise cards (see applyNarrativeEffects),
+// read by surpriseLessonFor() for the recap note. Reset each stage.
+let roundSurprises = [];
 let savingsFillInProgress = false;
 let pendingSavingsLeftover = 0;
 
@@ -2486,6 +2500,26 @@ let pendingSavingsLeftover = 0;
 // Savings, and on which stage -- shown as a green "+$X" row in the
 // next stage's Recent Activity (instead of the running total).
 let lastSavingsTransfer = { amount: 0, stageName: "" };
+
+// Round 67 (Kayla): consequences hit CHECKING, not Savings.
+// Start no longer moves the leftover into Savings -- it stays in
+// checking as checkingLeftover, and the round's cards add to or
+// take from it (a penalty bigger than checking pulls the rest
+// from Savings). At the start of the NEXT round whatever's left
+// moves to Savings with the gauge animation
+// (playSavingsTransfer). On the final stage that move plays right
+// before the recap instead.
+let checkingLeftover = 0;
+
+// Set by finishMonth() for the next stage: this much of
+// buckets.savings (already counted, so scoring is unchanged) is
+// still shown in Checking until the start-of-round transfer plays.
+let savingsTransferPending = 0;
+
+// True once the final stage's pre-recap transfer has played.
+let finalTransferDone = false;
+
+let savingsTransferRunning = false;
 
 // Expenses actually in play this stage: the stage's
 // own list, plus anything carried forward (a missed
@@ -2879,6 +2913,12 @@ if (stageIntroContinueBtn) {
                 );
             }
 
+            // Round 67: last round's leftover moves to Savings once
+            // the sidebar has settled.
+            if (savingsTransferPending > 0) {
+                setTimeout(runStartOfRoundTransfer, 600);
+            }
+
         }
     );
 
@@ -2951,6 +2991,42 @@ const TUTORIAL_HIGHLIGHT_PAD = 14;
 // advance from elsewhere in the code, right where that action
 // actually happens (see openTierPicker() and selectTierForBucket()
 // further down).
+// Round 71 (Kayla): the phone steps light up only the top of the
+// screen -- the Checking/Savings tabs down to the balance amount --
+// not the Recent Activity list under it (which round 66 moved inside
+// #phone-accounts). This is a stand-in "element": the full width of
+// #phone-accounts, from the top of the tabs to the bottom of the
+// card + amount on the given slide.
+function phoneTopTarget(account) {
+
+    const wrap = document.getElementById("phone-accounts");
+    if (!wrap) return document.querySelector(".paycheck-callout");
+
+    const tabs = wrap.querySelector(".phone-tabs");
+    const card = wrap.querySelector(
+        `.phone-account[data-account="${account}"] .paycheck-card`
+    );
+
+    if (!tabs || !card) return wrap;
+
+    return {
+        tutorialRadius: 18,
+        getBoundingClientRect() {
+            const w = wrap.getBoundingClientRect();
+            const t = tabs.getBoundingClientRect();
+            const c = card.getBoundingClientRect();
+            return {
+                left: w.left,
+                width: w.width,
+                top: t.top,
+                height: c.bottom - t.top
+            };
+        }
+    };
+
+}
+
+
 const TUTORIAL_STEPS = [
 
     null,
@@ -2965,9 +3041,16 @@ const TUTORIAL_STEPS = [
         // Round 39: the whole accounts carousel -- "Checking" title,
         // card, amount and the dots -- so the lit box doesn't cut
         // through the title or the dots.
+        target: () => phoneTopTarget("checking"),
+        placement: "right",
+        showNext: true
+    },
+
+    // Round 72 (Kayla): Recent Activity, right after the Checking step.
+    {
+        body: "This is your Recent Activity. Every paycheck, payment, and surprise will show up here.",
         target: () =>
-            document.getElementById("phone-accounts") ||
-            document.querySelector(".paycheck-callout"),
+            document.querySelector('.phone-account[data-account="checking"] .phone-txns'),
         placement: "right",
         showNext: true
     },
@@ -2977,7 +3060,7 @@ const TUTORIAL_STEPS = [
     // slides back to Checking when they hit Next.
     {
         body: "Tap Savings or swipe the card anytime to see your Savings account. Whatever you don't spend ends up here.",
-        target: () => document.getElementById("phone-accounts"),
+        target: () => phoneTopTarget("savings"),
         placement: "right",
         showNext: true
     },
@@ -2998,12 +3081,30 @@ const TUTORIAL_STEPS = [
         showNext: false
     },
 
+    // Round 76 (Kayla): the meters get two popups. Both keep the
+    // whole wellness bar lit; the popup sits under the Financial
+    // meter first, then slides over under the Personal meter.
     {
         body:
-            "Each choice will affect your Financial and Personal " +
-            "Wellness — try to find balance between the two!",
+            "Financial Wellness shows how much of your pay you're " +
+            "saving. Each choice you make moves it up or down.",
+        note:
+            "Tip: Every dollar you don't spend helps — and Wants are " +
+            "the easiest place to save.",
         target: () => wellnessBarEl,
-        placement: "below-center",
+        placement: "below-meter-left",
+        showNext: true
+    },
+
+    {
+        body:
+            "Personal Wellness shows how happy and healthy your " +
+            "choices keep you. Try to find balance between the two!",
+        note:
+            "Tip: Cutting back on Needs hurts your Personal Wellness " +
+            "more than cutting back on Wants.",
+        target: () => wellnessBarEl,
+        placement: "below-meter-right",
         showNext: true
     },
 
@@ -3089,7 +3190,9 @@ function positionTutorialHighlight(target) {
     // radius so the now-larger box's corners keep growing along
     // with it, instead of a big box with a small tight radius.
     const baseRadius =
-        parseFloat(getComputedStyle(target).borderRadius) || 0;
+        typeof target.tutorialRadius === "number"
+            ? target.tutorialRadius
+            : parseFloat(getComputedStyle(target).borderRadius) || 0;
 
     tutorialHighlightEl.style.borderRadius =
         (baseRadius + TUTORIAL_HIGHLIGHT_PAD) + "px";
@@ -3122,6 +3225,28 @@ function positionTutorialPopup(step) {
             rect.left + rect.width + TUTORIAL_HIGHLIGHT_PAD + gap;
         top =
             rect.top - TUTORIAL_HIGHLIGHT_PAD;
+
+    }
+
+    else if (
+        step.placement === "below-meter-left" ||
+        step.placement === "below-meter-right"
+    ) {
+
+        // Round 76: centered under one of the two top-bar meters.
+        const meters =
+            wellnessBarEl.querySelectorAll(".wellness-meter");
+
+        const meter =
+            meters[step.placement === "below-meter-left" ? 0 : 1] ||
+            wellnessBarEl;
+
+        const rect = getStageRect(meter);
+
+        const barRect = getStageRect(wellnessBarEl);
+
+        left = rect.left + rect.width / 2 - popupWidth / 2;
+        top = barRect.top + barRect.height + TUTORIAL_HIGHLIGHT_PAD + gap;
 
     }
 
@@ -3187,9 +3312,10 @@ function showTutorialStep(stepNumber) {
 
     // Round 40: step 2 slides the phone over to Savings by itself;
     // moving on to step 3 slides it back to Checking.
-    if (stepNumber === 2) {
+    // Round 72: renumbered (Recent Activity is now step 2).
+    if (stepNumber === 3) {
         setPhoneAccount(1, true);
-    } else if (stepNumber === 3) {
+    } else if (stepNumber === 4) {
         setPhoneAccount(0, true);
     }
 
@@ -3202,6 +3328,26 @@ function showTutorialStep(stepNumber) {
 
     tutorialBodyEl.textContent =
         step.body;
+
+    const tutorialNoteEl = document.getElementById("tutorial-note");
+
+    if (tutorialNoteEl) {
+
+        const notes =
+            !step.note ? [] : Array.isArray(step.note) ? step.note : [step.note];
+
+        tutorialNoteEl.innerHTML = "";
+
+        notes.forEach((text) => {
+            const line = document.createElement("p");
+            line.className = "tutorial-note";
+            line.textContent = text;
+            tutorialNoteEl.appendChild(line);
+        });
+
+        tutorialNoteEl.classList.toggle("hidden", notes.length === 0);
+
+    }
 
     if (step.showNext) {
 
@@ -3254,13 +3400,13 @@ function tutorialAllowsTap(target) {
 
     if (target.closest("#restart-button")) return true;
 
-    if (tutorialStep === 3) {
+    if (tutorialStep === 4) {
         const foodTile =
             document.getElementById("jar-img-food")?.closest(".bucket");
         return !!(foodTile && foodTile.contains(target));
     }
 
-    if (tutorialStep === 4) {
+    if (tutorialStep === 5) {
         return !!target.closest(
             "#tier-picker-modal .tier-option-button:not([disabled])"
         );
@@ -3307,6 +3453,14 @@ function endTutorial() {
 
     tutorialPopupEl.classList.add("hidden");
     tutorialHighlightEl.classList.add("hidden");
+
+    // Round 78: a money lesson that came due mid-tutorial shows now
+    // (unless the round has already started).
+    if (typeof lessonWaitingForTutorial !== "undefined" && lessonWaitingForTutorial && !savingsFilledThisStage) {
+        const lesson = lessonWaitingForTutorial;
+        lessonWaitingForTutorial = null;
+        setTimeout(() => showLessonBanner(lesson), 400);
+    }
 
 }
 
@@ -3426,6 +3580,18 @@ function loadStage(stageNumber) {
 
     pendingSavingsLeftover = 0;
 
+    checkingLeftover = 0;
+
+    roundSurprises = [];
+
+    // Round 111: meters back for the new phase (its story popup).
+    setMetersAway(false);
+
+    // Round 78: fresh money lessons each stage.
+    lessonsShownThisStage = new Set();
+
+    if (typeof hideLessonBanner === "function") hideLessonBanner();
+
     if (currentStage > 1) {
 
         buckets.savings =
@@ -3534,19 +3700,52 @@ function loadStage(stageNumber) {
             `+$${stage.income.toLocaleString()}`;
     }
 
-    // Round 38 (Kayla): Recent Activity only covers the last round
-    // -- this stage's deposit, savings carried forward, a carried
-    // bill if any, and last round's surprises. So render what the
-    // previous stage logged, then clear it for this stage's own
-    // surprises. (No past paychecks.)
-    renderActivityHistory();
+    // Round 69 (Kayla): Recent Activity now keeps growing for the
+    // whole game -- nothing is cleared between rounds. Each round
+    // adds, oldest to newest: last round's Checking -> Savings move,
+    // then (once that move has played) this round's pay and any
+    // carried bill, then this round's surprise cards as they land.
+    // The static rows in index.html only supply icons now.
+    if (currentStage > 1 && lastSavingsTransfer.amount > 0) {
 
-    activityHistory = [];
+        activityHistory.push(
+            {
+                account: "checking",
+                type: "transfer",
+                title: "Moved to Savings",
+                subtitle: "To Savings",
+                amount: -lastSavingsTransfer.amount,
+                kind: "transfer",
+                stageName: lastSavingsTransfer.stageName
+            },
+            {
+                account: "savings",
+                type: "transfer",
+                title: "Moved to Savings",
+                subtitle: "From Checking",
+                amount: lastSavingsTransfer.amount,
+                kind: "in",
+                stageName: lastSavingsTransfer.stageName
+            }
+        );
+
+        lastSavingsTransfer = { amount: 0, stageName: "" };
+
+    }
+
+    if (savingsTransferPending <= 0) {
+        logStageStartEntries();
+    }
+
+    renderActivityHistory();
 
     setPhoneAccount(0, false);
 
-    const txnList = document.getElementById("phone-txns-list");
-    if (txnList) txnList.scrollTop = 0;
+    // Round 66: Checking and Savings each have their own list.
+    ["phone-txns-list", "savings-txns-list"].forEach((id) => {
+        const txnList = document.getElementById(id);
+        if (txnList) txnList.scrollTop = 0;
+    });
 
 
     // The "<Stage> Paycheck" label was removed in round 32 (the
@@ -4155,11 +4354,13 @@ function computeLiveFinancialScore() {
 
     // Before Start, count the leftover that's about to go into
     // Savings, so the meter still previews the outcome (round 32).
+    // Round 67: after Start the leftover (moved by consequences)
+    // is checkingLeftover; it reaches Savings next round.
     const projectedSavings =
         (buckets.savings || 0) +
         (
-            stages[currentStage].tieredNeeds && !savingsFilledThisStage
-                ? pendingSavingsLeftover
+            stages[currentStage].tieredNeeds
+                ? (savingsFilledThisStage ? checkingLeftover : pendingSavingsLeftover)
                 : 0
         );
 
@@ -4235,16 +4436,32 @@ const personalWellnessRecapScore =
 // Pulled out of updateWellnessMeters() (round 23) so the
 // consequence cards can measure the exact same number before
 // and after an outcome lands.
+// Round 74 (Kayla): a gentle "grading curve" on both meters so a
+// well-balanced game ends in the 60s instead of around 50% (kids
+// read 50% as failing). Every raw 0-100 score is shown as
+// 100 x (raw/100)^METER_CURVE: low and middle scores lift the most,
+// 0 and 100 stay put, so maxing both meters is still impossible.
+// With 0.65: raw 48 -> 62, 52 -> 65, 72 -> 81, Personal's neutral
+// 50 -> 64. Set METER_CURVE = 1 to turn the curve off.
+const METER_CURVE = 0.65;
+
+function curveMeter(raw) {
+
+    const clamped = Math.max(0, Math.min(100, raw));
+
+    return Math.round(100 * Math.pow(clamped / 100, METER_CURVE));
+
+}
+
+
 function computePersonalPercent() {
 
-    return Math.max(
-        0,
-        Math.min(
-            100,
-            Math.round(
-                50 + personalWellnessTotal * 2
-            )
-        )
+    // The end-of-game savings bonus (round 65) is added after the
+    // curve, so the "+N%" the finale promises is exactly what the
+    // meter gains.
+    return Math.min(
+        100,
+        curveMeter(50 + personalWellnessTotal * 2) + finalSavingsBonus
     );
 
 }
@@ -4277,7 +4494,7 @@ function computeFinancialPercent() {
 
     return Math.min(
         100,
-        Math.round(
+        curveMeter(
             scoresForAverage.reduce(
                 (total, score) => total + score,
                 0
@@ -4533,8 +4750,17 @@ function buildNarrativeQueue() {
                           ];
 
                 // Tag which jar it came from, for the card's
-                // face-down side ("Your Food jar").
-                return { ...outcome, bucketId };
+                // face-down side ("Your Food jar"). Round 86: also
+                // the jar's name, Need/Want and tier position, for the
+                // recap's surprise lesson.
+                return {
+                    ...outcome,
+                    bucketId,
+                    jarName: jar ? jar.name : "",
+                    isNeed,
+                    tierIndex,
+                    tierCount: jar ? jar.tiers.length : 3
+                };
 
             }
         );
@@ -4616,7 +4842,8 @@ function getWellnessSnapshot() {
     return {
         financial: computeFinancialPercent(),
         personal: computePersonalPercent(),
-        savings: buckets.savings || 0
+        savings: buckets.savings || 0,
+        checking: checkingLeftover
     };
 
 }
@@ -4624,13 +4851,18 @@ function getWellnessSnapshot() {
 
 function applyNarrativeEffects(outcome) {
 
-    const savingsBeforeEffects = buckets.savings || 0;
+    // Round 67: money in/out lands in CHECKING. A penalty bigger
+    // than what's in checking takes the rest from Savings (like
+    // overdraft protection); if both are empty the rest is let go.
+    const stageName = stages[currentStage] ? stages[currentStage].name : "";
+
+    const fx = { checking: 0, savings: 0 };
 
     if (outcome.bonus) {
 
-        buckets.savings =
-            (buckets.savings || 0) +
-            outcome.bonus;
+        checkingLeftover += outcome.bonus;
+
+        fx.checking += outcome.bonus;
 
         personalWellnessTotal +=
             NARRATIVE_WELLBEING_BONUS;
@@ -4640,12 +4872,23 @@ function applyNarrativeEffects(outcome) {
 
     if (outcome.penalty) {
 
-        buckets.savings =
-            Math.max(
-                0,
-                (buckets.savings || 0) -
-                    outcome.penalty
+        const fromChecking =
+            Math.min(checkingLeftover, outcome.penalty);
+
+        checkingLeftover -= fromChecking;
+
+        const fromSavings =
+            Math.min(
+                buckets.savings || 0,
+                outcome.penalty - fromChecking
             );
+
+        buckets.savings =
+            (buckets.savings || 0) - fromSavings;
+
+        fx.checking -= fromChecking;
+
+        fx.savings -= fromSavings;
 
         personalWellnessTotal +=
             NARRATIVE_WELLBEING_PENALTY;
@@ -4653,20 +4896,46 @@ function applyNarrativeEffects(outcome) {
     }
 
 
-    // Round 35: money in/out lands in the phone's Recent Activity
-    // (shown from the next stage on). Carried bills aren't logged
-    // here -- next stage's "carried bill" row already shows them.
-    const savingsChange =
-        (buckets.savings || 0) - savingsBeforeEffects;
+    // Round 35/67: each account's change is logged for its own
+    // screen's Recent Activity (shown next stage). Carried bills
+    // aren't logged here -- next stage's "carried bill" row
+    // already shows them.
+    const title = outcome.title || (outcome.bonus ? "Bonus" : "Expense");
 
-    if (savingsChange !== 0) {
+    // Round 86: remember what kind of surprise this was, for the
+    // recap's "what your surprises taught you" note.
+    roundSurprises.push({
+        good: Boolean(outcome.bonus),
+        bad: Boolean(outcome.penalty || outcome.carryForwardBill),
+        shortfall: fx.savings < 0,
+        isNeed: outcome.isNeed,
+        cheapest: outcome.tierIndex === 0,
+        priciest: outcome.tierIndex === (outcome.tierCount || 3) - 1,
+        jarName: outcome.jarName || ""
+    });
+
+    if (fx.checking !== 0) {
 
         activityHistory.push({
-            title: outcome.title || (savingsChange > 0 ? "Bonus" : "Expense"),
-            subtitle: savingsChange > 0 ? "Into Savings" : "From Savings",
-            amount: savingsChange,
-            kind: savingsChange > 0 ? "in" : "out",
-            stageName: stages[currentStage] ? stages[currentStage].name : ""
+            account: "checking",
+            title,
+            subtitle: fx.checking > 0 ? "Into Checking" : "From Checking",
+            amount: fx.checking,
+            kind: fx.checking > 0 ? "in" : "out",
+            stageName
+        });
+
+    }
+
+    if (fx.savings !== 0) {
+
+        activityHistory.push({
+            account: "savings",
+            title,
+            subtitle: "Checking ran short",
+            amount: fx.savings,
+            kind: "out",
+            stageName
         });
 
     }
@@ -4697,6 +4966,10 @@ function applyNarrativeEffects(outcome) {
     updateBudgetDisplay();
 
     updateWellnessMeters();
+
+    renderActivityHistory();
+
+    return fx;
 
 }
 
@@ -4748,48 +5021,77 @@ function renderNarrativeImpacts(impacts) {
 }
 
 
-function renderNarrativeMoney(outcome, savingsChange) {
+function renderNarrativeMoney(outcome, fx) {
 
-    let text = "";
+    // Round 68: big dollar amount + a small label under it (the
+    // centerpiece of the card; meter tiles are smaller below).
+    let value = "";
+
+    let label = "";
 
     let tone = "is-down";
 
+    const money = (n) => `$${Math.abs(n).toLocaleString()}`;
+
     if (outcome.carryForwardBill) {
 
-        text =
-            `$${outcome.carryForwardBill.amount.toLocaleString()} bill carries into next stage`;
+        value = money(outcome.carryForwardBill.amount);
+
+        label = "bill carries into next stage";
 
     }
 
-    else if (savingsChange > 0) {
+    else if (fx.checking > 0) {
 
-        text =
-            `+$${savingsChange.toLocaleString()} added to Savings`;
+        value = `+${money(fx.checking)}`;
+
+        label = "added to Checking";
 
         tone = "is-up";
 
     }
 
-    else if (savingsChange < 0) {
+    else if (fx.checking < 0 && fx.savings < 0) {
 
-        text =
-            `−$${Math.abs(savingsChange).toLocaleString()} out of Savings`;
+        value = `−${money(fx.checking + fx.savings)}`;
+
+        label = `${money(fx.checking)} from Checking · ${money(fx.savings)} from Savings`;
+
+    }
+
+    else if (fx.checking < 0) {
+
+        value = `−${money(fx.checking)}`;
+
+        label = "out of Checking";
+
+    }
+
+    else if (fx.savings < 0) {
+
+        value = `−${money(fx.savings)}`;
+
+        label = "out of Savings (Checking was empty)";
 
     }
 
     else if (outcome.penalty) {
 
-        text =
-            "Savings was already empty";
+        value = "$0";
+
+        label = "Checking and Savings were already empty";
 
     }
 
-    narrativeMoney.textContent = text;
+    narrativeMoney.innerHTML = value
+        ? `<span class="narrative-money-value">${value}</span>` +
+          `<span class="narrative-money-label">${label}</span>`
+        : "";
 
     narrativeMoney.className =
         `narrative-money ${tone}`;
 
-    narrativeMoney.classList.toggle("hidden", !text);
+    narrativeMoney.classList.toggle("hidden", !value);
 
 }
 
@@ -4866,7 +5168,7 @@ function presentNarrativeOutcome(outcome) {
 
     const before = getWellnessSnapshot();
 
-    applyNarrativeEffects(outcome);
+    const fx = applyNarrativeEffects(outcome);
 
     const after = getWellnessSnapshot();
 
@@ -4930,10 +5232,7 @@ function presentNarrativeOutcome(outcome) {
 
         renderNarrativeImpacts(impacts);
 
-        renderNarrativeMoney(
-            outcome,
-            after.savings - before.savings
-        );
+        renderNarrativeMoney(outcome, fx);
 
         const remainingAfterThis =
             narrativeQueue.length - 1;
@@ -4965,6 +5264,12 @@ function presentNarrativeOutcome(outcome) {
         const tiles =
             narrativeImpacts.querySelectorAll(".narrative-impact");
 
+        // Round 68: the dollar amount pops in first, then the
+        // (now smaller) meter tiles.
+        narrativeLater(() => {
+            narrativeMoney.classList.add("is-in");
+        }, 200);
+
         tiles.forEach((tile, i) => {
 
             narrativeLater(() => {
@@ -4976,7 +5281,7 @@ function presentNarrativeOutcome(outcome) {
                     Number(tile.dataset.delta)
                 );
 
-            }, 280 + i * 200);
+            }, 480 + i * 200);
 
         });
 
@@ -4992,7 +5297,7 @@ function presentNarrativeOutcome(outcome) {
                 burstNarrativeConfetti();
             }
 
-        }, 280 + tiles.length * 200 + 120);
+        }, 480 + tiles.length * 200 + 120);
 
         narrativeLater(() => {
 
@@ -5058,7 +5363,7 @@ function closeNarrativeCard() {
         "hidden"
     );
 
-    finishMonth();
+    finishMonthAfterTransfer();
 
 }
 
@@ -5176,8 +5481,8 @@ function openTierPicker(bucketId) {
     // opening the Food jar's tier picker -- to advance into step 3,
     // which repositions its callout underneath the now-open modal
     // (see TUTORIAL_STEPS' "below-tier-picker" placement).
-    if (tutorialActive && tutorialStep === 3 && bucketId === "food") {
-        showTutorialStep(4);
+    if (tutorialActive && tutorialStep === 4 && bucketId === "food") {
+        showTutorialStep(5);
     }
 
 }
@@ -5218,6 +5523,160 @@ function renderTierPickerOptions(bucketId, category) {
         tierPickerOptions.appendChild(btn);
 
     });
+
+}
+
+
+// ============================================
+// MONEY LESSONS (round 78, client feedback: more education)
+// Short lessons that slide in under the wellness meters while the
+// player fills jars. Each stage lists its lessons and how many jars
+// must be filled before each one shows (afterJars). A lesson stays
+// up until the player closes it, the next lesson replaces it, or
+// Start is pressed. During the tutorial they wait until it ends,
+// so they never cover the tutorial popups under the meters.
+// Two lessons per round (round 82): Teenager needs/wants + packed
+// lunch; College phone + transportation; Career shopping + meal
+// planning; Advancing Career subscriptions + housing.
+// ============================================
+
+const STAGE_LESSONS = {
+
+    1: [
+        {
+            afterJars: 1,
+            text:
+                "Needs are must-haves like food, a phone, and getting " +
+                "around. Wants are fun extras like shopping and " +
+                "entertainment. Cover your Needs first!"
+        },
+        {
+            afterJars: 3,
+            text:
+                "Packing your lunch a few days a week is one of the " +
+                "easiest ways to save. Small daily costs add up fast!"
+        }
+    ],
+
+    // Round 82/85/108: College -- housing first, then wait 24 hours
+    // before buying (round 108: order flipped, per Kayla).
+    // Rounds 2-4 have 7 jars, so their second tip waits for 3 more
+    // picks after the first (jar 4, not jar 3; round 83).
+    2: [
+        {
+            afterJars: 1,
+            text:
+                "Housing is usually your biggest bill. Roommates or a " +
+                "smaller place can free up a lot of money each month."
+        },
+        {
+            afterJars: 4,
+            text:
+                "Before you buy something, try waiting 24 hours. Avoid " +
+                "impulse purchases and practice more mindful spending!"
+        }
+    ],
+
+    // Career -- phone plans, then car costs.
+    3: [
+        {
+            afterJars: 1,
+            text:
+                "Prepaid and family phone plans can cost half as much " +
+                "as big contracts. Always compare plans before you sign up!"
+        },
+        {
+            afterJars: 4,
+            text:
+                "A car costs more than its payment. Gas, insurance, " +
+                "parking, and repairs add up, so buses and bikes save a lot."
+        }
+    ],
+
+    // Advancing Career -- subscriptions, then meal planning.
+    4: [
+        {
+            afterJars: 1,
+            text:
+                "Subscriptions are easy to forget. Check what you pay " +
+                "for each month and cancel anything you don't use."
+        },
+        {
+            afterJars: 4,
+            text:
+                "Planning your meals and buying groceries in bulk costs " +
+                "way less than eating out or ordering in."
+        }
+    ]
+
+};
+
+let lessonsShownThisStage = new Set();
+
+let lessonWaitingForTutorial = null;
+
+const lessonBannerEl = document.getElementById("lesson-banner");
+
+const lessonTextEl = document.getElementById("lesson-text");
+
+function hideLessonBanner() {
+
+    lessonWaitingForTutorial = null;
+
+    if (lessonBannerEl) {
+        lessonBannerEl.classList.add("hidden");
+        lessonBannerEl.classList.remove("is-in");
+    }
+
+}
+
+function showLessonBanner(lesson) {
+
+    if (!lessonBannerEl || !lessonTextEl) return;
+
+    lessonTextEl.textContent = lesson.text;
+
+    // Restart the slide-in even when one lesson replaces another.
+    lessonBannerEl.classList.remove("hidden", "is-in");
+    void lessonBannerEl.offsetWidth;
+    lessonBannerEl.classList.add("is-in");
+
+}
+
+// Called after every successful tier pick.
+function maybeShowStageLesson() {
+
+    const lessons = STAGE_LESSONS[currentStage] || [];
+
+    const filled = Object.keys(bucketTierSelections).length;
+
+    // The latest lesson whose threshold has been reached and that
+    // hasn't been shown yet.
+    const due = lessons
+        .map((lesson, i) => ({ lesson, i }))
+        .filter(({ lesson, i }) =>
+            filled >= lesson.afterJars && !lessonsShownThisStage.has(i))
+        .pop();
+
+    if (!due) return;
+
+    lessons.forEach((lesson, i) => {
+        if (filled >= lesson.afterJars) lessonsShownThisStage.add(i);
+    });
+
+    if (tutorialActive) {
+        lessonWaitingForTutorial = due.lesson;
+        return;
+    }
+
+    showLessonBanner(due.lesson);
+
+}
+
+if (lessonBannerEl) {
+
+    document.getElementById("lesson-close-btn")
+        ?.addEventListener("click", hideLessonBanner);
 
 }
 
@@ -5290,9 +5749,11 @@ function selectTierForBucket(bucketId, tier) {
     // bail out early) -- to advance into step 4. Reaching this line
     // at all means the pick went through, so no separate success
     // flag is needed.
-    if (tutorialActive && tutorialStep === 4 && bucketId === "food") {
-        showTutorialStep(5);
+    if (tutorialActive && tutorialStep === 5 && bucketId === "food") {
+        showTutorialStep(6);
     }
+
+    maybeShowStageLesson();
 
 }
 
@@ -5837,11 +6298,10 @@ function recomputeAutoSavings() {
             stage.income - otherAllocated
         );
 
-    // Until Start is pressed, the leftover stays in checking --
-    // Savings holds only what carried in (round 32).
+    // The leftover stays in checking for the whole round (round 67)
+    // -- Savings holds only what carried in.
     buckets.savings =
-        carriedSavings +
-        (savingsFilledThisStage ? pendingSavingsLeftover : 0);
+        carriedSavings;
 
 }
 
@@ -5973,10 +6433,10 @@ function updateBudgetDisplay() {
 
             setStartButtonReady(true);
 
-            showBudgetMessage(
-                "✓ Every dollar has a job. Ready to go!",
-                "success"
-            );
+            // Round 78 (Kayla): the "Every dollar has a job!"
+            // banner was removed to give the money lessons room;
+            // the blue Start button is the ready signal.
+            showBudgetMessage("", "neutral");
 
         }
 
@@ -6112,6 +6572,8 @@ function showBudgetMessage(
     type
 ) {
 
+
+
     const message =
         document.getElementById(
             "budget-message"
@@ -6169,113 +6631,80 @@ function showBudgetMessage(
 
 function updateSavingsCarryover() {
 
-    const section =
-        document.getElementById(
-            "savings-carryover"
-        );
+    // Round 69: the transfer rows are log entries now (see
+    // loadStage); the static rows stay hidden as icon sources.
+    ["savings-carryover", "checking-transfer-row", "bill-carryover", "deposit-row"]
+        .forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add("hidden");
+        });
+
+    refreshPhoneActivityLists();
+
+}
 
 
-    const amount =
-        document.getElementById(
-            "carried-savings-amount"
-        );
+function updateBillCarryover() {
+
+    updateSavingsCarryover();
+
+}
 
 
-    // Round 42: this row is now last round's transfer into Savings
-    // ("+$X", green), not the running Savings total -- that's on the
-    // phone's Savings slide.
-    if (
-        currentStage > 1 &&
-        lastSavingsTransfer.amount > 0
-    ) {
+// Round 69: this round's pay (and any bill carried in from last
+// round's cards) goes into the running log.
+function logStageStartEntries() {
 
-        section.classList.remove(
-            "hidden"
-        );
+    const stage = stages[currentStage];
 
+    if (!stage) return;
 
-        amount.textContent =
-            `+$${lastSavingsTransfer.amount.toLocaleString()}`;
+    activityHistory.push({
+        account: "checking",
+        type: "paycheck",
+        title: currentStage === 1 ? "Allowance" : "Paycheck",
+        subtitle: "Direct deposit",
+        amount: stage.income,
+        kind: "deposit",
+        stageName: stage.name
+    });
 
-        const sub = section.querySelector(".carryover-text p");
+    if (carriedBillsThisStage > 0) {
 
-        if (sub) {
-            sub.textContent = lastSavingsTransfer.stageName
-                ? `From Checking · ${lastSavingsTransfer.stageName}`
-                : "From Checking";
-        }
-
-    }
-
-    else {
-
-        section.classList.add(
-            "hidden"
-        );
+        activityHistory.push({
+            account: "checking",
+            type: "bill",
+            title: carriedBillsList.map(item => item.title).join(" + "),
+            subtitle: "Added to your Bills jar",
+            amount: -carriedBillsThisStage,
+            kind: "out",
+            stageName: stage.name
+        });
 
     }
 
 }
 
 
-// ============================================
-// BILL CARRYOVER
-// (same idea as updateSavingsCarryover above, but
-// for a bill that carried in from last stage's jar
-// narratives instead of money saved -- see
-// carriedBillsThisStage / carriedBillsList, set once
-// per loadStage() call.)
-// ============================================
+// Round 66: after any list changes, drop the divider above each
+// list's first visible row and show the Savings empty note when
+// Savings has nothing to list (Stage 1).
+function refreshPhoneActivityLists() {
 
-function updateBillCarryover() {
+    ["phone-txns-list", "savings-txns-list"].forEach((id) => {
 
-    const section =
-        document.getElementById(
-            "bill-carryover"
-        );
+        const list = document.getElementById(id);
+        if (!list) return;
 
-    const icon =
-        document.getElementById(
-            "bill-carryover-icon"
-        );
+        const rows = [...list.querySelectorAll(".savings-carryover")]
+            .filter((row) => !row.classList.contains("hidden"));
 
-    const title =
-        document.getElementById(
-            "bill-carryover-title"
-        );
+        rows.forEach((row, i) => row.classList.toggle("first-row", i === 0));
 
-    const amount =
-        document.getElementById(
-            "bill-carryover-amount"
-        );
+        const empty = list.querySelector(".phone-txns-empty");
+        if (empty) empty.classList.toggle("hidden", rows.length > 0);
 
-
-    if (carriedBillsThisStage > 0) {
-
-        section.classList.remove(
-            "hidden"
-        );
-
-        icon.innerHTML =
-            iconMarkup("wallet");
-
-        title.textContent =
-            carriedBillsList
-                .map(item => item.title)
-                .join(" + ");
-
-        amount.textContent =
-            `-$${carriedBillsThisStage}`;
-
-    }
-
-    else {
-
-        section.classList.add(
-            "hidden"
-        );
-
-    }
+    });
 
 }
 
@@ -6342,10 +6771,19 @@ function updatePhoneChecking(value) {
     const el = document.getElementById("paycheck-amount");
     if (!el) return;
 
+    // Round 88: during the start-of-round transfer the animation
+    // drives this number; a jar pick mid-animation mustn't flash it.
+    if (typeof value !== "number" && savingsTransferRunning) return;
+
+    // Round 67: before the start-of-round transfer, Checking still
+    // holds last round's leftover; after Start it holds the
+    // leftover as the consequence cards change it.
     const amount =
         typeof value === "number"
             ? value
-            : (savingsFilledThisStage ? 0 : (pendingSavingsLeftover || 0));
+            : savingsTransferPending > 0
+                ? savingsTransferPending
+                : (savingsFilledThisStage ? checkingLeftover : (pendingSavingsLeftover || 0));
 
     el.textContent = `$${Math.max(0, amount).toLocaleString()}`;
 
@@ -6363,13 +6801,19 @@ function updateSavingsGauge(progress) {
 
     const totalRounds = Math.max(1, Object.keys(stages).length);
 
+    // Round 67: a round's slice fills when its leftover actually
+    // reaches Savings -- at the start of the next round, or right
+    // before the recap on the final stage.
+    const completed =
+        (currentStage - 1) -
+        (savingsTransferPending > 0 ? 1 : 0) +
+        (finalTransferDone ? 1 : 0);
+
     const within =
-        typeof progress === "number"
-            ? progress
-            : (savingsFilledThisStage ? 1 : 0);
+        typeof progress === "number" ? progress : 0;
 
     const pct = Math.max(0, Math.min(1,
-        ((currentStage - 1) + within) / totalRounds
+        (completed + within) / totalRounds
     ));
 
     fill.style.strokeDashoffset = `${100 - pct * 100}`;
@@ -6382,8 +6826,12 @@ function updatePhoneSavings(value) {
     const el = document.getElementById("phone-savings-amount");
     if (!el) return;
 
+    if (typeof value !== "number" && savingsTransferRunning) return;
+
     const amount =
-        typeof value === "number" ? value : (buckets.savings || 0);
+        typeof value === "number"
+            ? value
+            : Math.max(0, (buckets.savings || 0) - savingsTransferPending);
 
     el.textContent = `$${amount.toLocaleString()}`;
 
@@ -6408,6 +6856,9 @@ function updatePhoneSavings(value) {
 
     wrap.addEventListener("pointerdown", (e) => {
         if (e.target.closest(".phone-dot, .phone-tabs")) return;
+        // Round 66: a press on a list's own scrollbar scrolls it,
+        // not the carousel.
+        if (e.target.classList && e.target.classList.contains("phone-txns-list")) return;
         startX = e.clientX;
         startY = e.clientY;
         dragging = true;
@@ -6448,19 +6899,45 @@ function updatePhoneSavings(value) {
 
 function renderActivityHistory() {
 
-    const list = document.getElementById("activity-history");
-    if (!list) return;
+    // Round 67: each entry goes on its own account's screen.
+    const lists = {
+        savings: document.getElementById("activity-history"),
+        checking: document.getElementById("checking-history")
+    };
 
-    list.innerHTML = "";
+    Object.values(lists).forEach((el) => { if (el) el.innerHTML = ""; });
 
     [...activityHistory].reverse().forEach((item) => {
+
+        const list = lists[item.account || "savings"];
+        if (!list) return;
 
         const row = document.createElement("div");
         row.className = `savings-carryover txn-row txn-${item.kind}`;
 
+        if (item.type === "transfer" && item.amount < 0) {
+            row.classList.add("transfer-row");
+        }
+
+        if (item.type === "bill") {
+            row.classList.add("bill-carryover");
+        }
+
         const icon = document.createElement("div");
         icon.className = "carryover-icon";
-        icon.innerHTML = iconMarkup(item.kind === "out" ? "emergency" : "dollar");
+
+        // Round 69: paycheck and transfer rows reuse the static rows'
+        // own icons; carried bills use the wallet.
+        const staticIcon = (id) => {
+            const el = document.querySelector(`#${id} .carryover-icon`);
+            return el ? el.innerHTML : "";
+        };
+
+        icon.innerHTML =
+            item.type === "paycheck" ? staticIcon("deposit-row") :
+            item.type === "transfer" ? staticIcon("savings-carryover") :
+            item.type === "bill" ? iconMarkup("wallet") :
+            iconMarkup(item.kind === "out" ? "emergency" : "dollar");
 
         const text = document.createElement("div");
         text.className = "carryover-text";
@@ -6484,6 +6961,8 @@ function renderActivityHistory() {
 
     });
 
+    refreshPhoneActivityLists();
+
 }
 
 
@@ -6500,25 +6979,21 @@ function renderActivityHistory() {
 const SAVINGS_FILL_MS = 1400;
 const SAVINGS_FILL_HOLD_MS = 650;
 
-function fillSavingsJar(done) {
+function playSavingsTransfer(amount, fromSavings, done) {
 
-    // Round 36: there's no Savings jar in the grid anymore, so the
-    // fill plays on the phone: it flips to the Savings slide, a
-    // "+$X" tag floats up, coins drop onto the card, and the
-    // savings amount counts up. Then `done` runs.
-    const from = buckets.savings || 0;
-    const leftover = pendingSavingsLeftover;
+    // Round 67 (was fillSavingsJar): moves `amount` from Checking
+    // into Savings on the phone -- flips to the Savings slide, a
+    // "+$X" tag floats up, coins drop onto the gauge, Savings counts
+    // up while Checking counts down, and the gauge grows one round's
+    // slice. Plays at the start of each round (last round's
+    // leftover) and right before the final recap. Callers update the
+    // real balances in `done`.
+    const from = fromSavings;
+    const leftover = amount;
     const to = from + leftover;
 
     const finish = () => {
-        buckets.savings = to;
-        lastSavingsTransfer = {
-            amount: leftover,
-            stageName: stages[currentStage] ? stages[currentStage].name : ""
-        };
-        savingsFilledThisStage = true;
         savingsFillInProgress = false;
-        updateWellnessMeters();
         done();
     };
 
@@ -6531,8 +7006,6 @@ function fillSavingsJar(done) {
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (!card || leftover <= 0 || reduceMotion) {
-        buckets.savings = to;
-        updatePhoneSavings(to);
         finish();
         return;
     }
@@ -6597,6 +7070,118 @@ function fillSavingsJar(done) {
 }
 
 
+
+// Round 67: start of a round -- last round's leftover leaves
+// Checking for Savings, then this round's pay lands in Checking.
+// Start is locked while it plays; jars stay open (round 88, Kayla),
+// so picks made mid-animation only update the phone once it ends.
+function runStartOfRoundTransfer() {
+
+    if (savingsTransferPending <= 0 || savingsTransferRunning) {
+        return;
+    }
+
+    savingsTransferRunning = true;
+
+    document.body.classList.add("savings-transfer-running");
+
+    if (startButton) startButton.disabled = true;
+
+    const amount = savingsTransferPending;
+
+    const fromSavings =
+        Math.max(0, (buckets.savings || 0) - amount);
+
+    playSavingsTransfer(amount, fromSavings, () => {
+
+        savingsTransferPending = 0;
+
+        updatePhoneSavings(buckets.savings || 0);
+
+        setPhoneAccount(0, true);
+
+        // The new pay lands: its row joins the log and the amount
+        // counts up on the Checking card.
+        logStageStartEntries();
+        renderActivityHistory();
+
+        const PAY_MS = 600;
+        const t0 = performance.now();
+
+        const tick = (now) => {
+
+            const t = Math.min(1, (now - t0) / PAY_MS);
+            const eased = 1 - Math.pow(1 - t, 3);
+
+            // Read live, so jars picked during the animation are
+            // already taken out of the balance it counts up to.
+            updatePhoneChecking(Math.round((pendingSavingsLeftover || 0) * eased));
+
+            if (t < 1) {
+                requestAnimationFrame(tick);
+                return;
+            }
+
+            savingsTransferRunning = false;
+            document.body.classList.remove("savings-transfer-running");
+            updateBudgetDisplay();
+            updateWellnessMeters();
+
+        };
+
+        setTimeout(() => requestAnimationFrame(tick), 380);
+
+    });
+
+}
+
+
+// Round 67: on the final stage, play the last Checking -> Savings
+// move before the recap so "You saved $X" and the savings bonus
+// count it. Any other stage goes straight to finishMonth() (its
+// move plays at the start of next round).
+function finishMonthAfterTransfer() {
+
+    const stage = stages[currentStage];
+
+    const isFinal = !stages[currentStage + 1];
+
+    if (!stage.tieredNeeds || !isFinal || finalTransferDone) {
+        finishMonth();
+        return;
+    }
+
+    const amount = checkingLeftover;
+
+    const land = () => {
+        if (amount > 0) {
+            activityHistory.push(
+                { account: "checking", type: "transfer", title: "Moved to Savings", subtitle: "To Savings", amount: -amount, kind: "transfer", stageName: stage.name },
+                { account: "savings", type: "transfer", title: "Moved to Savings", subtitle: "From Checking", amount, kind: "in", stageName: stage.name }
+            );
+            renderActivityHistory();
+        }
+        buckets.savings = (buckets.savings || 0) + amount;
+        checkingLeftover = 0;
+        finalTransferDone = true;
+        updateWellnessMeters();
+        finishMonth();
+    };
+
+    // Round 109 (Kayla): no more phone animation back on the jars
+    // screen -- the money lands right away and the finale's "You
+    // saved" box plays the move (see applyFinaleLayout).
+    finalRoundTransfer = Math.max(0, amount);
+
+    land();
+
+}
+
+// Round 109: what the last round moved into Savings, for the
+// finale's gauge animation.
+let finalRoundTransfer = 0;
+
+
 function startMonth() {
 
     const stage =
@@ -6612,15 +7197,26 @@ function startMonth() {
     // modals and the end screen.
     if (stage.tieredNeeds) {
 
-        // Round 32: first move the leftover paycheck into the
-        // Savings jar with a short animation, then carry on.
+        // Round 67: the leftover stays in Checking for the round's
+        // consequence cards (it moves to Savings next round).
+        if (savingsTransferRunning) {
+            return;
+        }
+
+        hideLessonBanner();
+
+        // Round 111 (Kayla): the meters fade away while the surprise
+        // cards and results play (they come back with the next
+        // phase's story popup), so those popups can center on screen.
+        setMetersAway(true);
+
         if (!savingsFilledThisStage) {
 
-            if (!savingsFillInProgress) {
-                fillSavingsJar(startMonth);
-            }
+            savingsFilledThisStage = true;
 
-            return;
+            checkingLeftover = pendingSavingsLeftover;
+
+            updateWellnessMeters();
 
         }
 
@@ -6637,7 +7233,7 @@ function startMonth() {
 
         else {
 
-            finishMonth();
+            finishMonthAfterTransfer();
 
         }
 
@@ -7392,6 +7988,166 @@ function showMessage(
 // FINISH STAGE
 // ============================================
 
+// Round 86 (Kayla): the recap gives ONE lesson based on what the
+// round's surprise cards did, most important first:
+//   1. Checking ran short and Savings covered it -> emergency fund
+//   2. a setback on a Need bought at its cheapest tier
+//   3. a setback on a Want bought at its priciest tier
+//   4. more setbacks than lucky breaks (middle tiers) -> cushion
+//   5. lucky breaks -> save found money
+// Returns "" when there were no surprises.
+function surpriseLessonFor(surprises) {
+
+    if (!surprises || surprises.length === 0) return "";
+
+    const bad = surprises.filter(item => item.bad);
+    const good = surprises.filter(item => item.good);
+
+    if (surprises.some(item => item.shortfall)) {
+        return "Checking ran short, so Savings covered the gap. " +
+            "That's exactly what an emergency fund is for!";
+    }
+
+    const cheapNeed = bad.find(item => item.isNeed && item.cheapest);
+
+    if (cheapNeed) {
+        return `Going cheap on ${cheapNeed.jarName || "a Need"} led to a ` +
+            "surprise cost. Cutting corners on a Need can cost you more later.";
+    }
+
+    const pricyWant = bad.find(item => !item.isNeed && item.priciest);
+
+    if (pricyWant) {
+        return `Splurging on ${pricyWant.jarName || "a Want"} left less of ` +
+            "a cushion. Big spending on Wants makes surprises harder to handle.";
+    }
+
+    if (bad.length > good.length) {
+        return "Some surprises just happen, even when you plan well. " +
+            "Savings is your cushion for rounds like this.";
+    }
+
+    if (good.length > 0) {
+        return "Lucky breaks! Found money is a great chance to save, " +
+            "not just spend.";
+    }
+
+    return "";
+
+}
+
+
+// Round 89: the recap's Savings card. Shows Savings before the move,
+// then (after the popup lands) floats a green "+$X" tag, drops coins,
+// counts the amount up and grows the half-circle gauge by this
+// round's slice -- the same animation the phone used to play at the
+// start of each round. Visual only: the money itself is already
+// counted in carriedSavings by finishMonth().
+let recapSavingsToken = 0;
+
+function playRecapSavings(fromSavings, amount, els) {
+
+    // Round 109: `els` lets the finale's hero box reuse this same
+    // animation ({ card, amountEl, fill }); default is the
+    // between-round Savings card.
+    const card = (els && els.card) || document.getElementById("recap-savings-card");
+    const amountEl = (els && els.amountEl) || document.getElementById("recap-savings-amount");
+    const fill = (els && els.fill) || document.getElementById("recap-gauge-fill");
+
+    if (!card || !amountEl || !fill) return;
+
+    const token = ++recapSavingsToken;
+
+    card.querySelectorAll(".savings-fill-tag, .savings-fill-coin")
+        .forEach(el => el.remove());
+    card.classList.remove("savings-filling");
+
+    const totalRounds = Math.max(1, Object.keys(stages).length);
+    const fromPct = Math.max(0, Math.min(1, (currentStage - 1) / totalRounds));
+    const toPct = Math.max(0, Math.min(1, currentStage / totalRounds));
+
+    const setGauge = (pct) => {
+        fill.style.strokeDashoffset = `${100 - pct * 100}`;
+        fill.style.opacity = pct > 0 ? "1" : "0";
+    };
+
+    const to = fromSavings + Math.max(0, amount);
+
+    const reduceMotion =
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    fill.style.transition = "none";
+    setGauge(fromPct);
+    amountEl.textContent = `$${fromSavings.toLocaleString()}`;
+
+    if (reduceMotion) {
+        setGauge(toPct);
+        amountEl.textContent = `$${to.toLocaleString()}`;
+        return;
+    }
+
+    // Wait for the recap popup's own entrance before playing.
+    setTimeout(() => {
+
+        if (token !== recapSavingsToken) return;
+
+        fill.style.transition = "";
+
+        if (amount > 0) {
+
+            card.classList.add("savings-filling");
+
+            const visual = card.querySelector(".recap-savings-visual");
+
+            const tag = document.createElement("span");
+            tag.className = "savings-fill-tag";
+            tag.textContent = `+$${amount.toLocaleString()}`;
+            visual.appendChild(tag);
+
+            for (let i = 0; i < 6; i++) {
+                const coin = document.createElement("span");
+                coin.className = "savings-fill-coin";
+                coin.style.left = `${30 + Math.random() * 40}%`;
+                coin.style.animationDelay = `${i * 0.16}s`;
+                visual.appendChild(coin);
+            }
+
+        }
+
+        const startTime = performance.now();
+
+        const step = (now) => {
+
+            if (token !== recapSavingsToken) return;
+
+            const t = Math.min(1, (now - startTime) / SAVINGS_FILL_MS);
+            const eased = 1 - Math.pow(1 - t, 3);
+
+            amountEl.textContent =
+                `$${Math.round(fromSavings + (to - fromSavings) * eased).toLocaleString()}`;
+
+            setGauge(fromPct + (toPct - fromPct) * eased);
+
+            if (t < 1) {
+                requestAnimationFrame(step);
+                return;
+            }
+
+            setTimeout(() => {
+                if (token !== recapSavingsToken) return;
+                card.classList.remove("savings-filling");
+            }, SAVINGS_FILL_HOLD_MS);
+
+        };
+
+        requestAnimationFrame(step);
+
+    }, 700);
+
+}
+
+
 function finishMonth() {
 
     // Sidebar + jars fade out so the stage's background scene
@@ -7573,11 +8329,32 @@ function finishMonth() {
     const carriedSavingsAtStageStart =
         carriedSavings;
 
+    // Round 67: what's left in Checking counts as saved (it moves
+    // to Savings at the start of next round), so scores and the
+    // recap are the same as when Start moved it right away.
     const endingSavings =
-        buckets.savings || 0;
+        (buckets.savings || 0) +
+        (usesTierPicking ? checkingLeftover : 0);
 
     carriedSavings =
         endingSavings;
+
+    if (usesTierPicking && stages[currentStage + 1]) {
+
+        // Round 89 (Kayla): the leftover moves to Savings right here,
+        // on the recap's Savings card, instead of at the start of the
+        // next round -- so nothing is pending when that round loads
+        // and the jars are free from the first second.
+        savingsTransferPending = 0;
+
+        lastSavingsTransfer = {
+            amount: checkingLeftover,
+            stageName: stage.name
+        };
+
+        playRecapSavings(buckets.savings || 0, checkingLeftover);
+
+    }
 
 
     // ------------------------------------------
@@ -7678,6 +8455,28 @@ function finishMonth() {
 
 
     // ------------------------------------------
+    // SURPRISE LESSON (round 86)
+    // One short note under the savings line, picked from what this
+    // round's surprise cards actually did (surpriseLessonFor).
+    // ------------------------------------------
+
+    const surpriseLessonEl =
+        document.getElementById("surprise-lesson");
+
+    if (surpriseLessonEl) {
+
+        const lesson = surpriseLessonFor(roundSurprises);
+
+        const textEl = surpriseLessonEl.querySelector(".surprise-lesson-text");
+
+        if (textEl) textEl.textContent = lesson || "";
+
+        surpriseLessonEl.classList.toggle("hidden", !lesson);
+
+    }
+
+
+    // ------------------------------------------
     // RESULTS
     // ------------------------------------------
 
@@ -7687,16 +8486,8 @@ function finishMonth() {
         `${stage.name} Complete!`;
 
 
-    document.getElementById(
-        "total-income"
-    ).textContent =
-        `$${stage.income.toLocaleString()}`;
-
-
-    document.getElementById(
-        "total-spent"
-    ).textContent =
-        `$${totalSpent.toLocaleString()}`;
+    // Round 89: the Starting Income / Total Spent cards were replaced
+    // by the recap Savings card (see playRecapSavings below).
 
 
     // ------------------------------------------
@@ -7789,10 +8580,9 @@ function finishMonth() {
                   )
                 : 0;
 
-        // Personal shows 50 + 2 x points, so half the bonus in
-        // points is the full bonus in percent.
-        personalWellnessTotal +=
-            finalSavingsBonus / 2;
+        // Round 74: the bonus is now added straight onto both
+        // curved meters in computePersonalPercent() /
+        // computeFinancialPercent(), not as wellbeing points.
 
         updateWellnessMeters();
 
@@ -7807,10 +8597,11 @@ function finishMonth() {
     // (2026-09-16) -- the bar's header row (title left, percentage
     // right, matching the top wellness bar's layout) is enough on
     // its own.
+    // Round 74: same curve as the top bar.
     const displayScore =
         isCapstone
-            ? Math.min(100, cumulativeScore + finalSavingsBonus)
-            : stageScore;
+            ? Math.min(100, curveMeter(cumulativeScore) + finalSavingsBonus)
+            : curveMeter(stageScore);
 
 
     document.getElementById(
@@ -7981,47 +8772,50 @@ function applyFinaleLayout(isFinale, endingSavings, stage) {
     readinessSection.className =
         "readiness-outcome finale-hero";
 
+    // Round 109: the savings gauge animation now lives in the hero
+    // box, big and centered, with the body copy underneath it.
+    const finaleGauge = `
+                <div class="recap-savings-visual finale-hero-visual">
+                    <svg class="savings-gauge recap-savings-gauge finale-hero-gauge" viewBox="0 0 220 120" aria-hidden="true">
+                        <path class="recap-gauge-track" d="M 20 110 A 90 90 0 0 1 200 110" pathLength="100"></path>
+                        <path class="recap-gauge-fill" id="finale-gauge-fill" d="M 20 110 A 90 90 0 0 1 200 110" pathLength="100"></path>
+                    </svg>
+                    <strong class="finale-hero-amount" id="finale-hero-amount">$0</strong>
+                </div>`;
+
     readinessSection.innerHTML =
         endingSavings > 0
             ? `
                 <span class="finale-hero-label">You saved</span>
-                <strong class="finale-hero-amount" id="finale-hero-amount">$0</strong>
-                <p>You started with $0 and grew it one stage at a time. That's what saving a little every paycheck adds up to.</p>
-                ${finalSavingsBonus > 0 ? `<p class="finale-bonus"><span style="font-weight: 800; color: #16a34a;">Savings bonus: +${finalSavingsBonus}%</span> to both wellness meters for the cushion you built.</p>` : ""}
+                ${finaleGauge}
+                <p>You started with $0 and grew it one stage at a time.<br>That's what saving a little every paycheck adds up to.</p>
+                <!-- Round 112 (Kayla): the savings bonus still applies to
+                     both meters, it just isn't explained here anymore. -->
               `
             : `
                 <span class="finale-hero-label">You finished with</span>
                 <strong class="finale-hero-amount is-zero">$0</strong>
-                <p>No savings this time. Play again and try a different mix of jars to see how much you can build.</p>
+                <p>No savings this time.<br>Play again and try a different mix of jars to see how much you can build.</p>
               `;
 
 
-    // Count the hero number up from $0.
+    // Round 109: same move-into-Savings animation as the other
+    // rounds' results -- the last round's leftover floats in as a
+    // "+$X" tag, coins drop, the amount counts up from what was saved
+    // before this round, and the gauge fills its final slice.
     const amountEl =
         document.getElementById("finale-hero-amount");
 
-    if (amountEl) {
+    const finaleFill =
+        document.getElementById("finale-gauge-fill");
 
-        const start = performance.now();
+    if (amountEl && finaleFill) {
 
-        const duration = 1400;
-
-        const step = now => {
-
-            const t = Math.min(1, (now - start) / duration);
-
-            const eased = 1 - Math.pow(1 - t, 3);
-
-            amountEl.textContent =
-                `$${Math.round(endingSavings * eased).toLocaleString()}`;
-
-            if (t < 1) {
-                requestAnimationFrame(step);
-            }
-
-        };
-
-        requestAnimationFrame(step);
+        playRecapSavings(
+            Math.max(0, endingSavings - finalRoundTransfer),
+            finalRoundTransfer,
+            { card: readinessSection, amountEl, fill: finaleFill }
+        );
 
     }
 
@@ -8671,12 +9465,18 @@ updateWellnessMeters();
 // neutral -- since there's no real playthrough behind them.
 // Changing the hash on an open page reloads into the new stage.
 // No hash = the normal game, untouched.
+//
+// Round 106: #stage1results ... #stage4results open straight on that
+// round's results popup instead (#stage4results = the finale), with
+// every round up to it auto-played -- see jumpToStageResults().
 // ============================================
 
 function getStageFromHash() {
 
+    // Round 106: "#stage3results" also counts as a stage-3 jump (see
+    // getResultsJumpFromHash below).
     const match =
-        /^#stage(\d+)$/i.exec(window.location.hash);
+        /^#stage(\d+)(results)?$/i.exec(window.location.hash);
 
     const stageNumber =
         match ? Number(match[1]) : null;
@@ -8691,7 +9491,86 @@ function getStageFromHash() {
 const hashStage =
     getStageFromHash();
 
-if (hashStage) {
+
+// Round 106 (Kayla): #stage1results ... #stage4results opens straight
+// on the results popup at the end of that round (#stage4results is
+// the "You Did It!" finale). To make the popup realistic, every round
+// up to and including that one is auto-played: each jar gets its
+// middle tier (or the priciest it can afford), Start is pressed,
+// the round's surprise cards are applied, and the round is finished
+// -- so savings, meters, the tip and Recent Activity all carry
+// through just like a real playthrough.
+function getResultsJumpFromHash() {
+
+    return /^#stage\d+results$/i.test(window.location.hash);
+
+}
+
+function autoPlayStageForPreview() {
+
+    const stage = stages[currentStage];
+
+    hideStageIntro();
+
+    const jars = [...(stage.tieredNeeds || []), ...(stage.tieredWants || [])];
+
+    jars.forEach((jar) => {
+
+        const preferred = [1, 0, 2]
+            .map(i => jar.tiers[Math.min(i, jar.tiers.length - 1)]);
+
+        // selectTierForBucket() quietly refuses a tier the pay
+        // can't cover, so fall back until one sticks.
+        for (const tier of preferred) {
+            selectTierForBucket(jar.id, tier);
+            if (bucketTierSelections[jar.id] === tier) break;
+        }
+
+    });
+
+    // Same as pressing Start (startMonth), minus the card popups.
+    hideLessonBanner();
+    setMetersAway(true);
+    savingsFilledThisStage = true;
+    checkingLeftover = pendingSavingsLeftover;
+
+    buildNarrativeQueue().forEach(outcome => applyNarrativeEffects(outcome));
+
+}
+
+function jumpToStageResults(stageNumber) {
+
+    for (let n = 1; n <= stageNumber; n++) {
+
+        if (n > 1) {
+            endScreen.classList.add("hidden");
+            setupScreen.classList.remove("hidden");
+            loadStage(n);
+        }
+
+        autoPlayStageForPreview();
+
+        if (n < stageNumber) {
+            finishMonth();
+        }
+
+    }
+
+    // The last round's results: the finale plays its own end-of-game
+    // move into Savings first, exactly as in a real game.
+    finishMonthAfterTransfer();
+
+}
+
+if (hashStage && getResultsJumpFromHash()) {
+
+    dismissWelcomePopup();
+
+    jumpToStageResults(hashStage);
+
+}
+
+else if (hashStage) {
 
     dismissWelcomePopup();
 
@@ -8702,6 +9581,35 @@ if (hashStage) {
     }
 
     updateWellnessMeters();
+
+}
+
+
+// ============================================
+// ?tutorial=1 (round 70)
+// Opening the game with ?tutorial=1 on the URL skips the
+// welcome popup's Start/Tutorial choice and goes straight into
+// the tutorial path: the Stage 1 story popup shows, and "Let's
+// Go" starts the walkthrough. "Skip tutorial" is hidden so the
+// walkthrough can't be skipped. A #stageN jump wins over this.
+// ============================================
+
+const tutorialParam =
+    new URLSearchParams(window.location.search).get("tutorial");
+
+const forceTutorial =
+    !hashStage &&
+    (tutorialParam === "1" || tutorialParam === "true");
+
+if (forceTutorial) {
+
+    tutorialActive = true;
+
+    dismissWelcomePopup();
+
+    if (tutorialSkipBtn) {
+        tutorialSkipBtn.classList.add("hidden");
+    }
 
 }
 
@@ -8728,6 +9636,34 @@ window.addEventListener(
 
 const realLifeScreen =
     document.getElementById("real-life-screen");
+
+// Round 115 (Kayla): the "Student Checking Account" title does a
+// wave -- each letter bounces in turn, every few seconds (CSS
+// .real-life-title .wave-letter, delay from --i). Split once here.
+(function splitRealLifeTitle() {
+
+    const title = document.querySelector(".real-life-title");
+
+    if (!title || title.dataset.waved) return;
+
+    const text = title.textContent;
+
+    title.textContent = "";
+
+    [...text].forEach((ch, i) => {
+
+        const span = document.createElement("span");
+        span.className = "wave-letter";
+        span.setAttribute("aria-hidden", "true");
+        span.style.setProperty("--i", i);
+        span.textContent = ch === " " ? "\u00a0" : ch;
+        title.appendChild(span);
+
+    });
+
+    title.dataset.waved = "1";
+
+})();
 
 const realLifePlayAgainButton =
     document.getElementById("real-life-play-again-btn");
