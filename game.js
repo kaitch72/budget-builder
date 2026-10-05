@@ -3651,6 +3651,10 @@ function loadStage(stageNumber) {
             0
         );
 
+    // Round 117: carried bills come out of Checking, so the
+    // unspent balance has to be recomputed now that we know them.
+    recomputeAutoSavings();
+
     pendingExtraNeeds = [];
 
 
@@ -5417,11 +5421,24 @@ function getTieredCategoryForBucket(bucketId) {
 // whichever "bills" tier the player ends up picking -- same as it
 // used to add onto the old pooled Bills bucket during the payment
 // phase. Every other bucket has no surcharge.
+//
+// Round 117 (Kayla): jars are category-specific now (Housing, Food,
+// Phone...), so a carried bill no longer piggybacks on a jar -- it
+// comes straight out of Checking at the start of the round (see
+// paycheckAvailable). No jar gets a surcharge.
 function getBillSurcharge(bucketId) {
 
-    return bucketId === "bills"
-        ? carriedBillsThisStage
-        : 0;
+    return 0;
+
+}
+
+
+// Round 117: what's actually left to budget this round -- the
+// paycheck minus any bills carried in from last round's cards,
+// which are paid from Checking up front.
+function paycheckAvailable(stage) {
+
+    return Math.max(0, stage.income - (carriedBillsThisStage || 0));
 
 }
 
@@ -5713,10 +5730,10 @@ function selectTierForBucket(bucketId, tier) {
                 0
             );
 
-    if (otherAllocated + totalCost > stage.income) {
+    if (otherAllocated + totalCost > paycheckAvailable(stage)) {
 
         const maxAllowed =
-            stage.income - otherAllocated;
+            paycheckAvailable(stage) - otherAllocated;
 
         tierPickerError.textContent =
             `That's more than your paycheck allows right now `
@@ -6007,7 +6024,7 @@ function updateKeypadDisplay() {
 
 
     const previewRemaining =
-        stage.income -
+        paycheckAvailable(stage) -
         previewAllocated;
 
 
@@ -6161,11 +6178,11 @@ function confirmKeypad() {
 
     if (
         otherAllocated + newContribution >
-        stage.income
+        paycheckAvailable(stage)
     ) {
 
         const maxAllowed =
-            stage.income -
+            paycheckAvailable(stage) -
             otherAllocated +
             minimum;
 
@@ -6295,7 +6312,7 @@ function recomputeAutoSavings() {
     pendingSavingsLeftover =
         Math.max(
             0,
-            stage.income - otherAllocated
+            paycheckAvailable(stage) - otherAllocated
         );
 
     // The leftover stays in checking for the whole round (round 67)
@@ -6461,7 +6478,7 @@ function updateBudgetDisplay() {
 
 
     const remaining =
-        stage.income -
+        paycheckAvailable(stage) -
         allocated;
 
 
@@ -6473,7 +6490,7 @@ function updateBudgetDisplay() {
 
 
     if (
-        allocated > stage.income
+        allocated > paycheckAvailable(stage)
     ) {
 
         setStartButtonReady(
@@ -6489,7 +6506,7 @@ function updateBudgetDisplay() {
     }
 
     else if (
-        allocated === stage.income
+        allocated === paycheckAvailable(stage)
     ) {
 
         setStartButtonReady(
@@ -6669,19 +6686,21 @@ function logStageStartEntries() {
         stageName: stage.name
     });
 
-    if (carriedBillsThisStage > 0) {
+    // Round 118 (Kayla): one row per carried bill, so two Credit
+    // Card Balances read as two separate charges, not "A + A".
+    carriedBillsList.forEach((item) => {
 
         activityHistory.push({
             account: "checking",
             type: "bill",
-            title: carriedBillsList.map(item => item.title).join(" + "),
-            subtitle: "Added to your Bills jar",
-            amount: -carriedBillsThisStage,
+            title: item.title,
+            subtitle: "From last round",
+            amount: -item.amount,
             kind: "out",
             stageName: stage.name
         });
 
-    }
+    });
 
 }
 
