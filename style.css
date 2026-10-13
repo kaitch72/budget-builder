@@ -7139,3 +7139,19 @@ header h1 {
         animation: none;
     }
 }
+
+
+/* Round 119 (Kayla): NCUA logo in the blue panel's bottom-right
+   corner. bottom: 34px = .real-life-main's bottom padding, so it lines
+   up with the bottom of the Play Again button; right: 60px puts its
+   right edge on the QR frame's right edge ((340 - 220) / 2). */
+.real-life-side .real-life-logo {
+
+    position: absolute;
+    right: 60px;
+    bottom: 34px;
+    height: 34px;
+    width: auto;
+    margin: 0;
+    border-radius: 4px;
+}
