@@ -7155,3 +7155,18 @@ header h1 {
     margin: 0;
     border-radius: 4px;
 }
+
+
+/* Round 120 (Kayla): the official SPFCU debit card PNG has its own
+   rounded corners plus a few px of transparent margin, so the old
+   rectangular box-shadow showed as a faint box behind it. Drop the
+   box/radius and use a drop-shadow that follows the card's real shape. */
+.debit-card-img,
+.phone-sidebar .debit-card-img {
+
+    border-radius: 0;
+    box-shadow: none;
+    filter:
+        drop-shadow(0 8px 14px rgba(10,23,36,0.20))
+        drop-shadow(0 2px 4px rgba(10,23,36,0.10));
+}
